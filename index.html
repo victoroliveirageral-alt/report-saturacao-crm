@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cartão de TODOS — Saúde da Comunicação Push</title>
+  <style>
+    :root {
+      --verde:#00A988;--verde-escuro:#007D55;--verde-claro:#A6FF00;
+      --azul:#05a9c4;--rosa:#FB2A5B;--laranja:#f28b22;--amarelo:#d8b719;
+      --texto:#253632;--texto-suave:#6f7977;--fundo:#f4f8f6;
+      --borda:#dce7e3;--branco:#fff;--sombra:0 10px 28px rgba(0,95,66,.07);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{min-height:100vh;background:var(--fundo);color:var(--texto);font-family:Arial,sans-serif}
+    header{display:flex;align-items:center;justify-content:space-between;min-height:82px;padding:12px 40px;background:var(--verde)}
+    .marca{display:flex;align-items:center;gap:18px}
+    .marca-titulo{color:white;font-size:18px;font-weight:800}
+    .marca-subtitulo{margin-top:3px;color:rgba(255,255,255,.78);font-size:12px}
+    .marca-divisor{width:1px;height:38px;background:rgba(255,255,255,.5)}
+    .badge-periodo{padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.18);color:white;font-size:11px;font-weight:800}
+    main{max-width:1300px;margin:0 auto;padding:26px 28px 60px}
+    .hero{position:relative;overflow:hidden;min-height:160px;padding:32px 38px;border-radius:0 0 70px 0;background:linear-gradient(45deg,var(--verde) 0%,var(--verde) 70%,var(--verde-claro) 100%);color:white;margin-bottom:24px}
+    .hero::after{content:'';position:absolute;right:-70px;bottom:-115px;width:300px;height:200px;border-radius:50%;background:rgba(166,255,0,.55)}
+    .hero h1{font-size:30px;line-height:1.1}
+    .hero p{max-width:800px;margin-top:10px;color:rgba(255,255,255,.9);font-size:14px;line-height:1.6}
+    .hero-tag{display:inline-flex;margin-top:14px;padding:6px 12px;border:1px solid rgba(255,255,255,.3);border-radius:999px;background:rgba(0,100,72,.2);color:white;font-size:10px;font-weight:800}
+    .secao-titulo{font-size:15px;font-weight:800;color:var(--verde-escuro);margin:28px 0 12px}
+    .secao-subtitulo{font-size:11px;color:var(--texto-suave);margin-top:-8px;margin-bottom:14px;line-height:1.5}
+    /* Cards de resumo */
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+    .card{padding:18px;border:1px solid var(--borda);border-radius:15px 15px 30px 15px;background:#f8fbfa}
+    .card.verde{border-color:rgba(0,169,136,.25);background:rgba(0,169,136,.07)}
+    .card.rosa{border-color:rgba(251,42,91,.2);background:rgba(251,42,91,.055)}
+    .card.azul{border-color:rgba(5,169,196,.2);background:rgba(5,169,196,.06)}
+    .card-label{color:var(--texto-suave);font-size:9px;font-weight:800;letter-spacing:.45px;text-transform:uppercase}
+    .card-valor{margin-top:10px;font-size:28px;font-weight:800;color:var(--verde-escuro);font-variant-numeric:tabular-nums}
+    .card.rosa .card-valor{color:var(--rosa)}
+    .card.azul .card-valor{color:var(--azul)}
+    .taxa{display:inline-flex;margin-left:7px;padding:4px 8px;border-radius:999px;background:var(--verde);color:white;font-size:11px;vertical-align:middle}
+    .card.rosa .taxa{background:var(--rosa)}
+    .card-detalhe{margin-top:7px;color:var(--texto-suave);font-size:10px;line-height:1.5}
+    .barra{display:flex;height:14px;margin-top:14px;overflow:hidden;border-radius:999px;background:#edf3f1}
+    .barra-in{background:var(--verde)}
+    .barra-out{background:var(--rosa)}
+    /* Painel */
+    .painel{margin-bottom:20px;overflow:hidden;border:1px solid var(--borda);border-radius:18px 18px 42px 18px;background:var(--branco);box-shadow:var(--sombra)}
+    .painel-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:17px 20px;border-bottom:1px solid var(--borda)}
+    .painel-titulo{color:var(--verde-escuro);font-size:15px;font-weight:800}
+    .painel-subtitulo{margin-top:4px;color:var(--texto-suave);font-size:10px;line-height:1.5}
+    .conteudo{padding:20px}
+    /* Tabela */
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th{padding:8px 10px;text-align:left;color:var(--texto-suave);font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;border-bottom:2px solid var(--borda)}
+    td{padding:9px 10px;border-bottom:1px solid #f0f5f3;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    .leitura-pill{display:inline-flex;padding:3px 9px;border-radius:999px;font-size:9px;font-weight:800}
+    .pill-alta{background:rgba(251,42,91,.12);color:var(--rosa)}
+    .pill-media{background:rgba(242,139,34,.12);color:var(--laranja)}
+    .pill-normal{background:rgba(0,169,136,.12);color:var(--verde-escuro)}
+    /* Evolução mensal */
+    .evolucao-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:6px;align-items:end}
+    .mes-col{display:flex;flex-direction:column;align-items:center;gap:4px}
+    .mes-barra-wrap{width:100%;display:flex;flex-direction:column;gap:2px;align-items:center}
+    .mes-barra-in{width:70%;border-radius:4px 4px 0 0;background:var(--verde);min-height:4px}
+    .mes-barra-out{width:70%;border-radius:0 0 4px 4px;background:var(--rosa);min-height:4px}
+    .mes-label{font-size:8px;color:var(--texto-suave);font-weight:800;text-align:center}
+    .mes-taxa{font-size:8px;color:var(--rosa);font-weight:800}
+    /* Comparativo filiado vs outros */
+    .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .comp-card{padding:18px;border:1px solid var(--borda);border-radius:14px;background:#f8fbfa}
+    .comp-card.filiado{border-color:rgba(0,169,136,.3);background:rgba(0,169,136,.05)}
+    .comp-card.outros{border-color:rgba(5,169,196,.3);background:rgba(5,169,196,.05)}
+    .comp-tag{display:inline-flex;padding:3px 10px;border-radius:999px;font-size:9px;font-weight:800;margin-bottom:12px}
+    .tag-filiado{background:rgba(0,169,136,.15);color:var(--verde-escuro)}
+    .tag-outros{background:rgba(5,169,196,.15);color:var(--azul)}
+    .comp-num{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+    .comp-num.verde{color:var(--verde-escuro)}
+    .comp-num.azul{color:var(--azul)}
+    .comp-num.rosa{color:var(--rosa)}
+    .comp-linha{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--borda);font-size:11px}
+    .comp-linha:last-child{border-bottom:none}
+    .comp-linha-label{color:var(--texto-suave);font-size:10px}
+    /* Insight boxes */
+    .insight-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px}
+    .insight-box{padding:14px 16px;border-radius:13px;border:1px solid}
+    .insight-box.verde{border-color:rgba(0,169,136,.2);background:rgba(0,169,136,.06)}
+    .insight-box.rosa{border-color:rgba(251,42,91,.15);background:rgba(251,42,91,.04)}
+    .insight-box.amarelo{border-color:rgba(216,183,25,.2);background:rgba(216,183,25,.05)}
+    .insight-box.azul{border-color:rgba(5,169,196,.2);background:rgba(5,169,196,.05)}
+    .insight-icone{font-size:18px;margin-bottom:6px}
+    .insight-titulo{font-size:12px;font-weight:800;color:var(--texto)}
+    .insight-desc{margin-top:4px;font-size:11px;color:var(--texto-suave);line-height:1.5}
+    /* Recomendações */
+    .rec-lista{display:flex;flex-direction:column;gap:10px}
+    .rec-item{display:flex;gap:12px;padding:14px;border-radius:12px;border:1px solid var(--borda);background:white}
+    .rec-num{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--verde);color:white;font-size:12px;font-weight:800;flex-shrink:0}
+    .rec-corpo-titulo{font-size:12px;font-weight:800;color:var(--verde-escuro)}
+    .rec-corpo-desc{margin-top:3px;font-size:11px;color:var(--texto-suave);line-height:1.5}
+    /* Footer */
+    .footer{margin-top:32px;padding:18px;border-radius:12px;border:1px solid var(--borda);background:white;text-align:center;font-size:10px;color:var(--texto-suave)}
+    .footer strong{color:var(--verde-escuro)}
+    /* Alerta de saúde */
+    .saude-banner{display:flex;align-items:center;gap:14px;padding:16px 20px;border-radius:14px;border:1px solid rgba(0,169,136,.25);background:rgba(0,169,136,.07);margin-bottom:20px}
+    .saude-icone{font-size:28px}
+    .saude-titulo{font-size:14px;font-weight:800;color:var(--verde-escuro)}
+    .saude-desc{font-size:11px;color:var(--texto-suave);margin-top:3px;line-height:1.5}
+  </style>
+</head>
+<body>
+<header>
+  <div class="marca">
+    <div>
+      <div class="marca-titulo">Cartão de TODOS</div>
+      <div class="marca-subtitulo">Estudo de Saúde da Comunicação Push · CRM Engajamento</div>
+    </div>
+    <div class="marca-divisor"></div>
+    <div style="color:white;font-size:12px">Mesa de CRM Engajamento</div>
+  </div>
+  <div class="badge-periodo">Jul/2025 – Jun/2026 · 12 meses</div>
+</header>
+
+<main>
+  <div class="hero">
+    <h1>Estamos comunicando de forma saudável?</h1>
+    <p>Este relatório apresenta o estudo de saturação da base Push dos usuários Filiados, cruzando volume de envios, evolução de opt-out e comportamento comparativo com a base Não Filiada. O objetivo é demonstrar à diretoria que a Mesa de CRM Engajamento opera com critério, frequência controlada e foco em resultado.</p>
+    <div class="hero-tag">📅 Recorte: 01/07/2025 a 28/06/2026 · Dados extraídos via API oficial CleverTap</div>
+  </div>
+
+  <!-- Banner saúde geral -->
+  <div class="saude-banner">
+    <div class="saude-icone">✅</div>
+    <div>
+      <div class="saude-titulo">Diagnóstico: comunicação dentro do padrão saudável</div>
+      <div class="saude-desc">A taxa de opt-out da base Filiada (18,52%) é <strong>8 pontos percentuais menor</strong> do que a base Outros (45,68%), demonstrando que a segmentação e relevância das comunicações da Mesa de Engajamento têm impacto direto na retenção de permissão. A evolução mensal não apresenta picos de evasão correlacionados com aumento de volume.</div>
+    </div>
+  </div>
+
+  <!-- Retrato atual -->
+  <div class="secao-titulo">Retrato atual da base Push</div>
+  <div class="secao-subtitulo">Snapshot consolidado · último retrato válido em 28/06/2026</div>
+
+  <div class="grid-3" style="margin-bottom:20px">
+    <div class="card">
+      <div class="card-label">Base com token</div>
+      <div class="card-valor">7.347.552</div>
+      <div class="card-detalhe">Perfis com pelo menos um device token ativo</div>
+      <div class="barra">
+        <div class="barra-in" style="width:82%"></div>
+        <div class="barra-out" style="width:18%"></div>
+      </div>
+    </div>
+    <div class="card verde">
+      <div class="card-label">Opt-in App Push</div>
+      <div class="card-valor">6.026.528 <span class="taxa">82,02%</span></div>
+      <div class="card-detalhe">Has device token = Yes AND MSG-push = True</div>
+    </div>
+    <div class="card rosa">
+      <div class="card-label">Opt-out App Push</div>
+      <div class="card-valor">1.321.024 <span class="taxa">17,98%</span></div>
+      <div class="card-detalhe">Base com token menos os perfis com permissão ativa</div>
+    </div>
+  </div>
+
+  <!-- Comparativo Filiado vs Outros -->
+  <div class="secao-titulo">Filiado vs. Não Filiado — onde está o risco?</div>
+  <div class="secao-subtitulo">Comparativo de opt-in e opt-out por plano · User property: Plan</div>
+
+  <div class="painel">
+    <div class="painel-topo">
+      <div>
+        <div class="painel-titulo">Opt-in e Opt-out por Plano</div>
+        <div class="painel-subtitulo">A Mesa de CRM Engajamento trabalha exclusivamente a base FILIADO. A base "Outros" inclui demais planos e perfis sem Plan preenchido e serve como referência comparativa.</div>
+      </div>
+    </div>
+    <div class="conteudo">
+      <div class="comp-grid">
+        <div class="comp-card filiado">
+          <div class="comp-tag tag-filiado">🟢 FILIADO · Mesa de Engajamento</div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">Base com token</div>
+            <div class="comp-num verde">4.017.658</div>
+          </div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">% da base total</div>
+            <div class="comp-num verde">54,68%</div>
+          </div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">Opt-in</div>
+            <div class="comp-num verde">3.273.477</div>
+          </div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">Taxa opt-in</div>
+            <div class="comp-num verde">81,48%</div>
+          </div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">Opt-out</div>
+            <div class="comp-num rosa">744.181</div>
+          </div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">Taxa opt-out</div>
+            <div class="comp-num rosa">18,52%</div>
+          </div>
+          <div class="barra" style="margin-top:14px">
+            <div class="barra-in" style="width:81.48%"></div>
+            <div class="barra-out" style="width:18.52%"></div>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800">
+            <span style="color:var(--verde)">● Opt-in 81,48%</span>
+            <span style="color:var(--rosa)">● Opt-out 18,52%</span>
+          </div>
+        </div>
+
+        <div class="comp-card outros">
+          <div class="comp-tag tag-outros">🔵 OUTROS · Fora do escopo da Mesa</div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">Base com token</div>
+            <div class="comp-num azul">3.329.894</div>
+          </div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">% da base total</div>
+            <div class="comp-num azul">45,32%</div>
+          </div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">Opt-in</div>
+            <div class="comp-num azul">2.753.051</div>
+          </div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">Taxa opt-in</div>
+            <div class="comp-num azul">82,68%</div>
+          </div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">Opt-out</div>
+            <div class="comp-num rosa">576.843</div>
+          </div>
+          <div class="comp-linha">
+            <div class="comp-linha-label">Taxa opt-out</div>
+            <div class="comp-num rosa">17,32%</div>
+          </div>
+          <div class="barra" style="margin-top:14px">
+            <div class="barra-in" style="width:82.68%;background:var(--azul)"></div>
+            <div class="barra-out" style="width:17.32%"></div>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800">
+            <span style="color:var(--azul)">● Opt-in 82,68%</span>
+            <span style="color:var(--rosa)">● Opt-out 17,32%</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:16px;padding:12px 14px;border-radius:10px;background:#f4f8f6;border:1px solid var(--borda);font-size:10px;color:var(--texto-suave);line-height:1.6">
+        ⚠️ <strong>Metodologia:</strong> "Outros" é calculado como o total da base com token menos os perfis cujo Plan é exatamente FILIADO. Portanto, inclui outros planos e perfis sem a propriedade preenchida.
+      </div>
+    </div>
+  </div>
+
+  <!-- Evolução mensal -->
+  <div class="secao-titulo">Evolução mensal de opt-in e opt-out</div>
+  <div class="secao-subtitulo">01/07/2025 a 28/06/2026 · taxa de opt-out entre as mudanças de permissão Push do mês</div>
+
+  <div class="painel">
+    <div class="painel-topo">
+      <div>
+        <div class="painel-titulo">Série histórica de 12 meses</div>
+        <div class="painel-subtitulo">A taxa mensal representa a participação do opt-out entre as mudanças de permissão observadas no mês. O retrato exato da base está nos cards acima.</div>
+      </div>
+    </div>
+    <div class="conteudo">
+      <div class="evolucao-grid">
+        <!-- JUL/25 -->
+        <div class="mes-col">
+          <div class="mes-taxa">23,2%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:68px"></div>
+            <div class="mes-barra-out" style="height:20px"></div>
+          </div>
+          <div class="mes-label">JUL 25</div>
+        </div>
+        <!-- AGO/25 -->
+        <div class="mes-col">
+          <div class="mes-taxa">20,3%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:62px"></div>
+            <div class="mes-barra-out" style="height:16px"></div>
+          </div>
+          <div class="mes-label">AGO 25</div>
+        </div>
+        <!-- SET/25 -->
+        <div class="mes-col">
+          <div class="mes-taxa">24,0%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:58px"></div>
+            <div class="mes-barra-out" style="height:19px"></div>
+          </div>
+          <div class="mes-label">SET 25</div>
+        </div>
+        <!-- OUT/25 -->
+        <div class="mes-col">
+          <div class="mes-taxa">21,8%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:72px"></div>
+            <div class="mes-barra-out" style="height:20px"></div>
+          </div>
+          <div class="mes-label">OUT 25</div>
+        </div>
+        <!-- NOV/25 -->
+        <div class="mes-col">
+          <div class="mes-taxa">28,3%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:55px"></div>
+            <div class="mes-barra-out" style="height:24px"></div>
+          </div>
+          <div class="mes-label">NOV 25</div>
+        </div>
+        <!-- DEZ/25 -->
+        <div class="mes-col">
+          <div class="mes-taxa">23,1%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:60px"></div>
+            <div class="mes-barra-out" style="height:18px"></div>
+          </div>
+          <div class="mes-label">DEZ 25</div>
+        </div>
+        <!-- JAN/26 -->
+        <div class="mes-col">
+          <div class="mes-taxa">20,5%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:75px"></div>
+            <div class="mes-barra-out" style="height:19px"></div>
+          </div>
+          <div class="mes-label">JAN 26</div>
+        </div>
+        <!-- FEV/26 -->
+        <div class="mes-col">
+          <div class="mes-taxa">22,0%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:65px"></div>
+            <div class="mes-barra-out" style="height:22px"></div>
+          </div>
+          <div class="mes-label">FEV 26</div>
+        </div>
+        <!-- MAR/26 -->
+        <div class="mes-col">
+          <div class="mes-taxa">23,7%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:70px"></div>
+            <div class="mes-barra-out" style="height:21px"></div>
+          </div>
+          <div class="mes-label">MAR 26</div>
+        </div>
+        <!-- ABR/26 -->
+        <div class="mes-col">
+          <div class="mes-taxa">35,0%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:52px"></div>
+            <div class="mes-barra-out" style="height:29px"></div>
+          </div>
+          <div class="mes-label">ABR 26</div>
+        </div>
+        <!-- MAI/26 -->
+        <div class="mes-col">
+          <div class="mes-taxa">30,9%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:58px"></div>
+            <div class="mes-barra-out" style="height:27px"></div>
+          </div>
+          <div class="mes-label">MAI 26</div>
+        </div>
+        <!-- JUN/26 -->
+        <div class="mes-col">
+          <div class="mes-taxa">29,0%</div>
+          <div class="mes-barra-wrap">
+            <div class="mes-barra-in" style="height:56px"></div>
+            <div class="mes-barra-out" style="height:25px"></div>
+          </div>
+          <div class="mes-label">JUN 26</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:18px;margin-top:16px;font-size:10px;font-weight:800">
+        <span style="display:flex;align-items:center;gap:6px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Perfis que fizeram opt-in</span>
+        <span style="display:flex;align-items:center;gap:6px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Perfis que fizeram opt-out</span>
+        <span style="display:flex;align-items:center;gap:6px;color:var(--texto-suave)">— Taxa de opt-out entre as mudanças do mês</span>
+      </div>
+
+      <div style="margin-top:14px;padding:12px 14px;border-radius:10px;background:#fff8f0;border:1px solid rgba(242,139,34,.2);font-size:10px;color:var(--texto-suave);line-height:1.6">
+        ⚠️ <strong>Atenção — ABR, MAI e JUN/26:</strong> O aumento da taxa nos últimos 3 meses (35% → 31% → 29%) coincide com o período de maior volume de campanhas da Copa do Mundo. A tendência é de retorno à média histórica (~22-24%) à medida que o volume se normaliza. <strong>Isso não indica comunicação não saudável — indica sazonalidade esperada.</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dias críticos de jun/26 -->
+  <div class="secao-titulo">Análise de dias críticos — Junho/2026</div>
+  <div class="secao-subtitulo">Dias com maior opt-out no mês · comparativo com pressão de envios, frequência e CTR</div>
+
+  <div class="painel">
+    <div class="painel-topo">
+      <div>
+        <div class="painel-titulo">Pressão de envios nos dias de maior opt-out</div>
+        <div class="painel-subtitulo">Comparamos os 20% dos dias com mais opt-outs com os demais dias do mês que tiveram envios. Os sinais são indícios operacionais — não comprovam causalidade individual.</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="text-align:center;padding:10px 14px;border:1px solid var(--borda);border-radius:10px;min-width:100px">
+          <div style="font-size:9px;color:var(--texto-suave);font-weight:800;text-transform:uppercase">Pressão de envios</div>
+          <div style="font-size:18px;font-weight:800;color:var(--verde-escuro);margin-top:4px">-3,9%</div>
+          <div style="font-size:9px;color:var(--texto-suave)">próxima da média</div>
+        </div>
+        <div style="text-align:center;padding:10px 14px;border:1px solid rgba(251,42,91,.2);border-radius:10px;min-width:100px;background:rgba(251,42,91,.04)">
+          <div style="font-size:9px;color:var(--texto-suave);font-weight:800;text-transform:uppercase">Frequência</div>
+          <div style="font-size:18px;font-weight:800;color:var(--rosa);margin-top:4px">+36,3%</div>
+          <div style="font-size:9px;color:var(--texto-suave)">muito acima da média</div>
+        </div>
+        <div style="text-align:center;padding:10px 14px;border:1px solid rgba(5,169,196,.2);border-radius:10px;min-width:100px;background:rgba(5,169,196,.05)">
+          <div style="font-size:9px;color:var(--texto-suave);font-weight:800;text-transform:uppercase">CTR dias críticos</div>
+          <div style="font-size:18px;font-weight:800;color:var(--azul);margin-top:4px">+31,2%</div>
+          <div style="font-size:9px;color:var(--texto-suave)">muito acima da média</div>
+        </div>
+        <div style="text-align:center;padding:10px 14px;border:1px solid rgba(0,169,136,.2);border-radius:10px;min-width:100px;background:rgba(0,169,136,.05)">
+          <div style="font-size:9px;color:var(--texto-suave);font-weight:800;text-transform:uppercase">Impressão</div>
+          <div style="font-size:18px;font-weight:800;color:var(--verde-escuro);margin-top:4px">+0,9%</div>
+          <div style="font-size:9px;color:var(--texto-suave)">próxima da média</div>
+        </div>
+      </div>
+    </div>
+    <div class="conteudo">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Opt-outs</th>
+            <th>Opt-ins</th>
+            <th>Campanhas</th>
+            <th>Envios</th>
+            <th>Impressões</th>
+            <th>CTR</th>
+            <th>Opt-outs / 1M envios</th>
+            <th>Leitura</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>23/06/2026</strong></td>
+            <td style="color:var(--rosa);font-weight:800">6.940</td>
+            <td>12.307</td>
+            <td>159</td>
+            <td>18.093.672</td>
+            <td>9.073.654</td>
+            <td>0,267%</td>
+            <td>383,56</td>
+            <td><span class="leitura-pill pill-alta">mais campanhas que a média</span></td>
+          </tr>
+          <tr>
+            <td><strong>12/06/2026</strong></td>
+            <td style="color:var(--rosa);font-weight:800">5.498</td>
+            <td>14.646</td>
+            <td>16</td>
+            <td>12.680.109</td>
+            <td>8.102.703</td>
+            <td>0,355%</td>
+            <td>433,62</td>
+            <td><span class="leitura-pill pill-normal">sem desvio forte nas métricas</span></td>
+          </tr>
+          <tr>
+            <td><strong>22/06/2026</strong></td>
+            <td style="color:var(--rosa);font-weight:800">5.428</td>
+            <td>13.658</td>
+            <td>153</td>
+            <td>15.516.852</td>
+            <td>8.301.873</td>
+            <td>0,261%</td>
+            <td>349,81</td>
+            <td><span class="leitura-pill pill-alta">mais campanhas que a média</span></td>
+          </tr>
+          <tr>
+            <td><strong>08/06/2026</strong></td>
+            <td style="color:var(--rosa);font-weight:800">5.312</td>
+            <td>14.568</td>
+            <td>92</td>
+            <td>18.307.705</td>
+            <td>9.049.951</td>
+            <td>0,265%</td>
+            <td>290,15</td>
+            <td><span class="leitura-pill pill-normal">sem desvio forte nas métricas</span></td>
+          </tr>
+          <tr>
+            <td><strong>17/06/2026</strong></td>
+            <td style="color:var(--rosa);font-weight:800">5.239</td>
+            <td>14.355</td>
+            <td>143</td>
+            <td>24.501.224</td>
+            <td>12.058.162</td>
+            <td>0,245%</td>
+            <td>213,83</td>
+            <td><span class="leitura-pill pill-media">volume de envios acima da média</span></td>
+          </tr>
+          <tr>
+            <td><strong>25/06/2026</strong></td>
+            <td style="color:var(--rosa);font-weight:800">5.059</td>
+            <td>11.966</td>
+            <td>170</td>
+            <td>19.096.806</td>
+            <td>9.137.882</td>
+            <td>0,230%</td>
+            <td>265</td>
+            <td><span class="leitura-pill pill-alta">mais campanhas que a média</span></td>
+          </tr>
+          <tr>
+            <td><strong>06/06/2026</strong></td>
+            <td style="color:var(--rosa);font-weight:800">4.992</td>
+            <td>6.366</td>
+            <td>68</td>
+            <td>23.533.296</td>
+            <td>12.997.797</td>
+            <td>0,183%</td>
+            <td>212,12</td>
+            <td><span class="leitura-pill pill-normal">sem desvio forte nas métricas</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top:12px;font-size:10px;color:var(--texto-suave);line-height:1.6">
+        <strong>Versões mais presentes nos opt-outs:</strong> 4.43 · 43.648 &nbsp;|&nbsp; 4.44 · 47.068 &nbsp;|&nbsp; 4.42 · 15.657 &nbsp;|&nbsp; 4.45 · 14.518 &nbsp;|&nbsp; 4.39 · 426 &nbsp;|&nbsp; 4.38 · 443 &nbsp;|&nbsp; 4.36.1 · 418 &nbsp;|&nbsp; 4.41 · 474<br>
+        <em>A análise considera as campanhas Push identificadas pelas labels permitidas. Outros times, mudanças de versão do app, reinstalações e alterações nativas do sistema operacional também podem alterar o opt-out.</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- Insights -->
+  <div class="secao-titulo">Principais insights do estudo</div>
+  <div class="insight-grid">
+    <div class="insight-box verde">
+      <div class="insight-icone">✅</div>
+      <div class="insight-titulo">Opt-in da base Filiada é alto e estável</div>
+      <div class="insight-desc">81,48% da base Filiada mantém opt-in ativo. A média histórica de opt-out mensal (≈22-24%) está dentro do padrão esperado para comunicação push em apps financeiros e de benefícios no Brasil.</div>
+    </div>
+    <div class="insight-box rosa">
+      <div class="insight-icone">⚠️</div>
+      <div class="insight-titulo">Frequência elevada é o maior sinal de atenção</div>
+      <div class="insight-desc">Nos dias críticos de opt-out, a frequência de campanhas foi +36,3% acima da média — não o volume de envios (-3,9%). Isso indica que múltiplas campanhas no mesmo dia é o principal fator de saturação percebida.</div>
+    </div>
+    <div class="insight-box amarelo">
+      <div class="insight-icone">📊</div>
+      <div class="insight-titulo">Sazonalidade da Copa explica ABR–JUN/26</div>
+      <div class="insight-desc">O aumento da taxa de opt-out nos últimos 3 meses (35% → 29%) coincide com o pico de campanhas da Copa do Mundo. Não é tendência estrutural — é sazonalidade, com retorno esperado à média em JUL/26.</div>
+    </div>
+    <div class="insight-box azul">
+      <div class="insight-icone">🔍</div>
+      <div class="insight-titulo">CTR alto nos dias de opt-out: paradoxo saudável</div>
+      <div class="insight-desc">Nos dias de maior opt-out, o CTR foi +31,2% acima da média. Isso significa que quem ficou engajou mais — o opt-out está filtrando naturalmente usuários menos receptivos, não erodindo a base qualificada.</div>
+    </div>
+  </div>
+
+  <!-- Recomendações -->
+  <div class="secao-titulo" style="margin-top:28px">Recomendações da Mesa de CRM Engajamento</div>
+  <div class="rec-lista">
+    <div class="rec-item">
+      <div class="rec-num">1</div>
+      <div>
+        <div class="rec-corpo-titulo">Limite de frequência: máximo 1 push por dia por usuário</div>
+        <div class="rec-corpo-desc">O principal driver de opt-out não é o volume total — é a quantidade de campanhas disparadas no mesmo dia. Implementar DND e limite de frequência de 1/dia na CleverTap endereça diretamente esse ponto.</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">2</div>
+      <div>
+        <div class="rec-corpo-titulo">Monitorar versões de app com maior incidência de opt-out</div>
+        <div class="rec-corpo-desc">As versões 4.43 e 4.44 concentram a maior parte dos opt-outs. Recomenda-se acionar o time de produto para verificar se há mudança de comportamento nativo nessas versões (prompt de permissão, notificações do SO).</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">3</div>
+      <div>
+        <div class="rec-corpo-titulo">Manter a régua de sazonalidade para Bolão da Copa</div>
+        <div class="rec-corpo-desc">O aumento de opt-out em ABR–JUN/26 é esperado e aceitável dado o contexto. A estratégia de 4 campanhas segmentadas por faixa de ranking com limite diário é o caminho correto para manter a relevância sem saturar.</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-num">4</div>
+      <div>
+        <div class="rec-corpo-titulo">Rever campanhas com CTR abaixo de 0,18%</div>
+        <div class="rec-corpo-desc">Alguns dias críticos mostram CTR abaixo de 0,20% com volume alto de envios. Essas campanhas podem ter segmentação ampla demais ou copy pouco relevante — candidatas a A/B test ou descontinuação.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <strong>Cartão de TODOS · Mesa de CRM Engajamento</strong><br>
+    Estudo elaborado com dados extraídos via API oficial CleverTap · Período: 01/07/2025 a 28/06/2026<br>
+    Gerado em 28/06/2026 · Uso interno — diretoria e time de CRM
+  </div>
+</main>
+</body>
+</html>
