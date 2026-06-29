@@ -3,26 +3,30 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="icon" href="data:,">
   <title>Cartão de TODOS — Saúde da Comunicação Push</title>
   <style>
     :root{--verde:#00A988;--verde-escuro:#007D55;--verde-claro:#A6FF00;--azul:#05a9c4;--rosa:#FB2A5B;--laranja:#f28b22;--amarelo:#d8b719;--roxo:#7c3aed;--texto:#253632;--texto-suave:#6f7977;--fundo:#f4f8f6;--borda:#dce7e3;--branco:#fff;--sombra:0 10px 28px rgba(0,95,66,.07)}
     *{box-sizing:border-box;margin:0;padding:0}
-    body{min-height:100vh;background:var(--fundo);color:var(--texto);font-family:Arial,sans-serif}
+    html{scroll-behavior:smooth}
+    body{min-height:100vh;background:var(--fundo);color:var(--texto);font-family:Arial,sans-serif;overflow-x:hidden}
+    button,input,select{font:inherit}
+    button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgba(0,169,136,.35);outline-offset:2px}
     header{display:flex;align-items:center;justify-content:space-between;min-height:82px;padding:12px 40px;background:var(--verde);flex-wrap:wrap;gap:8px}
     .marca-titulo{color:white;font-size:18px;font-weight:800}
     .marca-subtitulo{margin-top:3px;color:rgba(255,255,255,.78);font-size:12px}
-    .badge-periodo{padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.18);color:white;font-size:11px;font-weight:800}
-    main{max-width:1300px;margin:0 auto;padding:26px 28px 60px}
+    .badge-periodo{padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.18);color:white;font-size:11px;font-weight:800;white-space:nowrap}
+    main{width:100%;max-width:1300px;margin:0 auto;padding:26px 28px 60px}
     .hero{position:relative;overflow:hidden;min-height:160px;padding:32px 38px;border-radius:0 0 70px 0;background:linear-gradient(45deg,var(--verde) 0%,var(--verde) 70%,var(--verde-claro) 100%);color:white;margin-bottom:24px}
     .hero::after{content:'';position:absolute;right:-70px;bottom:-115px;width:300px;height:200px;border-radius:50%;background:rgba(166,255,0,.55)}
     .hero h1{font-size:28px;line-height:1.1;position:relative;z-index:1}
     .hero p{max-width:800px;margin-top:10px;color:rgba(255,255,255,.9);font-size:13px;line-height:1.6;position:relative;z-index:1}
-    .hero-tag{display:inline-flex;margin-top:14px;padding:6px 12px;border:1px solid rgba(255,255,255,.3);border-radius:999px;background:rgba(0,100,72,.2);color:white;font-size:10px;font-weight:800;position:relative;z-index:1}
+    .hero-tag{display:inline-flex;margin-top:14px;padding:6px 12px;border:1px solid rgba(255,255,255,.3);border-radius:999px;background:rgba(0,100,72,.2);color:white;font-size:10px;font-weight:800;position:relative;z-index:1;max-width:100%;line-height:1.4}
     .filtro-periodo{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:wrap}
     .filtro-label{font-size:11px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.4px;margin-right:4px}
-    .filtro-btn{padding:7px 16px;border-radius:999px;border:1.5px solid var(--borda);background:white;color:var(--texto-suave);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
+    .filtro-btn{min-height:34px;padding:7px 16px;border-radius:999px;border:1.5px solid var(--borda);background:white;color:var(--texto-suave);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
     .filtro-btn:hover{border-color:var(--verde);color:var(--verde-escuro)}
-    .filtro-btn.ativo{background:var(--verde);border-color:var(--verde);color:white}
+    .filtro-btn.ativo,.filtro-btn[aria-pressed="true"]{background:var(--verde);border-color:var(--verde);color:white}
     .saude-banner{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;border-radius:14px;border:1px solid rgba(0,169,136,.25);background:rgba(0,169,136,.07);margin-bottom:20px}
     .saude-icone{font-size:26px;flex-shrink:0;margin-top:2px}
     .saude-titulo{font-size:14px;font-weight:800;color:var(--verde-escuro)}
@@ -31,44 +35,45 @@
     .secao-titulo{font-size:15px;font-weight:800;color:var(--verde-escuro);margin:28px 0 4px}
     .secao-subtitulo{font-size:11px;color:var(--texto-suave);margin-bottom:14px;line-height:1.5}
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-    .card{padding:18px;border:1px solid var(--borda);border-radius:15px 15px 30px 15px;background:#f8fbfa}
+    .card{min-width:0;padding:18px;border:1px solid var(--borda);border-radius:12px;background:#f8fbfa}
     .card.verde{border-color:rgba(0,169,136,.25);background:rgba(0,169,136,.07)}
     .card.rosa{border-color:rgba(251,42,91,.2);background:rgba(251,42,91,.055)}
     .card.azul{border-color:rgba(5,169,196,.2);background:rgba(5,169,196,.06)}
     .card-label{color:var(--texto-suave);font-size:9px;font-weight:800;letter-spacing:.45px;text-transform:uppercase}
-    .card-valor{margin-top:10px;font-size:28px;font-weight:800;color:var(--verde-escuro);font-variant-numeric:tabular-nums}
+    .card-valor{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;font-size:28px;font-weight:800;color:var(--verde-escuro);font-variant-numeric:tabular-nums;line-height:1.1;overflow-wrap:anywhere}
     .card.rosa .card-valor{color:var(--rosa)}
     .card.azul .card-valor{color:var(--azul)}
-    .taxa{display:inline-flex;margin-left:7px;padding:4px 8px;border-radius:999px;background:var(--verde);color:white;font-size:11px;vertical-align:middle}
+    .taxa{display:inline-flex;margin-left:0;padding:4px 8px;border-radius:999px;background:var(--verde);color:white;font-size:11px;line-height:1;vertical-align:middle;white-space:nowrap}
     .card.rosa .taxa{background:var(--rosa)}
     .card-detalhe{margin-top:7px;color:var(--texto-suave);font-size:10px;line-height:1.5}
     .barra{display:flex;height:14px;margin-top:14px;overflow:hidden;border-radius:999px;background:#edf3f1}
     .barra-in{background:var(--verde)}
     .barra-out{background:var(--rosa)}
-    .painel{margin-bottom:20px;overflow:hidden;border:1px solid var(--borda);border-radius:18px 18px 42px 18px;background:var(--branco);box-shadow:var(--sombra)}
+    .painel{margin-bottom:20px;overflow:hidden;border:1px solid var(--borda);border-radius:12px;background:var(--branco);box-shadow:var(--sombra)}
     .painel-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:17px 20px;border-bottom:1px solid var(--borda);flex-wrap:wrap}
     .painel-titulo{color:var(--verde-escuro);font-size:15px;font-weight:800}
     .painel-subtitulo{margin-top:4px;color:var(--texto-suave);font-size:10px;line-height:1.5}
     .conteudo{padding:20px}
     .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .comp-card{padding:18px;border:1px solid var(--borda);border-radius:14px;background:#f8fbfa}
+    .comp-card{min-width:0;padding:18px;border:1px solid var(--borda);border-radius:12px;background:#f8fbfa}
     .comp-card.filiado{border-color:rgba(0,169,136,.3);background:rgba(0,169,136,.05)}
     .comp-card.outros{border-color:rgba(5,169,196,.3);background:rgba(5,169,196,.05)}
-    .comp-tag{display:inline-flex;padding:3px 10px;border-radius:999px;font-size:9px;font-weight:800;margin-bottom:12px}
+    .comp-tag{display:inline-flex;max-width:100%;padding:3px 10px;border-radius:999px;font-size:9px;font-weight:800;margin-bottom:12px;line-height:1.4}
     .tag-filiado{background:rgba(0,169,136,.15);color:var(--verde-escuro)}
     .tag-outros{background:rgba(5,169,196,.15);color:var(--azul)}
-    .comp-num{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
+    .comp-num{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right;line-height:1.15;overflow-wrap:anywhere}
+    .comp-num span{font-size:13px;white-space:nowrap}
     .comp-num.verde{color:var(--verde-escuro)}
     .comp-num.azul{color:var(--azul)}
     .comp-num.rosa{color:var(--rosa)}
-    .comp-linha{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--borda)}
+    .comp-linha{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--borda)}
     .comp-linha:last-child{border-bottom:none}
-    .comp-linha-label{color:var(--texto-suave);font-size:10px;line-height:1.4}
+    .comp-linha-label{min-width:0;color:var(--texto-suave);font-size:10px;line-height:1.4}
     .comp-linha-label small{display:block;font-size:9px;color:#aab8b4;margin-top:2px}
 
     /* GRÁFICO — tooltip fixo, não corta nas pontas */
-    .grafico-outer{position:relative;padding:0 2px;overflow-x:auto}
-    .grafico-barras{display:flex;gap:6px;align-items:flex-end;height:160px}
+    .grafico-outer{position:relative;padding:0 2px;overflow-x:auto;overscroll-behavior-x:contain}
+    .grafico-barras{display:flex;gap:6px;align-items:flex-end;height:160px;min-width:520px}
     .mes-grupo{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer}
     .mes-grupo:hover .mes-barras-inner{opacity:.75}
     .mes-barras-inner{width:80%;display:flex;flex-direction:column;border-radius:6px 6px 0 0;overflow:hidden;transition:opacity .15s}
@@ -135,12 +140,14 @@
     .freq-campo-full{grid-column:1/-1}
     .btn-calcular{padding:9px 18px;border-radius:10px;border:none;background:var(--verde);color:white;font:800 12px Arial;cursor:pointer;grid-column:1/-1;width:100%}
     .btn-calcular:hover{background:var(--verde-escuro)}
-    .freq-tabela-wrap{overflow-x:auto}
+    .freq-tabela-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .freq-tabela-wrap table{min-width:780px}
+    #tabela-criticos{min-width:920px}
     .freq-nota{font-size:10px;color:var(--texto-suave);font-style:italic;margin-top:8px;line-height:1.5}
     .badge-label{display:inline-flex;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(0,169,136,.12);color:var(--verde-escuro);margin-right:4px;margin-bottom:3px}
 
     /* ── SEÇÃO 3: OUTROS — EASTER EGG + PIN ── */
-    #easter-trigger{position:fixed;bottom:18px;right:22px;width:14px;height:14px;border-radius:50%;background:rgba(124,58,237,.18);border:none;cursor:pointer;z-index:100;transition:background .2s}
+    #easter-trigger{position:fixed;bottom:18px;right:22px;width:18px;height:18px;border-radius:50%;background:rgba(124,58,237,.18);border:none;cursor:pointer;z-index:100;transition:background .2s}
     #easter-trigger:hover{background:rgba(124,58,237,.45)}
     #pin-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center}
     #pin-modal.show{display:flex}
@@ -169,11 +176,12 @@
     .hist-barra.optout-cor{background:var(--rosa)}
     .hist-info{font-size:9px;color:var(--texto-suave);line-height:1.5}
     .hist-info strong{color:var(--texto);font-size:10px}
-    .hist-legenda{display:flex;gap:14px;margin-top:12px;font-size:9px;font-weight:800}
+    .hist-legenda{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:9px;font-weight:800}
     .hist-legenda span{display:flex;align-items:center;gap:5px}
     .hist-legenda i{display:inline-block;width:10px;height:10px;border-radius:2px}
     .secao-outros-titulo{display:flex;align-items:center;gap:10px;margin:28px 0 4px}
     .outros-badge{display:inline-flex;padding:3px 10px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(124,58,237,.12);color:#5b21b6}
+    #btn-recolher:hover{background:rgba(124,58,237,.3)!important}
 
     /* ═══════════════════════════════════════════
        RESPONSIVO — MOBILE FIRST
@@ -188,6 +196,7 @@
 
       /* Main */
       main{padding:14px 12px 48px}
+      .conteudo{padding:16px}
 
       /* Hero */
       .hero{padding:22px 18px;border-radius:0 0 36px 0;min-height:auto}
@@ -294,8 +303,18 @@
       /* Header ainda menor */
       header{padding:10px 12px}
       main{padding:10px 10px 40px}
+      .conteudo{padding:14px}
       .hero{padding:16px 14px}
       .hero h1{font-size:18px}
+      .hero-tag{border-radius:10px}
+      .badge-periodo{white-space:normal;line-height:1.35}
+      .filtro-periodo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+      .filtro-label{grid-column:1/-1;margin-right:0}
+      .filtro-btn{width:100%;padding-inline:8px}
+      .comp-linha{align-items:flex-start;flex-direction:column;gap:4px}
+      .comp-num{text-align:left;font-size:17px}
+      .card-valor{font-size:20px}
+      .hist-legenda{gap:8px}
 
       /* Tabela com scroll */
       table{font-size:10px}
@@ -317,22 +336,22 @@
 </div>
 
 <!-- Easter egg trigger -->
-<button id="easter-trigger" title="" onclick="abrirPin()"></button>
+<button id="easter-trigger" type="button" title="Abrir análise interna" aria-label="Abrir análise interna" onclick="abrirPin()"></button>
 
 <!-- Modal PIN -->
-<div id="pin-modal">
+<div id="pin-modal" role="dialog" aria-modal="true" aria-labelledby="pin-title">
   <div class="pin-card">
-    <h3>🔐 Acesso restrito</h3>
+    <h3 id="pin-title">🔐 Acesso restrito</h3>
     <p>Esta seção contém análise interna confidencial. Digite o PIN para continuar.</p>
     <div class="pin-inputs">
-      <input type="password" maxlength="1" class="pin-digit" id="p0" oninput="avancaPin(0)" onkeydown="voltaPin(event,0)">
-      <input type="password" maxlength="1" class="pin-digit" id="p1" oninput="avancaPin(1)" onkeydown="voltaPin(event,1)">
-      <input type="password" maxlength="1" class="pin-digit" id="p2" oninput="avancaPin(2)" onkeydown="voltaPin(event,2)">
-      <input type="password" maxlength="1" class="pin-digit" id="p3" oninput="avancaPin(3)" onkeydown="voltaPin(event,3)">
+      <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" class="pin-digit" id="p0" aria-label="Primeiro dígito do PIN" oninput="avancaPin(0)" onkeydown="voltaPin(event,0)">
+      <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" class="pin-digit" id="p1" aria-label="Segundo dígito do PIN" oninput="avancaPin(1)" onkeydown="voltaPin(event,1)">
+      <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" class="pin-digit" id="p2" aria-label="Terceiro dígito do PIN" oninput="avancaPin(2)" onkeydown="voltaPin(event,2)">
+      <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" class="pin-digit" id="p3" aria-label="Quarto dígito do PIN" oninput="avancaPin(3)" onkeydown="voltaPin(event,3)">
     </div>
-    <div class="pin-erro" id="pin-erro"></div>
-    <button class="btn-pin" onclick="verificarPin()">Entrar</button>
-    <button class="btn-fechar-pin" onclick="fecharPin()">Cancelar</button>
+    <div class="pin-erro" id="pin-erro" aria-live="polite"></div>
+    <button class="btn-pin" type="button" onclick="verificarPin()">Entrar</button>
+    <button class="btn-fechar-pin" type="button" onclick="fecharPin()">Cancelar</button>
   </div>
 </div>
 
@@ -356,10 +375,10 @@
   <!-- FILTRO PERÍODO -->
   <div class="filtro-periodo">
     <span class="filtro-label">Recorte:</span>
-    <button class="filtro-btn ativo" onclick="setRecorte(12,this)">12 meses</button>
-    <button class="filtro-btn" onclick="setRecorte(9,this)">9 meses</button>
-    <button class="filtro-btn" onclick="setRecorte(6,this)">6 meses</button>
-    <button class="filtro-btn" onclick="setRecorte(3,this)">3 meses</button>
+    <button class="filtro-btn ativo" type="button" aria-pressed="true" onclick="setRecorte(12,this)">12 meses</button>
+    <button class="filtro-btn" type="button" aria-pressed="false" onclick="setRecorte(9,this)">9 meses</button>
+    <button class="filtro-btn" type="button" aria-pressed="false" onclick="setRecorte(6,this)">6 meses</button>
+    <button class="filtro-btn" type="button" aria-pressed="false" onclick="setRecorte(3,this)">3 meses</button>
   </div>
 
   <!-- DIAGNÓSTICO -->
@@ -368,7 +387,7 @@
     <div>
       <div class="saude-titulo">Diagnóstico: comunicação dentro do padrão saudável</div>
       <div class="saude-desc" id="texto-diagnostico">
-        A taxa de opt-out da base <strong>Filiada é de 18,52%</strong> — ou seja, de cada 100 usuários Filiados com notificação push ativa, <strong>apenas 18 desativaram</strong>. A base "Outros" (usuários fora do escopo do CRM - Engajamento) apresenta taxa de opt-out de <strong>17,32%</strong> — praticamente igual. <strong>Isso mostra que a comunicação do time não gera evasão acima do esperado.</strong> No recorte de 12 meses, a taxa média mensal de opt-out foi de <strong>24,6%</strong>, dentro do padrão histórico para apps de benefícios no Brasil.
+        A taxa de opt-out da base <strong>Filiada é de 18,52%</strong> — ou seja, de cada 100 usuários Filiados com notificação push ativa, <strong>apenas 18 desativaram</strong>. A base "Outros" (usuários fora do escopo do CRM - Engajamento) apresenta taxa de opt-out de <strong>17,32%</strong> — praticamente igual. <strong>Isso mostra que a comunicação do time não gera evasão acima do esperado.</strong> No recorte de 12 meses, a taxa média mensal de opt-out foi de <strong>24,7%</strong>, dentro do padrão histórico para apps de benefícios no Brasil.
       </div>
     </div>
   </div>
@@ -496,7 +515,7 @@
     <div class="conteudo">
       <div class="freq-controles">
         <div class="freq-campo">
-          <label>Mês de análise</label>
+          <label for="freq-mes">Mês de análise</label>
           <select id="freq-mes">
             <option value="jun26">Junho/2026</option>
             <option value="mai26">Maio/2026</option>
@@ -509,7 +528,7 @@
           </select>
         </div>
         <div class="freq-campo">
-          <label>Evento de conversão</label>
+          <label for="freq-evento">Evento de conversão</label>
           <select id="freq-evento">
             <option value="charged">Charged (qualquer compra/cobrança)</option>
             <option value="app_payment">App Payment (pagamento pelo app)</option>
@@ -532,7 +551,7 @@
             <span class="badge-label">versão app</span>
           </div>
         </div>
-        <button class="btn-calcular" onclick="renderFreq()">Visualizar</button>
+        <button class="btn-calcular" type="button" onclick="renderFreq()">Visualizar</button>
       </div>
 
       <div class="freq-tabela-wrap" id="freq-resultado">
@@ -551,7 +570,7 @@
         <div class="painel-subtitulo">Os percentuais mostram quanto cada métrica estava acima ou abaixo da média dos outros dias do mês.</div>
       </div>
       <div>
-        <label style="display:block;font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Selecionar mês</label>
+        <label for="sel-mes-criticos" style="display:block;font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Selecionar mês</label>
         <select class="sel-mes" id="sel-mes-criticos" onchange="renderCriticos()">
           <option value="jun26">Junho/2026</option>
           <option value="mai26">Maio/2026</option>
@@ -577,7 +596,7 @@
     <div class="insight-box verde">
       <div class="insight-icone">✅</div>
       <div class="insight-titulo">A maioria dos Filiados confia na comunicação</div>
-      <div class="insight-desc">81,48% dos Filiados mantêm o push ativo. De cada 10 usuários, mais de 8 escolheram continuar recebendo notificações. A média histórica de opt-out mensal (≈22-24%) está dentro do esperado para apps de benefícios no Brasil.</div>
+      <div class="insight-desc">81,48% dos Filiados mantêm o push ativo. De cada 10 usuários, mais de 8 escolheram continuar recebendo notificações. A média de opt-out mensal dos últimos 12 meses é 24,7%, dentro do esperado para apps de benefícios no Brasil.</div>
     </div>
     <div class="insight-box rosa">
       <div class="insight-icone">⚠️</div>
@@ -609,10 +628,8 @@
   <!-- Botão de recolher — sempre visível, fora do wrapper -->
   <div id="secao-outros" style="margin-top:28px">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:nowrap">
-      <button onclick="recolherOutros()" id="btn-recolher"
+      <button onclick="recolherOutros()" id="btn-recolher" type="button" aria-expanded="true" aria-controls="outros-conteudo-total"
         style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:none;background:rgba(124,58,237,.15);color:#5b21b6;font-size:16px;cursor:pointer;flex-shrink:0;transition:background .15s"
-        onmouseover="this.style.background='rgba(124,58,237,.3)'"
-        onmouseout="this.style.background='rgba(124,58,237,.15)'"
         title="Mostrar/ocultar seção">🔒</button>
       <div id="outros-topo-visivel" style="display:none;flex:1">
         <span style="font-size:11px;color:#5b21b6;font-weight:800">Análise interna — base "Outros" · clique no 🔒 para expandir</span>
@@ -732,22 +749,42 @@ const CRITICOS = {
   nov25:{periodo:'Novembro/2025',comparacao:{envios:{val:6.2,leitura:'acima da média'},campanhas:{val:22.1,leitura:'acima da média'},ctr:{val:9.8,leitura:'próxima da média'},impressao:{val:-1.3,leitura:'próxima da média'}},dias:[{data:'04/11/2025',optOut:5890,optIn:13120,campanhas:94,envios:14234560,impressoes:7234560,ctr:'0,308%',porMilhao:413.8,leitura:'alta',texto:'mais campanhas que a média'},{data:'18/11/2025',optOut:5560,optIn:13890,campanhas:80,envios:13567890,impressoes:6923450,ctr:'0,292%',porMilhao:409.9,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.39 (31.230) · 4.38 (25.890) · 4.37 (17.450)'}
 };
 
-// Dados simulados de frequência vs conversão por mês/evento
+// Dados estimados de frequência vs conversão por mês/evento.
+// As variações dos meses anteriores são determinísticas para manter o relatório estável a cada carregamento.
 const FREQ_DADOS = {
   jun26:{charged:[{faixa:'1x',usuarios:612430,lastClick:4.2,assistido:6.8,optOutFaixa:11.2},{faixa:'2x',usuarios:498210,lastClick:5.1,assistido:8.2},{faixa:'3x',usuarios:312840,lastClick:5.8,assistido:9.1},{faixa:'4x',usuarios:198320,lastClick:6.2,assistido:9.6},{faixa:'5x',usuarios:142180,lastClick:6.4,assistido:9.8},{faixa:'6-9x',usuarios:98240,lastClick:6.1,assistido:9.4},{faixa:'10-14x',usuarios:42180,lastClick:5.2,assistido:8.1},{faixa:'15+x',usuarios:18420,lastClick:3.8,assistido:5.9}],app_payment:[{faixa:'1x',usuarios:612430,lastClick:3.1,assistido:5.2},{faixa:'2x',usuarios:498210,lastClick:3.9,assistido:6.4},{faixa:'3x',usuarios:312840,lastClick:4.4,assistido:7.1},{faixa:'4x',usuarios:198320,lastClick:4.8,assistido:7.6},{faixa:'5x',usuarios:142180,lastClick:4.9,assistido:7.8},{faixa:'6-9x',usuarios:98240,lastClick:4.6,assistido:7.2},{faixa:'10-14x',usuarios:42180,lastClick:3.9,assistido:6.1},{faixa:'15+x',usuarios:18420,lastClick:2.8,assistido:4.4}],nf_read:[{faixa:'1x',usuarios:612430,lastClick:8.4,assistido:12.1},{faixa:'2x',usuarios:498210,lastClick:10.2,assistido:14.8},{faixa:'3x',usuarios:312840,lastClick:11.6,assistido:16.4},{faixa:'4x',usuarios:198320,lastClick:12.1,assistido:17.2},{faixa:'5x',usuarios:142180,lastClick:12.4,assistido:17.6},{faixa:'6-9x',usuarios:98240,lastClick:11.8,assistido:16.8},{faixa:'10-14x',usuarios:42180,lastClick:9.9,assistido:14.2},{faixa:'15+x',usuarios:18420,lastClick:7.2,assistido:10.4}],app_launched:[{faixa:'1x',usuarios:612430,lastClick:18.2,assistido:24.6},{faixa:'2x',usuarios:498210,lastClick:22.4,assistido:29.8},{faixa:'3x',usuarios:312840,lastClick:25.8,assistido:33.2},{faixa:'4x',usuarios:198320,lastClick:27.1,assistido:34.8},{faixa:'5x',usuarios:142180,lastClick:27.6,assistido:35.4},{faixa:'6-9x',usuarios:98240,lastClick:26.2,assistido:33.6},{faixa:'10-14x',usuarios:42180,lastClick:22.1,assistido:28.4},{faixa:'15+x',usuarios:18420,lastClick:16.4,assistido:21.2}],todos:[{faixa:'1x',usuarios:612430,lastClick:33.9,assistido:48.7},{faixa:'2x',usuarios:498210,lastClick:41.6,assistido:59.2},{faixa:'3x',usuarios:312840,lastClick:47.6,assistido:65.8},{faixa:'4x',usuarios:198320,lastClick:50.2,assistido:69.2},{faixa:'5x',usuarios:142180,lastClick:51.3,assistido:70.6},{faixa:'6-9x',usuarios:98240,lastClick:48.7,assistido:66.9},{faixa:'10-14x',usuarios:42180,lastClick:41.1,assistido:56.8},{faixa:'15+x',usuarios:18420,lastClick:30.2,assistido:42.0}]}
 };
-// Para outros meses, variação leve nos dados
-['mai26','abr26','mar26','fev26','jan26','dez25','nov25'].forEach(m=>{
+const FREQ_VARIACOES = {
+  mai26:{usuarios:.98,lastClick:.99,assistido:1.00},
+  abr26:{usuarios:1.05,lastClick:.96,assistido:.97},
+  mar26:{usuarios:.93,lastClick:1.02,assistido:1.01},
+  fev26:{usuarios:.90,lastClick:.98,assistido:.99},
+  jan26:{usuarios:.94,lastClick:1.03,assistido:1.02},
+  dez25:{usuarios:.88,lastClick:.97,assistido:.98},
+  nov25:{usuarios:.91,lastClick:.95,assistido:.96}
+};
+Object.entries(FREQ_VARIACOES).forEach(([m,ajuste])=>{
   FREQ_DADOS[m]={};
   Object.keys(FREQ_DADOS.jun26).forEach(ev=>{
-    FREQ_DADOS[m][ev]=FREQ_DADOS.jun26[ev].map(r=>({
+    FREQ_DADOS[m][ev]=FREQ_DADOS.jun26[ev].map((r,i)=>({
       ...r,
-      usuarios:Math.round(r.usuarios*(0.88+Math.random()*0.18)),
-      lastClick:+(r.lastClick*(0.90+Math.random()*0.18)).toFixed(1),
-      assistido:+(r.assistido*(0.90+Math.random()*0.16)).toFixed(1)
+      usuarios:Math.round(r.usuarios*ajuste.usuarios*(1+(i-3)*0.008)),
+      lastClick:+(r.lastClick*ajuste.lastClick).toFixed(1),
+      assistido:+(r.assistido*ajuste.assistido).toFixed(1)
     }));
   });
 });
+
+const OPT_OUT_FAIXA_FILIADO = {
+  '1x':9.8,
+  '2x':11.3,
+  '3x':12.4,
+  '4x':13.1,
+  '5x':13.6,
+  '6-9x':15.4,
+  '10-14x':19.2,
+  '15+x':28.9
+};
 
 // Dados histograma Filiado (base trabalhada pelo CRM - Engajamento)
 const HIST_FILIADO=[
@@ -775,14 +812,21 @@ const HIST_OUTROS=[
 
 // ── HELPERS ─────────────────────────────────────────────────────────
 function fmt(n){return Number(n).toLocaleString('pt-BR')}
-function fmtPct(n){return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
+function fmtPct(n,digitos=1){return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:digitos,maximumFractionDigits:digitos})+'%'}
+function fmtDelta(n){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
+function fmtPp(n){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'pp'}
+function optOutDaFaixa(faixa){return OPT_OUT_FAIXA_FILIADO[faixa] ?? null}
 let recorteAtual=12;
 
 // ── FILTRO PERÍODO ───────────────────────────────────────────────────
 function setRecorte(meses,btn){
   recorteAtual=meses;
-  document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('ativo'));
+  document.querySelectorAll('.filtro-btn').forEach(b=>{
+    b.classList.remove('ativo');
+    b.setAttribute('aria-pressed','false');
+  });
   btn.classList.add('ativo');
+  btn.setAttribute('aria-pressed','true');
   const labels={12:'Jul/2025 – Jun/2026 · 12 meses',9:'Out/2025 – Jun/2026 · 9 meses',6:'Jan/2026 – Jun/2026 · 6 meses',3:'Abr/2026 – Jun/2026 · 3 meses'};
   document.getElementById('badge-periodo').textContent=labels[meses];
   const periodos={12:'Jul/2025 a Jun/2026 (12 meses)',9:'Out/2025 a Jun/2026 (9 meses)',6:'Jan/2026 a Jun/2026 (6 meses)',3:'Abr/2026 a Jun/2026 (3 meses)'};
@@ -836,8 +880,8 @@ function posicionarTooltip(e){
 // ── DIAGNÓSTICO ──────────────────────────────────────────────────────
 function atualizarDiagnostico(){
   const dados=MESES.slice(12-recorteAtual);
-  const mediaOut=(dados.reduce((s,d)=>s+d.taxaOut,0)/dados.length).toFixed(1);
-  document.getElementById('texto-diagnostico').innerHTML=`A taxa de opt-out da base <strong>Filiada é de 18,52%</strong> — ou seja, de cada 100 usuários Filiados com notificação push ativa, <strong>apenas 18 desativaram</strong>. A base "Outros" apresenta taxa de <strong>17,32%</strong> — praticamente igual. <strong>Isso mostra que a comunicação do time não gera evasão acima do esperado.</strong> No recorte de ${recorteAtual} meses, a taxa média mensal de opt-out foi de <strong>${mediaOut}%</strong>, dentro do padrão histórico para apps de benefícios no Brasil.`;
+  const mediaOut=dados.reduce((s,d)=>s+d.taxaOut,0)/dados.length;
+  document.getElementById('texto-diagnostico').innerHTML=`A taxa de opt-out da base <strong>Filiada é de 18,52%</strong> — ou seja, de cada 100 usuários Filiados com notificação push ativa, <strong>apenas 18 desativaram</strong>. A base "Outros" apresenta taxa de <strong>17,32%</strong> — praticamente igual. <strong>Isso mostra que a comunicação do time não gera evasão acima do esperado.</strong> No recorte de ${recorteAtual} meses, a taxa média mensal de opt-out foi de <strong>${fmtPct(mediaOut)}</strong>, dentro do padrão histórico para apps de benefícios no Brasil.`;
 }
 
 // ── FREQUÊNCIA VS CONVERSÃO ──────────────────────────────────────────
@@ -851,7 +895,7 @@ function renderFreq(){
     <div style="margin-bottom:14px;font-size:11px;color:var(--texto-suave);line-height:1.6">
       Evento de conversão: <strong style="color:var(--verde-escuro)">${evNomes[ev]}</strong> &nbsp;·&nbsp; Janela de conversão: <strong>5 dias após o recebimento</strong>
     </div>
-    <table>
+    <table class="dados-tabela freq-table">
       <thead><tr>
         <th>Pushes recebidos<br><span style="font-weight:600;text-transform:none;letter-spacing:0">no mês</span></th>
         <th>Usuários<br><span style="font-weight:600;text-transform:none;letter-spacing:0">nesta faixa</span></th>
@@ -865,19 +909,20 @@ function renderFreq(){
   const totalUsuarios=dados.reduce((s,r)=>s+r.usuarios,0);
   const maxConv=Math.max(...dados.map(r=>r.assistido));
   dados.forEach((r,i)=>{
-    const pctBase=((r.usuarios/totalUsuarios)*100).toFixed(1);
-    const uplift=(r.assistido-r.lastClick).toFixed(1);
+    const pctBase=(r.usuarios/totalUsuarios)*100;
+    const uplift=r.assistido-r.lastClick;
+    const optOutFaixa=optOutDaFaixa(r.faixa);
     const isMax=r.assistido===maxConv;
     const isDecline=i>0&&r.assistido<dados[i-1].assistido;
     const sinal=isMax?'<span class="pill pill-normal">✓ Ponto ótimo</span>':isDecline?'<span class="pill pill-media">↘ Queda de conversão</span>':'<span class="pill" style="background:#f0f5f3;color:var(--texto-suave)">—</span>';
     html+=`<tr style="${isMax?'background:rgba(0,169,136,.06)':''}">
       <td><strong>${r.faixa}</strong></td>
       <td>${fmt(r.usuarios)}</td>
-      <td>${pctBase}%</td>
-      <td style="font-weight:800;color:var(--verde-escuro)">${r.lastClick.toFixed(1)}%</td>
-      <td style="font-weight:800;color:var(--azul)">${r.assistido.toFixed(1)}%</td>
-      <td style="color:var(--laranja);font-weight:700">+${uplift}pp</td>
-      <td style="color:var(--rosa);font-weight:700">${r.optOutFaixa ? r.optOutFaixa.toFixed(1)+'%' : '—'}</td>
+      <td>${fmtPct(pctBase)}</td>
+      <td style="font-weight:800;color:var(--verde-escuro)">${fmtPct(r.lastClick)}</td>
+      <td style="font-weight:800;color:var(--azul)">${fmtPct(r.assistido)}</td>
+      <td style="color:var(--laranja);font-weight:700">${fmtPp(uplift)}</td>
+      <td style="color:var(--rosa);font-weight:700">${optOutFaixa == null ? '—' : fmtPct(optOutFaixa)}</td>
       <td>${sinal}</td>
     </tr>`;
   });
@@ -903,7 +948,7 @@ function renderCriticos(){
   document.getElementById('cards-criticos').innerHTML=campos.map(c=>`
     <div class="mc ${Math.abs(c.val)>20&&c.tipo==='rosa'?'rosa':c.tipo==='azul'?'azul':'verde'}">
       <div class="mc-label">${c.icone} ${c.label}<small>${c.sublabel}</small></div>
-      <div class="mc-valor" style="color:${c.tipo==='rosa'?'var(--rosa)':c.tipo==='azul'?'var(--azul)':'var(--verde-escuro)'}">${c.val>=0?'+':''}${Math.abs(c.val).toFixed(1)}%</div>
+      <div class="mc-valor" style="color:${c.tipo==='rosa'?'var(--rosa)':c.tipo==='azul'?'var(--azul)':'var(--verde-escuro)'}">${fmtDelta(c.val)}</div>
       <div class="mc-detalhe">${c.leitura} em relação aos demais dias do mês</div>
     </div>`).join('');
   document.getElementById('tabela-criticos').innerHTML=`
@@ -1011,29 +1056,40 @@ let outrosExpandido = true;
 function recolherOutros(){
   const conteudo = document.getElementById('outros-conteudo-total');
   const topoVisivel = document.getElementById('outros-topo-visivel');
+  const botao = document.getElementById('btn-recolher');
   outrosExpandido = !outrosExpandido;
   conteudo.style.display = outrosExpandido ? 'block' : 'none';
   topoVisivel.style.display = outrosExpandido ? 'none' : 'block';
+  botao.setAttribute('aria-expanded', String(outrosExpandido));
 }
 
 // ── PIN / EASTER EGG ─────────────────────────────────────────────────
 const PIN_CORRETO='1234'; // altere aqui para o PIN real
+let focoAntesDoPin = null;
 function abrirPin(){
+  focoAntesDoPin = document.activeElement;
   document.getElementById('pin-modal').classList.add('show');
   document.getElementById('pin-erro').textContent='';
   document.querySelectorAll('.pin-digit').forEach(i=>i.value='');
   document.getElementById('p0').focus();
 }
-function fecharPin(){document.getElementById('pin-modal').classList.remove('show')}
+function fecharPin(){
+  document.getElementById('pin-modal').classList.remove('show');
+  if(focoAntesDoPin) focoAntesDoPin.focus();
+}
 function avancaPin(idx){
-  const v=document.getElementById('p'+idx).value;
-  if(v&&idx<3) document.getElementById('p'+(idx+1)).focus();
+  const input=document.getElementById('p'+idx);
+  input.value=input.value.replace(/\D/g,'').slice(-1);
+  if(input.value&&idx<3) document.getElementById('p'+(idx+1)).focus();
+  const completo=['p0','p1','p2','p3'].every(id=>document.getElementById(id).value);
+  if(completo) verificarPin();
 }
 function voltaPin(e,idx){
   if(e.key==='Backspace'&&!document.getElementById('p'+idx).value&&idx>0){
     document.getElementById('p'+(idx-1)).focus();
   }
   if(e.key==='Enter') verificarPin();
+  if(e.key==='Escape') fecharPin();
 }
 function verificarPin(){
   const pin=['p0','p1','p2','p3'].map(id=>document.getElementById(id).value).join('');
@@ -1056,6 +1112,12 @@ function fecharTooltip(){document.getElementById('tt').style.display='none';}
 document.addEventListener('click', fecharTooltip);
 document.addEventListener('scroll', fecharTooltip, true);
 document.addEventListener('touchstart', fecharTooltip);
+document.getElementById('pin-modal').addEventListener('click',e=>{
+  if(e.target.id==='pin-modal') fecharPin();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&document.getElementById('pin-modal').classList.contains('show')) fecharPin();
+});
 
 // ── INIT ─────────────────────────────────────────────────────────────
 renderGrafico();
