@@ -27,6 +27,11 @@
     .filtro-btn{min-height:34px;padding:7px 16px;border-radius:999px;border:1.5px solid var(--borda);background:white;color:var(--texto-suave);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
     .filtro-btn:hover{border-color:var(--verde);color:var(--verde-escuro)}
     .filtro-btn.ativo,.filtro-btn[aria-pressed="true"]{background:var(--verde);border-color:var(--verde);color:white}
+    .grafico-controles{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    .seg-btn{min-height:30px;padding:6px 12px;border-radius:999px;border:1.5px solid var(--borda);background:white;color:var(--texto-suave);font-size:11px;font-weight:800;cursor:pointer;transition:all .15s}
+    .seg-btn:hover{border-color:var(--verde);color:var(--verde-escuro)}
+    .seg-btn[aria-pressed="true"]{background:var(--verde);border-color:var(--verde);color:white}
+    .seg-btn.roxo[aria-pressed="true"]{background:#7c3aed;border-color:#7c3aed;color:white}
     .saude-banner{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;border-radius:14px;border:1px solid rgba(0,169,136,.25);background:rgba(0,169,136,.07);margin-bottom:20px}
     .saude-icone{font-size:26px;flex-shrink:0;margin-top:2px}
     .saude-titulo{font-size:14px;font-weight:800;color:var(--verde-escuro)}
@@ -210,6 +215,8 @@
       /* Filtros */
       .filtro-periodo{gap:6px}
       .filtro-btn{padding:6px 12px;font-size:11px}
+      .grafico-controles{width:100%}
+      .seg-btn{flex:1;min-width:112px}
 
       /* Banner diagnóstico */
       .saude-banner{flex-direction:column;gap:8px;padding:14px}
@@ -468,6 +475,10 @@
         <div class="painel-titulo">Evolução mensal de opt-in e opt-out</div>
         <div class="painel-subtitulo" id="grafico-periodo-label">Exibindo: Jul/2025 a Jun/2026 (12 meses) · Apenas base <strong>Filiado</strong></div>
       </div>
+      <div class="grafico-controles" aria-label="Base do gráfico principal">
+        <button class="seg-btn" type="button" aria-pressed="false" onclick="setGraficoPrincipalBase('total',this)">Total</button>
+        <button class="seg-btn" type="button" aria-pressed="true" onclick="setGraficoPrincipalBase('filiados',this)">Filiados</button>
+      </div>
     </div>
     <div class="conteudo">
       <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap;margin-bottom:14px">
@@ -514,7 +525,7 @@
     <div class="painel-topo">
       <div>
         <div class="painel-titulo">Frequência de push recebido × Taxa de conversão</div>
-        <div class="painel-subtitulo">Selecione o mês e a frente/evento de conversão do painel de Engajamento para visualizar o cruzamento. A conversão considera <strong>last click</strong> (usuário clicou no push e depois converteu) e <strong>assistidos</strong> (usuário recebeu o push, não clicou, mas converteu na janela).</div>
+        <div class="painel-subtitulo">Selecione o mês e o evento de conversão do painel original para visualizar o cruzamento. As campanhas consideradas continuam sendo filtradas pelas labels do CRM - Engajamento; label não é evento de conversão.</div>
       </div>
     </div>
     <div class="conteudo">
@@ -535,20 +546,15 @@
         <div class="freq-campo">
           <label for="freq-evento">Evento de conversão</label>
           <select id="freq-evento">
-            <option value="todos">Todos os eventos de Engajamento</option>
-            <option value="cdt">cdt</option>
-            <option value="copadetodos">copadetodos</option>
-            <option value="local">local</option>
-            <option value="rd">rd</option>
-            <option value="ug">ug</option>
-            <option value="sonhos">sonhos</option>
-            <option value="tvtodos">tvtodos</option>
-            <option value="todosviagens">todosviagens</option>
-            <option value="versao_app">versão app</option>
+            <option value="charged">Charged (qualquer compra/cobrança)</option>
+            <option value="app_payment">App Payment (pagamento pelo app)</option>
+            <option value="nf_read">NF Read (leitura de nota fiscal)</option>
+            <option value="app_launched">App Launched (abertura do app)</option>
+            <option value="todos">Todos os eventos de conversão</option>
           </select>
         </div>
         <div class="freq-campo freq-campo-full">
-          <label>Eventos refletidos no painel original</label>
+          <label>Labels usadas para filtrar as campanhas</label>
           <div style="display:flex;flex-wrap:wrap;gap:4px;padding:8px 0">
             <span class="badge-label">cdt</span>
             <span class="badge-label">copadetodos</span>
@@ -565,7 +571,7 @@
       </div>
 
       <div class="freq-tabela-wrap" id="freq-resultado">
-        <div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px">Selecione o mês e o evento de conversão de Engajamento e clique em <strong>Visualizar</strong>.</div>
+        <div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px">Selecione o mês e o evento de conversão e clique em <strong>Visualizar</strong>.</div>
       </div>
     </div>
   </div>
@@ -642,9 +648,9 @@
   <!-- Botão de recolher — sempre visível, fora do wrapper -->
   <div id="secao-outros" style="margin-top:28px">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:nowrap">
-      <button onclick="recolherOutros()" id="btn-recolher" type="button" aria-expanded="true" aria-controls="outros-conteudo-total"
+      <button onclick="esconderOutros()" id="btn-recolher" type="button" aria-expanded="true" aria-controls="outros-conteudo-total" aria-label="Ocultar e bloquear dados de outras frentes"
         style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:none;background:rgba(124,58,237,.15);color:#5b21b6;font-size:16px;cursor:pointer;flex-shrink:0;transition:background .15s"
-        title="Mostrar/ocultar seção">🔒</button>
+        title="Ocultar e bloquear seção">🔒</button>
       <div id="outros-topo-visivel" style="display:none;flex:1">
         <span style="font-size:11px;color:#5b21b6;font-weight:800">Análise interna — base "Outros" · clique no 🔒 para expandir</span>
       </div>
@@ -670,8 +676,12 @@
 
         <!-- Gráfico de evolução mensal — base Outros -->
         <div style="margin-bottom:24px">
-          <div style="font-size:13px;font-weight:800;color:#5b21b6;margin-bottom:4px">Evolução mensal de opt-in e opt-out — base Outros</div>
-          <div style="font-size:10px;color:var(--texto-suave);margin-bottom:12px">Usuários com <code>Plan ≠ FILIADO</code> ou sem Plan preenchido · mesma escala e metodologia do gráfico principal</div>
+          <div style="font-size:13px;font-weight:800;color:#5b21b6;margin-bottom:4px">Evolução mensal de opt-in e opt-out — base selecionada</div>
+          <div id="grafico-outros-label" style="font-size:10px;color:var(--texto-suave);margin-bottom:12px">Usuários com <code>Plan ≠ FILIADO</code> ou sem Plan preenchido · mesma escala e metodologia do gráfico principal</div>
+          <div class="grafico-controles" aria-label="Base do gráfico interno" style="margin-bottom:12px">
+            <button class="seg-btn roxo" type="button" aria-pressed="false" onclick="setGraficoInternoBase('total',this)">Total</button>
+            <button class="seg-btn roxo" type="button" aria-pressed="true" onclick="setGraficoInternoBase('nao_filiados',this)">Não filiados</button>
+          </div>
           <div style="display:flex;gap:14px;font-size:10px;font-weight:800;margin-bottom:14px;flex-wrap:wrap">
             <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7c3aed"></i> Ativaram push</span>
             <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push</span>
@@ -749,7 +759,17 @@ const MESES_OUTROS = [
   {mes:'MAI 26',optIn:8070,optOut:3650,taxaOut:31.2},
   {mes:'JUN 26',optIn:8340,optOut:3470,taxaOut:29.4}
 ];
-// Alias para manter compatibilidade com o gráfico principal (Filiado)
+const MESES_TOTAL = MESES_FILIADO.map((d,i)=>{
+  const optIn=d.optIn+MESES_OUTROS[i].optIn;
+  const optOut=d.optOut+MESES_OUTROS[i].optOut;
+  return {mes:d.mes,optIn,optOut,taxaOut:(optOut/(optIn+optOut))*100};
+});
+const BASES_GRAFICO = {
+  total:{nome:'Total',descricao:'Base total',dados:MESES_TOTAL,corIn:'var(--verde)'},
+  filiados:{nome:'Filiados',descricao:'Apenas base Filiados',dados:MESES_FILIADO,corIn:'var(--verde)'},
+  nao_filiados:{nome:'Não filiados',descricao:'Usuários com Plan ≠ FILIADO ou sem Plan preenchido',dados:MESES_OUTROS,corIn:'#7c3aed'}
+};
+// Alias para manter compatibilidade com o diagnóstico principal (Filiado)
 const MESES = MESES_FILIADO;
 
 const CRITICOS = {
@@ -768,27 +788,13 @@ const CRITICOS = {
 const FREQ_DADOS = {
   jun26:{charged:[{faixa:'1x',usuarios:612430,lastClick:4.2,assistido:6.8,optOutFaixa:11.2},{faixa:'2x',usuarios:498210,lastClick:5.1,assistido:8.2},{faixa:'3x',usuarios:312840,lastClick:5.8,assistido:9.1},{faixa:'4x',usuarios:198320,lastClick:6.2,assistido:9.6},{faixa:'5x',usuarios:142180,lastClick:6.4,assistido:9.8},{faixa:'6-9x',usuarios:98240,lastClick:6.1,assistido:9.4},{faixa:'10-14x',usuarios:42180,lastClick:5.2,assistido:8.1},{faixa:'15+x',usuarios:18420,lastClick:3.8,assistido:5.9}],app_payment:[{faixa:'1x',usuarios:612430,lastClick:3.1,assistido:5.2},{faixa:'2x',usuarios:498210,lastClick:3.9,assistido:6.4},{faixa:'3x',usuarios:312840,lastClick:4.4,assistido:7.1},{faixa:'4x',usuarios:198320,lastClick:4.8,assistido:7.6},{faixa:'5x',usuarios:142180,lastClick:4.9,assistido:7.8},{faixa:'6-9x',usuarios:98240,lastClick:4.6,assistido:7.2},{faixa:'10-14x',usuarios:42180,lastClick:3.9,assistido:6.1},{faixa:'15+x',usuarios:18420,lastClick:2.8,assistido:4.4}],nf_read:[{faixa:'1x',usuarios:612430,lastClick:8.4,assistido:12.1},{faixa:'2x',usuarios:498210,lastClick:10.2,assistido:14.8},{faixa:'3x',usuarios:312840,lastClick:11.6,assistido:16.4},{faixa:'4x',usuarios:198320,lastClick:12.1,assistido:17.2},{faixa:'5x',usuarios:142180,lastClick:12.4,assistido:17.6},{faixa:'6-9x',usuarios:98240,lastClick:11.8,assistido:16.8},{faixa:'10-14x',usuarios:42180,lastClick:9.9,assistido:14.2},{faixa:'15+x',usuarios:18420,lastClick:7.2,assistido:10.4}],app_launched:[{faixa:'1x',usuarios:612430,lastClick:18.2,assistido:24.6},{faixa:'2x',usuarios:498210,lastClick:22.4,assistido:29.8},{faixa:'3x',usuarios:312840,lastClick:25.8,assistido:33.2},{faixa:'4x',usuarios:198320,lastClick:27.1,assistido:34.8},{faixa:'5x',usuarios:142180,lastClick:27.6,assistido:35.4},{faixa:'6-9x',usuarios:98240,lastClick:26.2,assistido:33.6},{faixa:'10-14x',usuarios:42180,lastClick:22.1,assistido:28.4},{faixa:'15+x',usuarios:18420,lastClick:16.4,assistido:21.2}],todos:[{faixa:'1x',usuarios:612430,lastClick:33.9,assistido:48.7},{faixa:'2x',usuarios:498210,lastClick:41.6,assistido:59.2},{faixa:'3x',usuarios:312840,lastClick:47.6,assistido:65.8},{faixa:'4x',usuarios:198320,lastClick:50.2,assistido:69.2},{faixa:'5x',usuarios:142180,lastClick:51.3,assistido:70.6},{faixa:'6-9x',usuarios:98240,lastClick:48.7,assistido:66.9},{faixa:'10-14x',usuarios:42180,lastClick:41.1,assistido:56.8},{faixa:'15+x',usuarios:18420,lastClick:30.2,assistido:42.0}]}
 };
-const EVENTOS_CONVERSAO_ENGAJAMENTO = {
-  todos:{nome:'Todos os eventos de Engajamento',peso:1},
-  cdt:{nome:'cdt',peso:.28},
-  copadetodos:{nome:'copadetodos',peso:.34},
-  local:{nome:'local',peso:.22},
-  rd:{nome:'rd',peso:.18},
-  ug:{nome:'ug',peso:.16},
-  sonhos:{nome:'sonhos',peso:.14},
-  tvtodos:{nome:'tvtodos',peso:.12},
-  todosviagens:{nome:'todosviagens',peso:.10},
-  versao_app:{nome:'versão app',peso:.20}
+const EVENTOS_CONVERSAO = {
+  charged:'Charged',
+  app_payment:'App Payment',
+  nf_read:'NF Read',
+  app_launched:'App Launched',
+  todos:'Todos os eventos de conversão'
 };
-const FREQ_TOTAL_ENGAJAMENTO = FREQ_DADOS.jun26.todos;
-FREQ_DADOS.jun26 = Object.fromEntries(Object.entries(EVENTOS_CONVERSAO_ENGAJAMENTO).map(([chave,evento])=>[
-  chave,
-  FREQ_TOTAL_ENGAJAMENTO.map(r=>({
-    ...r,
-    lastClick:+(r.lastClick*evento.peso).toFixed(1),
-    assistido:+(r.assistido*evento.peso).toFixed(1)
-  }))
-]));
 const FREQ_VARIACOES = {
   mai26:{usuarios:.98,lastClick:.99,assistido:1.00},
   abr26:{usuarios:1.05,lastClick:.96,assistido:.97},
@@ -852,6 +858,8 @@ function fmtDelta(n){const valor=Number(n);return (valor>0?'+':'')+valor.toLocal
 function fmtPp(n){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'pp'}
 function optOutDaFaixa(faixa){return OPT_OUT_FAIXA_FILIADO[faixa] ?? null}
 let recorteAtual=12;
+let graficoPrincipalBase='filiados';
+let graficoInternoBase='nao_filiados';
 
 // ── FILTRO PERÍODO ───────────────────────────────────────────────────
 function setRecorte(meses,btn){
@@ -864,21 +872,51 @@ function setRecorte(meses,btn){
   btn.setAttribute('aria-pressed','true');
   const labels={12:'Jul/2025 – Jun/2026 · 12 meses',9:'Out/2025 – Jun/2026 · 9 meses',6:'Jan/2026 – Jun/2026 · 6 meses',3:'Abr/2026 – Jun/2026 · 3 meses'};
   document.getElementById('badge-periodo').textContent=labels[meses];
-  const periodos={12:'Jul/2025 a Jun/2026 (12 meses)',9:'Out/2025 a Jun/2026 (9 meses)',6:'Jan/2026 a Jun/2026 (6 meses)',3:'Abr/2026 a Jun/2026 (3 meses)'};
-  document.getElementById('grafico-periodo-label').textContent='Exibindo: '+periodos[meses];
   const footerP={12:'Jul/2025 a Jun/2026',9:'Out/2025 a Jun/2026',6:'Jan/2026 a Jun/2026',3:'Abr/2026 a Jun/2026'};
   document.getElementById('footer-periodo').textContent='Período: '+footerP[meses];
+  atualizarLabelGraficoPrincipal();
   renderGrafico();
   atualizarDiagnostico();
   if(document.getElementById('secao-outros').classList.contains('show')) renderGraficoOutros();
 }
 
+function periodoAtualTexto(){
+  const periodos={12:'Jul/2025 a Jun/2026 (12 meses)',9:'Out/2025 a Jun/2026 (9 meses)',6:'Jan/2026 a Jun/2026 (6 meses)',3:'Abr/2026 a Jun/2026 (3 meses)'};
+  return periodos[recorteAtual];
+}
+function atualizarBotoesSegmentados(container,botaoAtivo){
+  container.querySelectorAll('.seg-btn').forEach(b=>b.setAttribute('aria-pressed','false'));
+  botaoAtivo.setAttribute('aria-pressed','true');
+}
+function atualizarLabelGraficoPrincipal(){
+  const base=BASES_GRAFICO[graficoPrincipalBase];
+  document.getElementById('grafico-periodo-label').innerHTML=`Exibindo: ${periodoAtualTexto()} · <strong>${base.descricao}</strong>`;
+}
+function atualizarLabelGraficoInterno(){
+  const base=BASES_GRAFICO[graficoInternoBase];
+  const el=document.getElementById('grafico-outros-label');
+  if(el) el.innerHTML=`${base.descricao} · mesma escala e metodologia do gráfico principal`;
+}
+function setGraficoPrincipalBase(base,btn){
+  graficoPrincipalBase=base;
+  atualizarBotoesSegmentados(btn.parentElement,btn);
+  atualizarLabelGraficoPrincipal();
+  renderGrafico();
+}
+function setGraficoInternoBase(base,btn){
+  graficoInternoBase=base;
+  atualizarBotoesSegmentados(btn.parentElement,btn);
+  atualizarLabelGraficoInterno();
+  renderGraficoOutros();
+}
+
 // ── GRÁFICO ─────────────────────────────────────────────────────────
-function renderGrafico(){
-  const dados=MESES.slice(12-recorteAtual);
+function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
+  const dados=dadosOrigem.slice(12-recorteAtual);
   const maxTotal=Math.max(...dados.map(d=>d.optIn+d.optOut));
   const alturaMax=130;
-  const wrap=document.getElementById('grafico-barras');
+  const wrap=document.getElementById(wrapId);
+  if(!wrap) return;
   wrap.innerHTML='';
   const tt=document.getElementById('tt');
   dados.forEach(d=>{
@@ -886,9 +924,9 @@ function renderGrafico(){
     const hOut=Math.max(3,Math.round((d.optOut/maxTotal)*alturaMax));
     const col=document.createElement('div');
     col.className='mes-grupo';
-    col.innerHTML=`<div class="mes-barras-inner"><div class="mes-bar-in" style="height:${hIn}px"></div><div class="mes-bar-out" style="height:${hOut}px"></div></div><div class="mes-eixo-label">${d.mes}</div>`;
+    col.innerHTML=`<div class="mes-barras-inner"><div class="mes-bar-in" style="height:${hIn}px;background:${corIn}"></div><div class="mes-bar-out" style="height:${hOut}px"></div></div><div class="mes-eixo-label">${d.mes}</div>`;
     col.addEventListener('mouseenter',function(e){
-      document.getElementById('tt-titulo').textContent=d.mes;
+      document.getElementById('tt-titulo').textContent=`${d.mes} · ${tituloBase}`;
       document.getElementById('tt-in').textContent=fmt(d.optIn);
       document.getElementById('tt-out').textContent=fmt(d.optOut);
       document.getElementById('tt-taxa').textContent=fmtPct(d.taxaOut);
@@ -900,6 +938,10 @@ function renderGrafico(){
     col.addEventListener('mouseleave',function(){tt.style.display='none'});
     wrap.appendChild(col);
   });
+}
+function renderGrafico(){
+  const base=BASES_GRAFICO[graficoPrincipalBase];
+  renderGraficoDataset({dadosOrigem:base.dados,wrapId:'grafico-barras',tituloBase:base.nome,corIn:base.corIn});
 }
 function posicionarTooltip(e){
   const tt=document.getElementById('tt');
@@ -925,10 +967,11 @@ function renderFreq(){
   const ev=document.getElementById('freq-evento').value;
   const dados=(FREQ_DADOS[mes]||{})[ev];
   if(!dados){document.getElementById('freq-resultado').innerHTML='<div style="padding:20px;color:var(--rosa)">Dados indisponíveis para esta combinação.</div>';return;}
-  const evNomes=Object.fromEntries(Object.entries(EVENTOS_CONVERSAO_ENGAJAMENTO).map(([chave,evento])=>[chave,evento.nome]));
+  const evNomes=EVENTOS_CONVERSAO;
   let html=`
     <div style="margin-bottom:14px;font-size:11px;color:var(--texto-suave);line-height:1.6">
-      Evento de conversão: <strong style="color:var(--verde-escuro)">${evNomes[ev]}</strong> &nbsp;·&nbsp; Janela de conversão: <strong>5 dias após o recebimento</strong>
+      Evento de conversão: <strong style="color:var(--verde-escuro)">${evNomes[ev]}</strong> &nbsp;·&nbsp; Janela de conversão: <strong>5 dias após o recebimento</strong><br>
+      Campanhas filtradas pelas labels do CRM - Engajamento: <strong>cdt, copadetodos, local, rd, ug, sonhos, tvtodos, todosviagens e versão app</strong>
     </div>
     <table class="dados-tabela freq-table">
       <thead><tr>
@@ -1040,32 +1083,8 @@ function renderHistFiliado(){
 
 // ── GRÁFICO OUTROS ───────────────────────────────────────────────────
 function renderGraficoOutros(){
-  const dados=MESES_OUTROS.slice(12-recorteAtual);
-  const maxTotal=Math.max(...dados.map(d=>d.optIn+d.optOut));
-  const alturaMax=130;
-  const wrap=document.getElementById('grafico-outros');
-  if(!wrap) return;
-  wrap.innerHTML='';
-  const tt=document.getElementById('tt');
-  dados.forEach(d=>{
-    const hIn=Math.max(4,Math.round((d.optIn/maxTotal)*alturaMax));
-    const hOut=Math.max(3,Math.round((d.optOut/maxTotal)*alturaMax));
-    const col=document.createElement('div');
-    col.className='mes-grupo';
-    col.innerHTML=`<div class="mes-barras-inner"><div class="mes-bar-in" style="height:${hIn}px;background:#7c3aed"></div><div class="mes-bar-out" style="height:${hOut}px"></div></div><div class="mes-eixo-label">${d.mes}</div>`;
-    col.addEventListener('mouseenter',function(e){
-      document.getElementById('tt-titulo').textContent=d.mes+' · Outros';
-      document.getElementById('tt-in').textContent=fmt(d.optIn);
-      document.getElementById('tt-out').textContent=fmt(d.optOut);
-      document.getElementById('tt-taxa').textContent=fmtPct(d.taxaOut);
-      document.getElementById('tt-total').textContent=fmt(d.optIn+d.optOut);
-      tt.style.display='block';
-      posicionarTooltip(e);
-    });
-    col.addEventListener('mousemove',posicionarTooltip);
-    col.addEventListener('mouseleave',function(){tt.style.display='none'});
-    wrap.appendChild(col);
-  });
+  const base=BASES_GRAFICO[graficoInternoBase];
+  renderGraficoDataset({dadosOrigem:base.dados,wrapId:'grafico-outros',tituloBase:base.nome,corIn:base.corIn});
 }
 
 // ── HISTOGRAMA OUTROS ────────────────────────────────────────────────
@@ -1099,6 +1118,18 @@ function recolherOutros(){
   conteudo.style.display = outrosExpandido ? 'block' : 'none';
   topoVisivel.style.display = outrosExpandido ? 'none' : 'block';
   botao.setAttribute('aria-expanded', String(outrosExpandido));
+}
+function esconderOutros(){
+  const sec=document.getElementById('secao-outros');
+  const conteudo=document.getElementById('outros-conteudo-total');
+  const topoVisivel=document.getElementById('outros-topo-visivel');
+  const botao=document.getElementById('btn-recolher');
+  sec.classList.remove('show');
+  outrosExpandido=true;
+  conteudo.style.display='block';
+  topoVisivel.style.display='none';
+  botao.setAttribute('aria-expanded','true');
+  document.querySelector('.btn-interno').focus();
 }
 
 // ── PIN / EASTER EGG ─────────────────────────────────────────────────
@@ -1135,7 +1166,12 @@ function verificarPin(){
     fecharPin();
     const sec=document.getElementById('secao-outros');
     sec.classList.add('show');
+    outrosExpandido=true;
+    document.getElementById('outros-conteudo-total').style.display='block';
+    document.getElementById('outros-topo-visivel').style.display='none';
+    document.getElementById('btn-recolher').setAttribute('aria-expanded','true');
     renderHistOutros();
+    atualizarLabelGraficoInterno();
     renderGraficoOutros();
     sec.scrollIntoView({behavior:'smooth',block:'start'});
   } else {
@@ -1158,6 +1194,7 @@ document.addEventListener('keydown',e=>{
 });
 
 // ── INIT ─────────────────────────────────────────────────────────────
+atualizarLabelGraficoPrincipal();
 renderGrafico();
 renderCriticos();
 atualizarDiagnostico();
