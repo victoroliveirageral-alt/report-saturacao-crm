@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: report-saturacao-crm-v2
+    runtime: static
+    repo: https://github.com/victoroliveirageral-alt/report-saturacao-crm.git
+    branch: main
+    buildCommand: echo "No build step"
+    staticPublishPath: .
+    autoDeployTrigger: commit
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-store
+    routes:
+      - type: rewrite
+        source: /push-health
+        destination: /index.html
