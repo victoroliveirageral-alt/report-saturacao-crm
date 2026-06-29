@@ -8,7 +8,7 @@
     :root{--verde:#00A988;--verde-escuro:#007D55;--verde-claro:#A6FF00;--azul:#05a9c4;--rosa:#FB2A5B;--laranja:#f28b22;--amarelo:#d8b719;--roxo:#7c3aed;--texto:#253632;--texto-suave:#6f7977;--fundo:#f4f8f6;--borda:#dce7e3;--branco:#fff;--sombra:0 10px 28px rgba(0,95,66,.07)}
     *{box-sizing:border-box;margin:0;padding:0}
     body{min-height:100vh;background:var(--fundo);color:var(--texto);font-family:Arial,sans-serif}
-    header{display:flex;align-items:center;justify-content:space-between;min-height:82px;padding:12px 40px;background:var(--verde)}
+    header{display:flex;align-items:center;justify-content:space-between;min-height:82px;padding:12px 40px;background:var(--verde);flex-wrap:wrap;gap:8px}
     .marca-titulo{color:white;font-size:18px;font-weight:800}
     .marca-subtitulo{margin-top:3px;color:rgba(255,255,255,.78);font-size:12px}
     .badge-periodo{padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.18);color:white;font-size:11px;font-weight:800}
@@ -67,7 +67,7 @@
     .comp-linha-label small{display:block;font-size:9px;color:#aab8b4;margin-top:2px}
 
     /* GRÁFICO — tooltip fixo, não corta nas pontas */
-    .grafico-outer{position:relative;padding:0 2px}
+    .grafico-outer{position:relative;padding:0 2px;overflow-x:auto}
     .grafico-barras{display:flex;gap:6px;align-items:flex-end;height:160px}
     .mes-grupo{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer}
     .mes-grupo:hover .mes-barras-inner{opacity:.75}
@@ -174,6 +174,128 @@
     .hist-legenda i{display:inline-block;width:10px;height:10px;border-radius:2px}
     .secao-outros-titulo{display:flex;align-items:center;gap:10px;margin:28px 0 4px}
     .outros-badge{display:inline-flex;padding:3px 10px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(124,58,237,.12);color:#5b21b6}
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVO — MOBILE FIRST
+    ═══════════════════════════════════════════ */
+    @media (max-width: 768px) {
+
+      /* Header */
+      header{padding:12px 16px;flex-wrap:wrap;gap:8px;min-height:auto}
+      .marca-titulo{font-size:15px}
+      .marca-subtitulo{font-size:10px}
+      .badge-periodo{font-size:10px;padding:5px 10px}
+
+      /* Main */
+      main{padding:14px 12px 48px}
+
+      /* Hero */
+      .hero{padding:22px 18px;border-radius:0 0 36px 0;min-height:auto}
+      .hero h1{font-size:20px}
+      .hero p{font-size:12px}
+      .hero-tag{font-size:9px}
+
+      /* Filtros */
+      .filtro-periodo{gap:6px}
+      .filtro-btn{padding:6px 12px;font-size:11px}
+
+      /* Banner diagnóstico */
+      .saude-banner{flex-direction:column;gap:8px;padding:14px}
+      .saude-desc{font-size:11px}
+
+      /* Cards retrato atual — empilha em 1 coluna */
+      .grid-3{grid-template-columns:1fr!important}
+      .card-valor{font-size:22px}
+
+      /* Comparativo filiado vs outros — empilha */
+      .comp-grid{grid-template-columns:1fr!important}
+
+      /* Métricas críticas — 2 colunas no mobile */
+      .metricas-criticas{grid-template-columns:1fr 1fr!important;gap:8px}
+      .mc-valor{font-size:16px}
+      .mc-label{font-size:8px}
+      .mc-label small{font-size:7px}
+
+      /* Insights — empilha */
+      .insight-grid{grid-template-columns:1fr!important}
+
+      /* Histograma — scroll horizontal ou grid menor */
+      .hist-grid{grid-template-columns:repeat(4,1fr)!important;gap:6px}
+      .hist-card{padding:8px 6px}
+      .hist-faixa{font-size:8px}
+      .hist-barra-wrap{height:44px}
+      .hist-info{font-size:8px}
+      .hist-info strong{font-size:9px}
+
+      /* Painel topo — empilha */
+      .painel-topo{flex-direction:column;gap:10px}
+      .painel-titulo{font-size:13px}
+      .painel-subtitulo{font-size:10px}
+
+      /* Tabela dias críticos — scroll horizontal */
+      .freq-tabela-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+      #tabela-criticos{min-width:680px}
+      table{font-size:11px}
+      th{font-size:8px;padding:6px 7px}
+      td{padding:7px 7px;font-size:11px}
+
+      /* Gráfico evolução */
+      .grafico-barras{height:120px;gap:3px}
+      .mes-eixo-label{font-size:7px}
+      .mes-barras-inner{width:90%}
+
+      /* Controles frequência */
+      .freq-controles{flex-direction:column;gap:10px;padding:12px}
+      .freq-campo select,.freq-campo input{min-width:100%!important;width:100%}
+      .btn-calcular{width:100%;padding:11px}
+
+      /* Seção outros */
+      .outros-banner{flex-direction:column;gap:8px}
+      .secao-outros-titulo{flex-direction:column;align-items:flex-start!important;gap:8px}
+
+      /* Sel mês */
+      .sel-mes{width:100%}
+
+      /* Recolher botão */
+      #btn-recolher-label{display:none}
+
+      /* PIN modal */
+      .pin-card{padding:20px 18px}
+      .pin-inputs input{width:38px;height:44px;font-size:18px}
+
+      /* Tooltip — posição mais compacta */
+      .tt{font-size:10px;padding:8px 10px;min-width:160px}
+      .tt-titulo{font-size:11px}
+
+      /* Rec lista */
+      .rec-item{gap:8px;padding:11px}
+      .rec-corpo-titulo{font-size:11px}
+      .rec-corpo-desc{font-size:10px}
+
+      /* Comp num */
+      .comp-num{font-size:18px}
+      .comp-linha-label{font-size:9px}
+    }
+
+    @media (max-width: 480px) {
+      /* Histograma em 2 colunas em telas bem pequenas */
+      .hist-grid{grid-template-columns:repeat(2,1fr)!important}
+
+      /* Cards métricas críticas em 1 coluna */
+      .metricas-criticas{grid-template-columns:1fr!important}
+
+      /* Header ainda menor */
+      header{padding:10px 12px}
+      main{padding:10px 10px 40px}
+      .hero{padding:16px 14px}
+      .hero h1{font-size:18px}
+
+      /* Tabela com scroll */
+      table{font-size:10px}
+      th{font-size:7px;padding:5px 5px}
+      td{padding:6px 5px}
+    }
+
   </style>
 </head>
 <body>
@@ -437,7 +559,7 @@
     </div>
     <div class="conteudo">
       <div class="metricas-criticas" id="cards-criticos"></div>
-      <table id="tabela-criticos"></table>
+      <div class="freq-tabela-wrap"><table id="tabela-criticos"></table></div>
       <div class="nota-box info" style="margin-top:14px" id="nota-versoes"></div>
     </div>
   </div>
