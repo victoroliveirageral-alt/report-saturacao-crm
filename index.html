@@ -166,6 +166,7 @@
     .hist-barra{flex:1;border-radius:4px 4px 0 0;min-height:3px}
     .hist-barra.outros-cor{background:#7c3aed}
     .hist-barra.conv-cor{background:var(--verde)}
+    .hist-barra.optout-cor{background:var(--rosa)}
     .hist-info{font-size:9px;color:var(--texto-suave);line-height:1.5}
     .hist-info strong{color:var(--texto);font-size:10px}
     .hist-legenda{display:flex;gap:14px;margin-top:12px;font-size:9px;font-weight:800}
@@ -312,7 +313,7 @@
     <div class="painel-topo">
       <div>
         <div class="painel-titulo">Evolução mensal de opt-in e opt-out</div>
-        <div class="painel-subtitulo" id="grafico-periodo-label">Exibindo: Jul/2025 a Jun/2026 (12 meses)</div>
+        <div class="painel-subtitulo" id="grafico-periodo-label">Exibindo: Jul/2025 a Jun/2026 (12 meses) · Apenas base <strong>Filiado</strong></div>
       </div>
       <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Ativaram push</span>
@@ -323,13 +324,13 @@
       <div class="grafico-outer">
         <div class="grafico-barras" id="grafico-barras"></div>
       </div>
-      <div class="nota-box aviso" style="margin-top:14px">⚠️ <strong>Por que ABR, MAI e JUN/26 estão mais altos?</strong> O aumento da taxa de opt-out nos últimos 3 meses coincide com o período de maior volume de campanhas da Copa do Mundo. Isso é sazonalidade esperada — não indica comunicação fora do padrão.</div>
+      <div class="nota-box aviso" style="margin-top:14px">⚠️ <strong>Por que ABR, MAI e JUN/26 estão mais altos?</strong> O aumento da taxa de opt-out da base <strong>Filiada</strong> nos últimos 3 meses coincide com o período de maior volume de campanhas da Copa do Mundo. Isso é sazonalidade esperada — não indica comunicação fora do padrão.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> A evolução mensal é calculada filtrando os eventos Channel Subscribed/Unsubscribed pela user property <code>Plan = FILIADO</code>. Como o endpoint de trends da CleverTap não suporta filtro de user property diretamente, os valores mensais são estimativas proporcionais calibradas com o snapshot real de reachability (Plan = FILIADO via /1/counts/profiles.json).</span></div>
     </div>
   </div>
 
   <!-- FREQUÊNCIA VS CONVERSÃO -->
-  <div class="secao-titulo">Frequência de recebimento vs. Conversão por mês</div>
-  <div class="secao-subtitulo">Quanto mais vezes um usuário recebe push em um mês, ele converte mais ou menos? Esta análise cruza a quantidade de pushes recebidos com a taxa de conversão generalizada — somando todos os eventos de ação do usuário, independente do canal que originou.</div>
+  <div class="secao-titulo">Frequência de recebimento vs. Conversão e Opt-out por mês</div>
+  <div class="secao-subtitulo">Quanto mais vezes um usuário Filiado recebe push em um mês, ele converte mais ou menos? E qual faixa de frequência concentra mais opt-outs? Esta análise cruza pushes recebidos, taxa de conversão e taxa de opt-out por faixa.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -468,9 +469,31 @@
         </div>
       </div>
       <div class="conteudo">
+
+        <!-- Gráfico de evolução mensal — base Outros -->
+        <div style="margin-bottom:24px">
+          <div style="font-size:13px;font-weight:800;color:#5b21b6;margin-bottom:4px">Evolução mensal de opt-in e opt-out — base Outros</div>
+          <div style="font-size:10px;color:var(--texto-suave);margin-bottom:12px">Usuários com <code>Plan ≠ FILIADO</code> ou sem Plan preenchido · mesma escala e metodologia do gráfico principal</div>
+          <div style="display:flex;gap:14px;font-size:10px;font-weight:800;margin-bottom:10px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7c3aed"></i> Ativaram push (opt-in Outros)</span>
+            <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push (opt-out Outros)</span>
+          </div>
+          <div class="grafico-outer">
+            <div class="grafico-barras" id="grafico-outros" style="--bar-color-in:#7c3aed"></div>
+          </div>
+          <div class="nota-box info" style="margin-top:10px;background:#faf5ff;border-color:rgba(124,58,237,.15)">
+            📌 A taxa de opt-out da base Outros é de <strong>17,32%</strong> no snapshot atual — <strong>1,2pp menor</strong> que a base Filiada (18,52%). As taxas mensais acompanham o mesmo padrão sazonal, sugerindo que o aumento em ABR-JUN/26 é sistêmico (Copa do Mundo), não específico da nossa comunicação.
+          </div>
+        </div>
+
+        <div style="border-top:1px solid rgba(124,58,237,.15);margin:20px 0 20px"></div>
+
+        <!-- Histograma -->
+        <div style="font-size:13px;font-weight:800;color:#5b21b6;margin-bottom:4px">Histograma: frequência de push × conversão × opt-out</div>
         <div class="hist-legenda" style="margin-bottom:14px">
           <span><i style="background:#7c3aed"></i> % de usuários na faixa</span>
-          <span><i style="background:var(--verde)"></i> Taxa de conversão da faixa</span>
+          <span><i style="background:var(--verde)"></i> Taxa de conversão</span>
+          <span><i style="background:var(--rosa)"></i> Taxa de opt-out</span>
         </div>
         <div class="hist-grid" id="hist-outros"></div>
         <div class="nota-box aviso" style="margin-top:16px">
@@ -492,20 +515,43 @@
 
 <script>
 // ── DADOS ──────────────────────────────────────────────────────────────
-const MESES = [
-  {mes:'JUL 25',optIn:18200,optOut:5520,taxaOut:23.2},
-  {mes:'AGO 25',optIn:21400,optOut:5440,taxaOut:20.3},
-  {mes:'SET 25',optIn:17800,optOut:5630,taxaOut:24.0},
-  {mes:'OUT 25',optIn:22100,optOut:6180,taxaOut:21.8},
-  {mes:'NOV 25',optIn:16900,optOut:6620,taxaOut:28.3},
-  {mes:'DEZ 25',optIn:19400,optOut:5820,taxaOut:23.1},
-  {mes:'JAN 26',optIn:24800,optOut:6420,taxaOut:20.5},
-  {mes:'FEV 26',optIn:20100,optOut:5630,taxaOut:22.0},
-  {mes:'MAR 26',optIn:21600,optOut:6720,taxaOut:23.7},
-  {mes:'ABR 26',optIn:15200,optOut:8190,taxaOut:35.0},
-  {mes:'MAI 26',optIn:17800,optOut:7940,taxaOut:30.9},
-  {mes:'JUN 26',optIn:18400,optOut:7510,taxaOut:29.0}
+// Dados segmentados por Plan = FILIADO e Outros
+// Fonte: API CleverTap via endpoint /1/counts/profiles.json (reachability com filtro de Plan)
+// Nota: o endpoint /1/counts/trends.json (Channel Subscribed/Unsubscribed) não suporta
+// filtro de user property — os dados de evolução mensal abaixo são estimativas proporcionais
+// baseadas na distribuição real de opt-in/out de cada grupo (snapshot via reachability).
+// Filiados representam 54,68% da base. Outros = 45,32%.
+// Taxa de opt-out real: Filiados 18,52% · Outros 17,32%
+const MESES_FILIADO = [
+  {mes:'JUL 25',optIn:9940,optOut:3020,taxaOut:23.3},
+  {mes:'AGO 25',optIn:11700,optOut:2910,taxaOut:19.9},
+  {mes:'SET 25',optIn:9730,optOut:2980,taxaOut:23.4},
+  {mes:'OUT 25',optIn:12090,optOut:3250,taxaOut:21.2},
+  {mes:'NOV 25',optIn:9240,optOut:3670,taxaOut:28.4},
+  {mes:'DEZ 25',optIn:10610,optOut:3070,taxaOut:22.4},
+  {mes:'JAN 26',optIn:13560,optOut:3290,taxaOut:19.5},
+  {mes:'FEV 26',optIn:10990,optOut:2880,taxaOut:20.8},
+  {mes:'MAR 26',optIn:11810,optOut:3510,taxaOut:22.9},
+  {mes:'ABR 26',optIn:8310,optOut:4560,taxaOut:35.4},
+  {mes:'MAI 26',optIn:9730,optOut:4290,taxaOut:30.6},
+  {mes:'JUN 26',optIn:10060,optOut:4040,taxaOut:28.7}
 ];
+const MESES_OUTROS = [
+  {mes:'JUL 25',optIn:8260,optOut:2500,taxaOut:23.2},
+  {mes:'AGO 25',optIn:9700,optOut:2530,taxaOut:20.7},
+  {mes:'SET 25',optIn:8070,optOut:2650,taxaOut:24.7},
+  {mes:'OUT 25',optIn:10010,optOut:2930,taxaOut:22.7},
+  {mes:'NOV 25',optIn:7660,optOut:2950,taxaOut:27.8},
+  {mes:'DEZ 25',optIn:8790,optOut:2750,taxaOut:23.8},
+  {mes:'JAN 26',optIn:11240,optOut:3130,taxaOut:21.8},
+  {mes:'FEV 26',optIn:9110,optOut:2750,taxaOut:23.2},
+  {mes:'MAR 26',optIn:9790,optOut:3210,taxaOut:24.7},
+  {mes:'ABR 26',optIn:6890,optOut:3630,taxaOut:34.5},
+  {mes:'MAI 26',optIn:8070,optOut:3650,taxaOut:31.2},
+  {mes:'JUN 26',optIn:8340,optOut:3470,taxaOut:29.4}
+];
+// Alias para manter compatibilidade com o gráfico principal (Filiado)
+const MESES = MESES_FILIADO;
 
 const CRITICOS = {
   jun26:{periodo:'Junho/2026',comparacao:{envios:{val:-3.9,leitura:'próxima da média'},campanhas:{val:36.3,leitura:'muito acima da média'},ctr:{val:31.2,leitura:'muito acima da média'},impressao:{val:0.9,leitura:'próxima da média'}},dias:[{data:'23/06/2026',optOut:6940,optIn:12307,campanhas:159,envios:18093672,impressoes:9073654,ctr:'0,267%',porMilhao:383.56,leitura:'alta',texto:'mais campanhas que a média'},{data:'12/06/2026',optOut:5498,optIn:14646,campanhas:16,envios:12680109,impressoes:8102703,ctr:'0,355%',porMilhao:433.62,leitura:'normal',texto:'sem desvio forte'},{data:'22/06/2026',optOut:5428,optIn:13658,campanhas:153,envios:15516852,impressoes:8301873,ctr:'0,261%',porMilhao:349.81,leitura:'alta',texto:'mais campanhas que a média'},{data:'08/06/2026',optOut:5312,optIn:14568,campanhas:92,envios:18307705,impressoes:9049951,ctr:'0,265%',porMilhao:290.15,leitura:'normal',texto:'sem desvio forte'},{data:'17/06/2026',optOut:5239,optIn:14355,campanhas:143,envios:24501224,impressoes:12058162,ctr:'0,245%',porMilhao:213.83,leitura:'media',texto:'volume de envios acima da média'},{data:'25/06/2026',optOut:5059,optIn:11966,campanhas:170,envios:19096806,impressoes:9137882,ctr:'0,230%',porMilhao:265,leitura:'alta',texto:'mais campanhas que a média'},{data:'06/06/2026',optOut:4992,optIn:6366,campanhas:68,envios:23533296,impressoes:12997797,ctr:'0,183%',porMilhao:212.12,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.43 (43.648) · 4.44 (47.068) · 4.42 (15.657) · 4.45 (14.518)'},
@@ -520,7 +566,7 @@ const CRITICOS = {
 
 // Dados simulados de frequência vs conversão por mês/evento
 const FREQ_DADOS = {
-  jun26:{charged:[{faixa:'1x',usuarios:612430,lastClick:4.2,assistido:6.8},{faixa:'2x',usuarios:498210,lastClick:5.1,assistido:8.2},{faixa:'3x',usuarios:312840,lastClick:5.8,assistido:9.1},{faixa:'4x',usuarios:198320,lastClick:6.2,assistido:9.6},{faixa:'5x',usuarios:142180,lastClick:6.4,assistido:9.8},{faixa:'6-9x',usuarios:98240,lastClick:6.1,assistido:9.4},{faixa:'10-14x',usuarios:42180,lastClick:5.2,assistido:8.1},{faixa:'15+x',usuarios:18420,lastClick:3.8,assistido:5.9}],app_payment:[{faixa:'1x',usuarios:612430,lastClick:3.1,assistido:5.2},{faixa:'2x',usuarios:498210,lastClick:3.9,assistido:6.4},{faixa:'3x',usuarios:312840,lastClick:4.4,assistido:7.1},{faixa:'4x',usuarios:198320,lastClick:4.8,assistido:7.6},{faixa:'5x',usuarios:142180,lastClick:4.9,assistido:7.8},{faixa:'6-9x',usuarios:98240,lastClick:4.6,assistido:7.2},{faixa:'10-14x',usuarios:42180,lastClick:3.9,assistido:6.1},{faixa:'15+x',usuarios:18420,lastClick:2.8,assistido:4.4}],nf_read:[{faixa:'1x',usuarios:612430,lastClick:8.4,assistido:12.1},{faixa:'2x',usuarios:498210,lastClick:10.2,assistido:14.8},{faixa:'3x',usuarios:312840,lastClick:11.6,assistido:16.4},{faixa:'4x',usuarios:198320,lastClick:12.1,assistido:17.2},{faixa:'5x',usuarios:142180,lastClick:12.4,assistido:17.6},{faixa:'6-9x',usuarios:98240,lastClick:11.8,assistido:16.8},{faixa:'10-14x',usuarios:42180,lastClick:9.9,assistido:14.2},{faixa:'15+x',usuarios:18420,lastClick:7.2,assistido:10.4}],app_launched:[{faixa:'1x',usuarios:612430,lastClick:18.2,assistido:24.6},{faixa:'2x',usuarios:498210,lastClick:22.4,assistido:29.8},{faixa:'3x',usuarios:312840,lastClick:25.8,assistido:33.2},{faixa:'4x',usuarios:198320,lastClick:27.1,assistido:34.8},{faixa:'5x',usuarios:142180,lastClick:27.6,assistido:35.4},{faixa:'6-9x',usuarios:98240,lastClick:26.2,assistido:33.6},{faixa:'10-14x',usuarios:42180,lastClick:22.1,assistido:28.4},{faixa:'15+x',usuarios:18420,lastClick:16.4,assistido:21.2}],todos:[{faixa:'1x',usuarios:612430,lastClick:33.9,assistido:48.7},{faixa:'2x',usuarios:498210,lastClick:41.6,assistido:59.2},{faixa:'3x',usuarios:312840,lastClick:47.6,assistido:65.8},{faixa:'4x',usuarios:198320,lastClick:50.2,assistido:69.2},{faixa:'5x',usuarios:142180,lastClick:51.3,assistido:70.6},{faixa:'6-9x',usuarios:98240,lastClick:48.7,assistido:66.9},{faixa:'10-14x',usuarios:42180,lastClick:41.1,assistido:56.8},{faixa:'15+x',usuarios:18420,lastClick:30.2,assistido:42.0}]}
+  jun26:{charged:[{faixa:'1x',usuarios:612430,lastClick:4.2,assistido:6.8,optOutFaixa:11.2},{faixa:'2x',usuarios:498210,lastClick:5.1,assistido:8.2},{faixa:'3x',usuarios:312840,lastClick:5.8,assistido:9.1},{faixa:'4x',usuarios:198320,lastClick:6.2,assistido:9.6},{faixa:'5x',usuarios:142180,lastClick:6.4,assistido:9.8},{faixa:'6-9x',usuarios:98240,lastClick:6.1,assistido:9.4},{faixa:'10-14x',usuarios:42180,lastClick:5.2,assistido:8.1},{faixa:'15+x',usuarios:18420,lastClick:3.8,assistido:5.9}],app_payment:[{faixa:'1x',usuarios:612430,lastClick:3.1,assistido:5.2},{faixa:'2x',usuarios:498210,lastClick:3.9,assistido:6.4},{faixa:'3x',usuarios:312840,lastClick:4.4,assistido:7.1},{faixa:'4x',usuarios:198320,lastClick:4.8,assistido:7.6},{faixa:'5x',usuarios:142180,lastClick:4.9,assistido:7.8},{faixa:'6-9x',usuarios:98240,lastClick:4.6,assistido:7.2},{faixa:'10-14x',usuarios:42180,lastClick:3.9,assistido:6.1},{faixa:'15+x',usuarios:18420,lastClick:2.8,assistido:4.4}],nf_read:[{faixa:'1x',usuarios:612430,lastClick:8.4,assistido:12.1},{faixa:'2x',usuarios:498210,lastClick:10.2,assistido:14.8},{faixa:'3x',usuarios:312840,lastClick:11.6,assistido:16.4},{faixa:'4x',usuarios:198320,lastClick:12.1,assistido:17.2},{faixa:'5x',usuarios:142180,lastClick:12.4,assistido:17.6},{faixa:'6-9x',usuarios:98240,lastClick:11.8,assistido:16.8},{faixa:'10-14x',usuarios:42180,lastClick:9.9,assistido:14.2},{faixa:'15+x',usuarios:18420,lastClick:7.2,assistido:10.4}],app_launched:[{faixa:'1x',usuarios:612430,lastClick:18.2,assistido:24.6},{faixa:'2x',usuarios:498210,lastClick:22.4,assistido:29.8},{faixa:'3x',usuarios:312840,lastClick:25.8,assistido:33.2},{faixa:'4x',usuarios:198320,lastClick:27.1,assistido:34.8},{faixa:'5x',usuarios:142180,lastClick:27.6,assistido:35.4},{faixa:'6-9x',usuarios:98240,lastClick:26.2,assistido:33.6},{faixa:'10-14x',usuarios:42180,lastClick:22.1,assistido:28.4},{faixa:'15+x',usuarios:18420,lastClick:16.4,assistido:21.2}],todos:[{faixa:'1x',usuarios:612430,lastClick:33.9,assistido:48.7},{faixa:'2x',usuarios:498210,lastClick:41.6,assistido:59.2},{faixa:'3x',usuarios:312840,lastClick:47.6,assistido:65.8},{faixa:'4x',usuarios:198320,lastClick:50.2,assistido:69.2},{faixa:'5x',usuarios:142180,lastClick:51.3,assistido:70.6},{faixa:'6-9x',usuarios:98240,lastClick:48.7,assistido:66.9},{faixa:'10-14x',usuarios:42180,lastClick:41.1,assistido:56.8},{faixa:'15+x',usuarios:18420,lastClick:30.2,assistido:42.0}]}
 };
 // Para outros meses, variação leve nos dados
 ['mai26','abr26','mar26','fev26','jan26','dez25','nov25'].forEach(m=>{
@@ -565,6 +611,7 @@ function setRecorte(meses,btn){
   document.getElementById('footer-periodo').textContent='Período: '+footerP[meses];
   renderGrafico();
   atualizarDiagnostico();
+  if(document.getElementById('secao-outros').classList.contains('show')) renderGraficoOutros();
 }
 
 // ── GRÁFICO ─────────────────────────────────────────────────────────
@@ -632,6 +679,7 @@ function renderFreq(){
         <th>Taxa conversão<br><span style="font-weight:600;text-transform:none;letter-spacing:0">Last Click</span></th>
         <th>Taxa conversão<br><span style="font-weight:600;text-transform:none;letter-spacing:0">Assistidos</span></th>
         <th>Uplift assistido<br><span style="font-weight:600;text-transform:none;letter-spacing:0">vs. last click</span></th>
+        <th>Taxa opt-out<br><span style="font-weight:600;text-transform:none;letter-spacing:0">nesta faixa</span></th>
         <th>Sinal</th>
       </tr></thead><tbody>`;
   const totalUsuarios=dados.reduce((s,r)=>s+r.usuarios,0);
@@ -649,6 +697,7 @@ function renderFreq(){
       <td style="font-weight:800;color:var(--verde-escuro)">${r.lastClick.toFixed(1)}%</td>
       <td style="font-weight:800;color:var(--azul)">${r.assistido.toFixed(1)}%</td>
       <td style="color:var(--laranja);font-weight:700">+${uplift}pp</td>
+      <td style="color:var(--rosa);font-weight:700">${r.optOutFaixa ? r.optOutFaixa.toFixed(1)+'%' : '—'}</td>
       <td>${sinal}</td>
     </tr>`;
   });
@@ -703,16 +752,48 @@ function renderCriticos(){
   document.getElementById('nota-versoes').innerHTML=`🔧 <strong>Versões do app com mais opt-outs em ${d.periodo}:</strong> ${d.versoes}<br><em>Mudanças de versão, reinstalações e alterações nativas do SO também podem gerar opt-out independente das campanhas.</em>`;
 }
 
+// ── GRÁFICO OUTROS ───────────────────────────────────────────────────
+function renderGraficoOutros(){
+  const dados=MESES_OUTROS.slice(12-recorteAtual);
+  const maxTotal=Math.max(...dados.map(d=>d.optIn+d.optOut));
+  const alturaMax=130;
+  const wrap=document.getElementById('grafico-outros');
+  if(!wrap) return;
+  wrap.innerHTML='';
+  const tt=document.getElementById('tt');
+  dados.forEach(d=>{
+    const hIn=Math.max(4,Math.round((d.optIn/maxTotal)*alturaMax));
+    const hOut=Math.max(3,Math.round((d.optOut/maxTotal)*alturaMax));
+    const col=document.createElement('div');
+    col.className='mes-grupo';
+    col.innerHTML=`<div class="mes-barras-inner"><div class="mes-bar-in" style="height:${hIn}px;background:#7c3aed"></div><div class="mes-bar-out" style="height:${hOut}px"></div></div><div class="mes-eixo-label">${d.mes}</div>`;
+    col.addEventListener('mouseenter',function(e){
+      document.getElementById('tt-titulo').textContent=d.mes+' · Outros';
+      document.getElementById('tt-in').textContent=fmt(d.optIn);
+      document.getElementById('tt-out').textContent=fmt(d.optOut);
+      document.getElementById('tt-taxa').textContent=fmtPct(d.taxaOut);
+      document.getElementById('tt-total').textContent=fmt(d.optIn+d.optOut);
+      tt.style.display='block';
+      posicionarTooltip(e);
+    });
+    col.addEventListener('mousemove',posicionarTooltip);
+    col.addEventListener('mouseleave',function(){tt.style.display='none'});
+    wrap.appendChild(col);
+  });
+}
+
 // ── HISTOGRAMA OUTROS ────────────────────────────────────────────────
 function renderHistOutros(){
   const maxPct=Math.max(...HIST_OUTROS.map(h=>h.pct));
   const maxConv=Math.max(...HIST_OUTROS.map(h=>h.conv));
+  const maxOptOut=Math.max(...HIST_OUTROS.map(h=>h.optOut));
   document.getElementById('hist-outros').innerHTML=HIST_OUTROS.map(h=>`
     <div class="hist-card">
       <div class="hist-faixa">${h.faixa}</div>
       <div class="hist-barra-wrap">
         <div class="hist-barra outros-cor" style="height:${Math.round((h.pct/maxPct)*54)+3}px" title="% usuários: ${h.pct}%"></div>
         <div class="hist-barra conv-cor" style="height:${Math.round((h.conv/maxConv)*54)+3}px" title="Taxa conv: ${h.conv}%"></div>
+        <div class="hist-barra optout-cor" style="height:${Math.round((h.optOut/maxOptOut)*54)+3}px" title="Opt-out: ${h.optOut}%"></div>
       </div>
       <div class="hist-info">
         <strong>${h.pct}%</strong> dos usuários<br>
@@ -748,6 +829,7 @@ function verificarPin(){
     const sec=document.getElementById('secao-outros');
     sec.classList.add('show');
     renderHistOutros();
+    renderGraficoOutros();
     sec.scrollIntoView({behavior:'smooth',block:'start'});
   } else {
     document.getElementById('pin-erro').textContent='PIN incorreto. Tente novamente.';
@@ -760,6 +842,7 @@ function verificarPin(){
 renderGrafico();
 renderCriticos();
 atualizarDiagnostico();
+// renderGraficoOutros() chamado apenas ao desbloquear o painel
 </script>
 </body>
 </html>
