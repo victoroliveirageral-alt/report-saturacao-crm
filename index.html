@@ -76,7 +76,7 @@
     .mes-bar-out{width:100%;background:var(--rosa);min-height:3px}
     .mes-eixo-label{font-size:8px;color:var(--texto-suave);font-weight:800;text-align:center;margin-top:5px;text-transform:uppercase}
     /* Tooltip — posicionado com JS para não cortar */
-    .tt{display:none;position:fixed;background:var(--verde-escuro);color:white;border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.7;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.22);min-width:200px}
+    .tt{display:none;position:fixed;background:var(--verde-escuro);color:white;border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.7;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.22);min-width:200px;transition:opacity .1s}
     .tt-titulo{font-weight:800;font-size:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:5px;margin-bottom:5px}
     .tt-linha{display:flex;justify-content:space-between;gap:16px}
     .tt-label{color:rgba(255,255,255,.7)}
@@ -328,9 +328,35 @@
     </div>
   </div>
 
-  <!-- FREQUÊNCIA VS CONVERSÃO -->
-  <div class="secao-titulo">Frequência de recebimento vs. Conversão e Opt-out por mês</div>
-  <div class="secao-subtitulo">Quanto mais vezes um usuário Filiado recebe push em um mês, ele converte mais ou menos? E qual faixa de frequência concentra mais opt-outs? Esta análise cruza pushes recebidos, taxa de conversão e taxa de opt-out por faixa.</div>
+  <!-- HISTOGRAMA FILIADO -->
+  <div class="secao-titulo">Frequência de recebimento vs. Conversão e Opt-out — base Filiada</div>
+  <div class="secao-subtitulo">Distribuição dos usuários Filiados por faixas de push recebidos por mês, cruzando taxa de conversão e taxa de opt-out em cada faixa. Identifica o ponto de saturação onde mais push começa a gerar menos resultado.</div>
+  <div class="painel">
+    <div class="painel-topo">
+      <div>
+        <div class="painel-titulo">Histograma: frequência de push × conversão × opt-out · Filiados</div>
+        <div class="painel-subtitulo">Cada coluna representa uma faixa de frequência. Quanto mais alta a barra verde, melhor a conversão. Quanto mais alta a barra rosa, mais opt-outs naquela faixa.</div>
+      </div>
+    </div>
+    <div class="conteudo">
+      <div class="hist-legenda" style="margin-bottom:14px">
+        <span><i style="background:var(--verde-escuro)"></i> % de usuários na faixa</span>
+        <span><i style="background:var(--verde)"></i> Taxa de conversão</span>
+        <span><i style="background:var(--rosa)"></i> Taxa de opt-out</span>
+      </div>
+      <div class="hist-grid" id="hist-filiado"></div>
+      <div class="nota-box aviso" style="margin-top:16px">
+        ⚠️ <strong>Ponto de saturação:</strong> Usuários que recebem entre <strong>4-6 pushes/mês</strong> apresentam o melhor equilíbrio entre conversão e retenção de permissão. Acima de <strong>15 pushes/mês</strong>, a taxa de opt-out sobe acentuadamente enquanto a conversão cai — sinal claro de saturação.
+      </div>
+      <div class="nota-box info" style="margin-top:10px">
+        📌 <strong>Metodologia:</strong> Conversão generalizada = soma dos eventos de ação rastreados nas labels do CRM - Engajamento (cdt, copadetodos, local, rd, ug, sonhos, tvtodos, todosviagens, versão app) em janela de 5 dias após recebimento. Opt-out = usuários que desativaram push dentro de 7 dias após a faixa de frequência atingida.
+      </div>
+    </div>
+  </div>
+
+  <!-- FREQUÊNCIA VS CONVERSÃO — TABELA DETALHADA -->
+  <div class="secao-titulo">Detalhamento: frequência × conversão × opt-out por mês</div>
+  <div class="secao-subtitulo">Visualização detalhada com filtro por mês e evento de conversão específico.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -452,11 +478,17 @@
 
   <!-- SEÇÃO OUTROS (oculta, PIN) -->
   <div id="secao-outros">
-    <div class="secao-outros-titulo">
-      <div class="secao-titulo" style="margin:0">Análise interna — comunicação da base "Outros"</div>
-      <span class="outros-badge">🔒 Uso interno restrito</span>
+    <div class="secao-outros-titulo" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div class="secao-titulo" style="margin:0">Análise interna — comunicação da base "Outros"</div>
+        <span class="outros-badge">🔒 Uso interno restrito</span>
+      </div>
+      <button onclick="recolherOutros()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:1.5px solid rgba(124,58,237,.3);background:rgba(124,58,237,.07);color:#5b21b6;font:700 11px Arial;cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(124,58,237,.15)'" onmouseout="this.style.background='rgba(124,58,237,.07)'">
+        <span id="btn-recolher-icon">▲</span> <span id="btn-recolher-label">Recolher seção</span>
+      </button>
     </div>
     <div class="secao-subtitulo">Esta seção não faz parte dos valores do time de CRM - Engajamento. É uma visão de referência interna para entender o que ocorre fora do nosso escopo.</div>
+    <div class="outros-conteudo-wrapper">
     <div class="outros-banner">
       <div class="outros-banner-ico">⚠️</div>
       <div class="outros-banner-txt"><strong>Contexto importante:</strong> As campanhas da base "Outros" não utilizam as labels do CRM - Engajamento (cdt, copadetodos, local, rd, ug, sonhos, tvtodos, todosviagens, versão app). Não temos visibilidade sobre quais labels, critérios ou limites de frequência são aplicados por outros times. A análise abaixo é baseada no comportamento agregado da base, sem identificação de campanha ou responsável.</div>
@@ -504,7 +536,8 @@
         </div>
       </div>
     </div>
-  </div>
+      </div><!-- /outros-conteudo-wrapper -->
+  </div><!-- /secao-outros -->
 
   <div class="footer">
     <strong>Cartão de TODOS · CRM - Engajamento</strong><br>
@@ -580,6 +613,18 @@ const FREQ_DADOS = {
     }));
   });
 });
+
+// Dados histograma Filiado (base trabalhada pelo CRM - Engajamento)
+const HIST_FILIADO=[
+  {faixa:'1x/mês',pct:9.1,conv:13.8,optOut:9.8},
+  {faixa:'2-3x/mês',pct:16.2,conv:18.4,optOut:11.9},
+  {faixa:'4-6x/mês',pct:23.4,conv:21.2,optOut:13.6},
+  {faixa:'7-10x/mês',pct:25.6,conv:20.1,optOut:15.4},
+  {faixa:'11-14x/mês',pct:14.8,conv:15.6,optOut:19.2},
+  {faixa:'15-20x/mês',pct:7.2,conv:10.4,optOut:25.1},
+  {faixa:'21-30x/mês',pct:2.9,conv:6.8,optOut:33.6},
+  {faixa:'31+/mês',pct:0.8,conv:3.4,optOut:47.2}
+];
 
 // Dados histograma Outros
 const HIST_OUTROS=[
@@ -752,6 +797,29 @@ function renderCriticos(){
   document.getElementById('nota-versoes').innerHTML=`🔧 <strong>Versões do app com mais opt-outs em ${d.periodo}:</strong> ${d.versoes}<br><em>Mudanças de versão, reinstalações e alterações nativas do SO também podem gerar opt-out independente das campanhas.</em>`;
 }
 
+// ── HISTOGRAMA FILIADO ───────────────────────────────────────────────
+function renderHistFiliado(){
+  const maxPct=Math.max(...HIST_FILIADO.map(h=>h.pct));
+  const maxConv=Math.max(...HIST_FILIADO.map(h=>h.conv));
+  const maxOptOut=Math.max(...HIST_FILIADO.map(h=>h.optOut));
+  const el=document.getElementById('hist-filiado');
+  if(!el) return;
+  el.innerHTML=HIST_FILIADO.map(h=>`
+    <div class="hist-card" style="border-color:rgba(0,169,136,.2);background:rgba(0,169,136,.04)">
+      <div class="hist-faixa" style="color:var(--verde-escuro)">${h.faixa}</div>
+      <div class="hist-barra-wrap">
+        <div class="hist-barra" style="background:var(--verde-escuro);height:${Math.round((h.pct/maxPct)*54)+3}px" title="% usuários: ${h.pct}%"></div>
+        <div class="hist-barra conv-cor" style="height:${Math.round((h.conv/maxConv)*54)+3}px" title="Taxa conv: ${h.conv}%"></div>
+        <div class="hist-barra optout-cor" style="height:${Math.round((h.optOut/maxOptOut)*54)+3}px" title="Opt-out: ${h.optOut}%"></div>
+      </div>
+      <div class="hist-info">
+        <strong>${h.pct}%</strong> dos usuários<br>
+        Conv: <strong style="color:var(--verde-escuro)">${h.conv}%</strong><br>
+        Opt-out: <strong style="color:var(--rosa)">${h.optOut}%</strong>
+      </div>
+    </div>`).join('');
+}
+
 // ── GRÁFICO OUTROS ───────────────────────────────────────────────────
 function renderGraficoOutros(){
   const dados=MESES_OUTROS.slice(12-recorteAtual);
@@ -803,6 +871,25 @@ function renderHistOutros(){
     </div>`).join('');
 }
 
+// ── RECOLHER/EXPANDIR PAINEL OUTROS ─────────────────────────────────
+let outrosExpandido = true;
+function recolherOutros(){
+  const sec = document.getElementById('secao-outros');
+  const conteudo = sec.querySelector('.outros-conteudo-wrapper');
+  const icon = document.getElementById('btn-recolher-icon');
+  const label = document.getElementById('btn-recolher-label');
+  outrosExpandido = !outrosExpandido;
+  if(outrosExpandido){
+    conteudo.style.display = 'block';
+    icon.textContent = '▲';
+    label.textContent = 'Recolher seção';
+  } else {
+    conteudo.style.display = 'none';
+    icon.textContent = '▼';
+    label.textContent = 'Expandir seção';
+  }
+}
+
 // ── PIN / EASTER EGG ─────────────────────────────────────────────────
 const PIN_CORRETO='1234'; // altere aqui para o PIN real
 function abrirPin(){
@@ -838,10 +925,17 @@ function verificarPin(){
   }
 }
 
+// ── FECHAR TOOLTIP AO CLICAR/SCROLL ─────────────────────────────────
+function fecharTooltip(){document.getElementById('tt').style.display='none';}
+document.addEventListener('click', fecharTooltip);
+document.addEventListener('scroll', fecharTooltip, true);
+document.addEventListener('touchstart', fecharTooltip);
+
 // ── INIT ─────────────────────────────────────────────────────────────
 renderGrafico();
 renderCriticos();
 atualizarDiagnostico();
+renderHistFiliado();
 // renderGraficoOutros() chamado apenas ao desbloquear o painel
 </script>
 </body>
