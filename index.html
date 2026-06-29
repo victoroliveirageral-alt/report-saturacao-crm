@@ -85,6 +85,8 @@
     .mes-bar-in{width:100%;background:var(--verde);min-height:4px}
     .mes-bar-out{width:100%;background:var(--rosa);min-height:3px}
     .mes-eixo-label{font-size:8px;color:var(--texto-suave);font-weight:800;text-align:center;margin-top:5px;text-transform:uppercase}
+    .mes-eixo-label span{display:inline}
+    .mes-eixo-label span+span::before{content:' '}
     /* Tooltip — posicionado com JS para não cortar */
     .tt{display:none;position:fixed;background:var(--verde-escuro);color:white;border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.7;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.22);min-width:200px;transition:opacity .1s}
     .tt-titulo{font-weight:800;font-size:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:5px;margin-bottom:5px}
@@ -259,10 +261,13 @@
       td{padding:7px 7px;font-size:11px}
 
       /* Gráfico evolução */
-      .grafico-outer{overflow-x:auto;-webkit-overflow-scrolling:touch}
-      .grafico-barras{height:120px;gap:2px;min-width:360px}
-      .mes-eixo-label{font-size:6.5px;white-space:nowrap}
-      .mes-barras-inner{width:88%}
+      .grafico-outer{overflow:visible;padding:0}
+      .grafico-barras{width:100%;min-width:0;height:150px;gap:3px}
+      .mes-grupo{min-width:0}
+      .mes-eixo-label{width:100%;min-height:14px;font-size:6px;line-height:1.05;white-space:normal;overflow:visible;letter-spacing:0}
+      .mes-eixo-label span{display:block}
+      .mes-eixo-label span+span::before{content:''}
+      .mes-barras-inner{width:74%;border-radius:5px 5px 0 0}
 
       /* Controles frequência — 1 coluna no mobile */
       .freq-controles{grid-template-columns:1fr!important;gap:10px;padding:12px}
@@ -922,9 +927,10 @@ function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
   dados.forEach(d=>{
     const hIn=Math.max(4,Math.round((d.optIn/maxTotal)*alturaMax));
     const hOut=Math.max(3,Math.round((d.optOut/maxTotal)*alturaMax));
+    const [mesLabel,anoLabel]=d.mes.split(' ');
     const col=document.createElement('div');
     col.className='mes-grupo';
-    col.innerHTML=`<div class="mes-barras-inner"><div class="mes-bar-in" style="height:${hIn}px;background:${corIn}"></div><div class="mes-bar-out" style="height:${hOut}px"></div></div><div class="mes-eixo-label">${d.mes}</div>`;
+    col.innerHTML=`<div class="mes-barras-inner"><div class="mes-bar-in" style="height:${hIn}px;background:${corIn}"></div><div class="mes-bar-out" style="height:${hOut}px"></div></div><div class="mes-eixo-label"><span>${mesLabel}</span><span>${anoLabel}</span></div>`;
     col.addEventListener('mouseenter',function(e){
       document.getElementById('tt-titulo').textContent=`${d.mes} · ${tituloBase}`;
       document.getElementById('tt-in').textContent=fmt(d.optIn);
