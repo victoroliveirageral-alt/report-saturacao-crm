@@ -128,12 +128,12 @@
 
     /* ── SEÇÃO 1: FREQUÊNCIA VS CONVERSÃO ── */
     .freq-wrap{display:flex;flex-direction:column;gap:16px}
-    .freq-controles{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:16px;background:#f8fbfa;border:1px solid var(--borda);border-radius:12px}
+    .freq-controles{display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:12px;padding:16px;background:#f8fbfa;border:1px solid var(--borda);border-radius:12px}
     .freq-campo{display:flex;flex-direction:column;gap:5px}
     .freq-campo label{font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px}
-    .freq-campo select,.freq-campo input{padding:8px 12px;border:1.5px solid var(--borda);border-radius:10px;background:white;color:var(--texto);font:700 12px Arial;min-width:160px}
-    .freq-campo input{min-width:220px}
-    .btn-calcular{padding:9px 18px;border-radius:10px;border:none;background:var(--verde);color:white;font:800 12px Arial;cursor:pointer;margin-top:auto}
+    .freq-campo select,.freq-campo input{padding:8px 12px;border:1.5px solid var(--borda);border-radius:10px;background:white;color:var(--texto);font:700 12px Arial;width:100%}
+    .freq-campo-full{grid-column:1/-1}
+    .btn-calcular{padding:9px 18px;border-radius:10px;border:none;background:var(--verde);color:white;font:800 12px Arial;cursor:pointer;grid-column:1/-1;width:100%}
     .btn-calcular:hover{background:var(--verde-escuro)}
     .freq-tabela-wrap{overflow-x:auto}
     .freq-nota{font-size:10px;color:var(--texto-suave);font-style:italic;margin-top:8px;line-height:1.5}
@@ -244,10 +244,10 @@
       .mes-eixo-label{font-size:7px}
       .mes-barras-inner{width:90%}
 
-      /* Controles frequência */
-      .freq-controles{flex-direction:column;gap:10px;padding:12px}
-      .freq-campo select,.freq-campo input{min-width:100%!important;width:100%}
-      .btn-calcular{width:100%;padding:11px}
+      /* Controles frequência — 1 coluna no mobile */
+      .freq-controles{grid-template-columns:1fr!important;gap:10px;padding:12px}
+      .freq-campo-full{grid-column:1!important}
+      .btn-calcular{grid-column:1!important;padding:11px}
 
       /* Seção outros */
       .outros-banner{flex-direction:column;gap:8px}
@@ -256,8 +256,8 @@
       /* Sel mês */
       .sel-mes{width:100%}
 
-      /* Recolher botão */
-      #btn-recolher-label{display:none}
+      /* Botão recolher outros — circular, sem label */
+      #btn-recolher{width:32px;height:32px;font-size:14px}
 
       /* PIN modal */
       .pin-card{padding:20px 18px}
@@ -277,6 +277,12 @@
       .comp-linha-label{font-size:9px}
     }
 
+
+      .dica-interacao::after{content:' (toque para ver detalhes)';display:none}
+      @media(hover:none){
+        .dica-interacao{font-size:0}
+        .dica-interacao::after{display:inline;font-size:12px}
+      }
     @media (max-width: 480px) {
       /* Histograma em 2 colunas em telas bem pequenas */
       .hist-grid{grid-template-columns:repeat(2,1fr)!important}
@@ -430,7 +436,7 @@
 
   <!-- EVOLUÇÃO MENSAL -->
   <div class="secao-titulo">Como a taxa de opt-out variou ao longo do tempo?</div>
-  <div class="secao-subtitulo">Cada barra mostra os usuários que <span style="color:var(--verde);font-weight:800">ativaram</span> e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. <strong>Passe o mouse sobre as barras para ver os detalhes.</strong></div>
+  <div class="secao-subtitulo">Cada barra mostra os usuários que <span style="color:var(--verde);font-weight:800">ativaram</span> e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. <strong class="dica-interacao">Passe o mouse sobre as barras para ver os detalhes.</strong></div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -511,7 +517,7 @@
             <option value="todos">Todos os eventos somados</option>
           </select>
         </div>
-        <div class="freq-campo">
+        <div class="freq-campo freq-campo-full">
           <label>Labels do CRM - Engajamento</label>
           <div style="display:flex;flex-wrap:wrap;gap:4px;padding:8px 0">
             <span class="badge-label">cdt</span>
@@ -599,18 +605,24 @@
   </div>
 
   <!-- SEÇÃO OUTROS (oculta, PIN) -->
-  <div id="secao-outros">
-    <div class="secao-outros-titulo" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <div class="secao-titulo" style="margin:0">Análise interna — comunicação da base "Outros"</div>
-        <span class="outros-badge">🔒 Uso interno restrito</span>
+  <!-- Botão de recolher — sempre visível, fora do wrapper -->
+  <div id="secao-outros" style="margin-top:28px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:nowrap">
+      <button onclick="recolherOutros()" id="btn-recolher"
+        style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:none;background:rgba(124,58,237,.15);color:#5b21b6;font-size:16px;cursor:pointer;flex-shrink:0;transition:background .15s"
+        onmouseover="this.style.background='rgba(124,58,237,.3)'"
+        onmouseout="this.style.background='rgba(124,58,237,.15)'"
+        title="Mostrar/ocultar seção">🔒</button>
+      <div id="outros-topo-visivel" style="display:none;flex:1">
+        <span style="font-size:11px;color:#5b21b6;font-weight:800">Análise interna — base "Outros" · clique no 🔒 para expandir</span>
       </div>
-      <button onclick="recolherOutros()" style="display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:1.5px solid rgba(124,58,237,.3);background:rgba(124,58,237,.07);color:#5b21b6;font:700 11px Arial;cursor:pointer;transition:all .15s" onmouseover="this.style.background='rgba(124,58,237,.15)'" onmouseout="this.style.background='rgba(124,58,237,.07)'">
-        <span id="btn-recolher-icon">▲</span> <span id="btn-recolher-label">Recolher seção</span>
-      </button>
+    </div>
+    <div id="outros-conteudo-total" class="outros-conteudo-wrapper">
+    <div class="secao-outros-titulo" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
+      <div class="secao-titulo" style="margin:0">Análise interna — comunicação da base "Outros"</div>
+      <span class="outros-badge">🔒 Uso interno restrito</span>
     </div>
     <div class="secao-subtitulo">Esta seção não faz parte dos valores do time de CRM - Engajamento. É uma visão de referência interna para entender o que ocorre fora do nosso escopo.</div>
-    <div class="outros-conteudo-wrapper">
     <div class="outros-banner">
       <div class="outros-banner-ico">⚠️</div>
       <div class="outros-banner-txt"><strong>Contexto importante:</strong> As campanhas da base "Outros" não utilizam as labels do CRM - Engajamento (cdt, copadetodos, local, rd, ug, sonhos, tvtodos, todosviagens, versão app). Não temos visibilidade sobre quais labels, critérios ou limites de frequência são aplicados por outros times. A análise abaixo é baseada no comportamento agregado da base, sem identificação de campanha ou responsável.</div>
@@ -658,7 +670,7 @@
         </div>
       </div>
     </div>
-      </div><!-- /outros-conteudo-wrapper -->
+      </div><!-- /outros-conteudo-total -->
   </div><!-- /secao-outros -->
 
   <div class="footer">
@@ -996,20 +1008,11 @@ function renderHistOutros(){
 // ── RECOLHER/EXPANDIR PAINEL OUTROS ─────────────────────────────────
 let outrosExpandido = true;
 function recolherOutros(){
-  const sec = document.getElementById('secao-outros');
-  const conteudo = sec.querySelector('.outros-conteudo-wrapper');
-  const icon = document.getElementById('btn-recolher-icon');
-  const label = document.getElementById('btn-recolher-label');
+  const conteudo = document.getElementById('outros-conteudo-total');
+  const topoVisivel = document.getElementById('outros-topo-visivel');
   outrosExpandido = !outrosExpandido;
-  if(outrosExpandido){
-    conteudo.style.display = 'block';
-    icon.textContent = '▲';
-    label.textContent = 'Recolher seção';
-  } else {
-    conteudo.style.display = 'none';
-    icon.textContent = '▼';
-    label.textContent = 'Expandir seção';
-  }
+  conteudo.style.display = outrosExpandido ? 'block' : 'none';
+  topoVisivel.style.display = outrosExpandido ? 'none' : 'block';
 }
 
 // ── PIN / EASTER EGG ─────────────────────────────────────────────────
