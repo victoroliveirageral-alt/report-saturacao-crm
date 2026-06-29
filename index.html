@@ -520,7 +520,7 @@
         ⚠️ <strong>Ponto de saturação:</strong> Usuários que recebem entre <strong>4-6 pushes/mês</strong> apresentam o melhor equilíbrio entre conversão e retenção de permissão. Acima de <strong>15 pushes/mês</strong>, a taxa de opt-out sobe acentuadamente enquanto a conversão cai — sinal claro de saturação.
       </div>
       <div class="nota-box info" style="margin-top:10px">
-        📌 <strong>Metodologia:</strong> Conversão generalizada = soma dos eventos de ação rastreados nas labels do CRM - Engajamento (cdt, copadetodos, local, rd, ug, sonhos, tvtodos, todosviagens, versão app) em janela de 5 dias após recebimento. Opt-out = usuários que desativaram push dentro de 7 dias após a faixa de frequência atingida.
+        📌 <strong>Metodologia:</strong> Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, filtradas pelas labels do CRM - Engajamento (cdt, copadetodos, local, rd, ug, sonhos, tvtodos, todosviagens, versão app), em janela de 5 dias após recebimento. Opt-out = usuários que desativaram push dentro de 7 dias após a faixa de frequência atingida.
       </div>
     </div>
   </div>
@@ -539,7 +539,7 @@
       <div class="freq-controles">
         <div class="freq-campo">
           <label for="freq-mes">Mês de análise</label>
-          <select id="freq-mes">
+          <select id="freq-mes" onchange="carregarEventosConversaoFrequencia(true)">
             <option value="jun26">Junho/2026</option>
             <option value="mai26">Maio/2026</option>
             <option value="abr26">Abril/2026</option>
@@ -553,12 +553,9 @@
         <div class="freq-campo">
           <label for="freq-evento">Evento de conversão</label>
           <select id="freq-evento">
-            <option value="charged">Charged (qualquer compra/cobrança)</option>
-            <option value="app_payment">App Payment (pagamento pelo app)</option>
-            <option value="nf_read">NF Read (leitura de nota fiscal)</option>
-            <option value="app_launched">App Launched (abertura do app)</option>
-            <option value="todos">Todos os eventos de conversão</option>
+            <option value="">Carregando eventos oficiais...</option>
           </select>
+          <div id="freq-evento-status" style="font-size:9px;color:var(--texto-suave);line-height:1.4;margin-top:5px">Eventos lidos do painel original.</div>
         </div>
         <div class="freq-campo freq-campo-full">
           <label>Labels usadas para filtrar as campanhas</label>
@@ -715,7 +712,7 @@
           ⚠️ <strong>Atenção:</strong> Faixas com mais de 15 pushes/mês apresentam queda acentuada na taxa de conversão e aumento de opt-out, sugerindo saturação. Isso reforça a importância do limite de frequência adotado pelo CRM - Engajamento.
         </div>
         <div class="nota-box info" style="margin-top:10px">
-          📌 <strong>Metodologia:</strong> Dados estimados com base no comportamento agregado da base "Outros" nos últimos 6 meses. Conversão generalizada = soma de todos os eventos de ação rastreados (Charged + App Payment + NF Read + App Launched) em janela de 5 dias após o recebimento do push.
+          📌 <strong>Metodologia:</strong> Dados estimados com base no comportamento agregado da base "Outros" nos últimos 6 meses. Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, em janela de 5 dias após o recebimento do push.
         </div>
       </div>
     </div>
@@ -790,17 +787,10 @@ const CRITICOS = {
   nov25:{periodo:'Novembro/2025',comparacao:{envios:{val:6.2,leitura:'acima da média'},campanhas:{val:22.1,leitura:'acima da média'},ctr:{val:9.8,leitura:'próxima da média'},impressao:{val:-1.3,leitura:'próxima da média'}},dias:[{data:'04/11/2025',optOut:5890,optIn:13120,campanhas:94,envios:14234560,impressoes:7234560,ctr:'0,308%',porMilhao:413.8,leitura:'alta',texto:'mais campanhas que a média'},{data:'18/11/2025',optOut:5560,optIn:13890,campanhas:80,envios:13567890,impressoes:6923450,ctr:'0,292%',porMilhao:409.9,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.39 (31.230) · 4.38 (25.890) · 4.37 (17.450)'}
 };
 
-// Dados estimados de frequência vs conversão por mês/evento.
-// As variações dos meses anteriores são determinísticas para manter o relatório estável a cada carregamento.
+// Curva-base de frequência. O evento selecionado é sempre oficial, carregado do painel original.
+// Quando há resumo real do evento na API, a curva é calibrada pelo total de perfis únicos do evento.
 const FREQ_DADOS = {
-  jun26:{charged:[{faixa:'1x',usuarios:612430,lastClick:4.2,assistido:6.8,optOutFaixa:11.2},{faixa:'2x',usuarios:498210,lastClick:5.1,assistido:8.2},{faixa:'3x',usuarios:312840,lastClick:5.8,assistido:9.1},{faixa:'4x',usuarios:198320,lastClick:6.2,assistido:9.6},{faixa:'5x',usuarios:142180,lastClick:6.4,assistido:9.8},{faixa:'6-9x',usuarios:98240,lastClick:6.1,assistido:9.4},{faixa:'10-14x',usuarios:42180,lastClick:5.2,assistido:8.1},{faixa:'15+x',usuarios:18420,lastClick:3.8,assistido:5.9}],app_payment:[{faixa:'1x',usuarios:612430,lastClick:3.1,assistido:5.2},{faixa:'2x',usuarios:498210,lastClick:3.9,assistido:6.4},{faixa:'3x',usuarios:312840,lastClick:4.4,assistido:7.1},{faixa:'4x',usuarios:198320,lastClick:4.8,assistido:7.6},{faixa:'5x',usuarios:142180,lastClick:4.9,assistido:7.8},{faixa:'6-9x',usuarios:98240,lastClick:4.6,assistido:7.2},{faixa:'10-14x',usuarios:42180,lastClick:3.9,assistido:6.1},{faixa:'15+x',usuarios:18420,lastClick:2.8,assistido:4.4}],nf_read:[{faixa:'1x',usuarios:612430,lastClick:8.4,assistido:12.1},{faixa:'2x',usuarios:498210,lastClick:10.2,assistido:14.8},{faixa:'3x',usuarios:312840,lastClick:11.6,assistido:16.4},{faixa:'4x',usuarios:198320,lastClick:12.1,assistido:17.2},{faixa:'5x',usuarios:142180,lastClick:12.4,assistido:17.6},{faixa:'6-9x',usuarios:98240,lastClick:11.8,assistido:16.8},{faixa:'10-14x',usuarios:42180,lastClick:9.9,assistido:14.2},{faixa:'15+x',usuarios:18420,lastClick:7.2,assistido:10.4}],app_launched:[{faixa:'1x',usuarios:612430,lastClick:18.2,assistido:24.6},{faixa:'2x',usuarios:498210,lastClick:22.4,assistido:29.8},{faixa:'3x',usuarios:312840,lastClick:25.8,assistido:33.2},{faixa:'4x',usuarios:198320,lastClick:27.1,assistido:34.8},{faixa:'5x',usuarios:142180,lastClick:27.6,assistido:35.4},{faixa:'6-9x',usuarios:98240,lastClick:26.2,assistido:33.6},{faixa:'10-14x',usuarios:42180,lastClick:22.1,assistido:28.4},{faixa:'15+x',usuarios:18420,lastClick:16.4,assistido:21.2}],todos:[{faixa:'1x',usuarios:612430,lastClick:33.9,assistido:48.7},{faixa:'2x',usuarios:498210,lastClick:41.6,assistido:59.2},{faixa:'3x',usuarios:312840,lastClick:47.6,assistido:65.8},{faixa:'4x',usuarios:198320,lastClick:50.2,assistido:69.2},{faixa:'5x',usuarios:142180,lastClick:51.3,assistido:70.6},{faixa:'6-9x',usuarios:98240,lastClick:48.7,assistido:66.9},{faixa:'10-14x',usuarios:42180,lastClick:41.1,assistido:56.8},{faixa:'15+x',usuarios:18420,lastClick:30.2,assistido:42.0}]}
-};
-const EVENTOS_CONVERSAO = {
-  charged:'Charged',
-  app_payment:'App Payment',
-  nf_read:'NF Read',
-  app_launched:'App Launched',
-  todos:'Todos os eventos de conversão'
+  jun26:{oficial:[{faixa:'1x',usuarios:612430,lastClick:33.9,assistido:48.7},{faixa:'2x',usuarios:498210,lastClick:41.6,assistido:59.2},{faixa:'3x',usuarios:312840,lastClick:47.6,assistido:65.8},{faixa:'4x',usuarios:198320,lastClick:50.2,assistido:69.2},{faixa:'5x',usuarios:142180,lastClick:51.3,assistido:70.6},{faixa:'6-9x',usuarios:98240,lastClick:48.7,assistido:66.9},{faixa:'10-14x',usuarios:42180,lastClick:41.1,assistido:56.8},{faixa:'15+x',usuarios:18420,lastClick:30.2,assistido:42.0}]}
 };
 const FREQ_VARIACOES = {
   mai26:{usuarios:.98,lastClick:.99,assistido:1.00},
@@ -812,15 +802,12 @@ const FREQ_VARIACOES = {
   nov25:{usuarios:.91,lastClick:.95,assistido:.96}
 };
 Object.entries(FREQ_VARIACOES).forEach(([m,ajuste])=>{
-  FREQ_DADOS[m]={};
-  Object.keys(FREQ_DADOS.jun26).forEach(ev=>{
-    FREQ_DADOS[m][ev]=FREQ_DADOS.jun26[ev].map((r,i)=>({
-      ...r,
-      usuarios:Math.round(r.usuarios*ajuste.usuarios*(1+(i-3)*0.008)),
-      lastClick:+(r.lastClick*ajuste.lastClick).toFixed(1),
-      assistido:+(r.assistido*ajuste.assistido).toFixed(1)
-    }));
-  });
+  FREQ_DADOS[m]={oficial:FREQ_DADOS.jun26.oficial.map((r,i)=>({
+    ...r,
+    usuarios:Math.round(r.usuarios*ajuste.usuarios*(1+(i-3)*0.008)),
+    lastClick:+(r.lastClick*ajuste.lastClick).toFixed(1),
+    assistido:+(r.assistido*ajuste.assistido).toFixed(1)
+  }))};
 });
 
 const OPT_OUT_FAIXA_FILIADO = {
@@ -867,6 +854,38 @@ function optOutDaFaixa(faixa){return OPT_OUT_FAIXA_FILIADO[faixa] ?? null}
 let recorteAtual=12;
 let graficoPrincipalBase='filiados';
 let graficoInternoBase='nao_filiados';
+const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
+const LABELS_CRM=['cdt','copadetodos','local','rd','ug','sonhos','tvtodos','todosviagens','versão app'];
+const EVENTOS_CONVERSAO_PADRAO=['APPCDT-LerNota_TelaResultado_Visualização','APPCDT-Checkout_Sucesso_Visualização'];
+const EVENTO_AGREGADO='__eventos_oficiais__';
+const MESES_API={
+  jun26:{from:'2026-06-01',to:'2026-06-28'},
+  mai26:{from:'2026-05-01',to:'2026-05-31'},
+  abr26:{from:'2026-04-01',to:'2026-04-30'},
+  mar26:{from:'2026-03-01',to:'2026-03-31'},
+  fev26:{from:'2026-02-01',to:'2026-02-28'},
+  jan26:{from:'2026-01-01',to:'2026-01-31'},
+  dez25:{from:'2025-12-01',to:'2025-12-31'},
+  nov25:{from:'2025-11-01',to:'2025-11-30'}
+};
+let eventosConversaoMeta={};
+let requisicaoEventosConversao=0;
+
+function escHTML(valor){
+  return String(valor ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function normalizarTexto(valor){
+  return String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+}
+function campanhaTemLabelCRM(campanha){
+  const labels=Array.isArray(campanha.labels)?campanha.labels:[];
+  const permitidas=new Set(LABELS_CRM.map(normalizarTexto));
+  return labels.some(label=>permitidas.has(normalizarTexto(label)));
+}
+function periodoFreqAtual(){
+  const mes=document.getElementById('freq-mes')?.value || 'jun26';
+  return MESES_API[mes] || MESES_API.jun26;
+}
 
 // ── FILTRO PERÍODO ───────────────────────────────────────────────────
 function setRecorte(meses,btn){
@@ -970,16 +989,117 @@ function atualizarDiagnostico(){
 }
 
 // ── FREQUÊNCIA VS CONVERSÃO ──────────────────────────────────────────
-function renderFreq(){
+function montarEventosOficiais(campanhas){
+  const mapa=new Map();
+  EVENTOS_CONVERSAO_PADRAO.forEach(evento=>{
+    mapa.set(evento,{evento,campanhas:0,labels:new Set(['evento padrão do painel original'])});
+  });
+  (campanhas || []).filter(campanha=>campanha.evento_conversao && campanhaTemLabelCRM(campanha)).forEach(campanha=>{
+    const evento=campanha.evento_conversao;
+    if(!mapa.has(evento)) mapa.set(evento,{evento,campanhas:0,labels:new Set()});
+    const meta=mapa.get(evento);
+    meta.campanhas+=1;
+    (campanha.labels || []).forEach(label=>{
+      if(LABELS_CRM.map(normalizarTexto).includes(normalizarTexto(label))) meta.labels.add(label);
+    });
+  });
+  return [...mapa.values()]
+    .map(item=>({...item,labels:[...item.labels].sort((a,b)=>a.localeCompare(b,'pt-BR'))}))
+    .sort((a,b)=>a.evento.localeCompare(b.evento,'pt-BR'));
+}
+
+async function carregarEventosConversaoFrequencia(renderizarDepois=false){
+  const select=document.getElementById('freq-evento');
+  const status=document.getElementById('freq-evento-status');
+  const periodo=periodoFreqAtual();
+  const valorAnterior=select.value;
+  const requisicaoAtual=++requisicaoEventosConversao;
+  select.disabled=true;
+  select.innerHTML='<option value="">Carregando eventos oficiais...</option>';
+  status.textContent='Buscando eventos oficiais no painel original...';
+  try{
+    const params=new URLSearchParams({from:periodo.from,to:periodo.to});
+    const response=await fetch(`${API_PAINEL_ORIGINAL}/api/dashboard?${params}`,{cache:'no-store'});
+    const dados=await response.json();
+    if(requisicaoAtual!==requisicaoEventosConversao) return;
+    if(!response.ok || !dados.sucesso) throw new Error(dados.erro || 'Dashboard original indisponível.');
+    const eventos=montarEventosOficiais(dados.campanhas || []);
+    eventosConversaoMeta=Object.fromEntries(eventos.map(item=>[item.evento,item]));
+    if(!eventos.length){
+      select.innerHTML='<option value="">Nenhum evento oficial encontrado</option>';
+      status.textContent='Nenhuma campanha com evento de conversão oficial nas labels CRM neste mês.';
+      document.getElementById('freq-resultado').innerHTML='<div style="padding:20px;color:var(--rosa)">Nenhum evento oficial encontrado para o mês selecionado.</div>';
+      return;
+    }
+    select.innerHTML=eventos.map(item=>`<option value="${escHTML(item.evento)}">${escHTML(item.evento)}</option>`).join('');
+    select.value=eventos.some(item=>item.evento===valorAnterior)?valorAnterior:eventos[0].evento;
+    status.textContent=eventos.length===1
+      ? '1 evento oficial carregado do campo evento_conversao das campanhas.'
+      : `${eventos.length} eventos oficiais carregados do campo evento_conversao das campanhas.`;
+    if(renderizarDepois) renderFreq();
+  }catch(error){
+    if(requisicaoAtual!==requisicaoEventosConversao) return;
+    select.innerHTML='<option value="">Eventos indisponíveis</option>';
+    status.textContent=`Não foi possível ler os eventos oficiais: ${error.message}`;
+    document.getElementById('freq-resultado').innerHTML=`<div style="padding:20px;color:var(--rosa)">Não foi possível carregar os eventos oficiais do painel original. ${escHTML(error.message)}</div>`;
+  }finally{
+    if(requisicaoAtual===requisicaoEventosConversao) select.disabled=false;
+  }
+}
+
+async function buscarResumoConversaoEvento(evento,mes){
+  if(!evento) return null;
+  const periodo=MESES_API[mes] || MESES_API.jun26;
+  const response=await fetch(`${API_PAINEL_ORIGINAL}/api/conversao-geral`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      from:periodo.from,
+      to:periodo.to,
+      labels:LABELS_CRM,
+      evento:{nome:evento,filtros:[]}
+    })
+  });
+  const dados=await response.json();
+  if(!response.ok || !dados.sucesso) throw new Error(dados.erro || dados.detalhes || 'Resumo de conversão indisponível.');
+  return dados;
+}
+
+function calibrarSerieFrequencia(mes,resumo){
+  const base=(FREQ_DADOS[mes] || FREQ_DADOS.jun26).oficial;
+  if(!resumo || !Number(resumo.perfis_unicos)) return base;
+  const totalUsuarios=base.reduce((s,r)=>s+r.usuarios,0);
+  const mediaAssistidaAtual=base.reduce((s,r)=>s+(r.assistido*r.usuarios),0)/totalUsuarios;
+  const taxaAssistidaAlvo=Math.max(.05,Math.min(85,(Number(resumo.perfis_unicos)/totalUsuarios)*100));
+  const fator=taxaAssistidaAlvo/mediaAssistidaAtual;
+  return base.map(r=>({
+    ...r,
+    lastClick:+Math.max(.01,Math.min(85,r.lastClick*fator)).toFixed(2),
+    assistido:+Math.max(.01,Math.min(95,r.assistido*fator)).toFixed(2)
+  }));
+}
+
+async function renderFreq(){
   const mes=document.getElementById('freq-mes').value;
   const ev=document.getElementById('freq-evento').value;
-  const dados=(FREQ_DADOS[mes]||{})[ev];
-  if(!dados){document.getElementById('freq-resultado').innerHTML='<div style="padding:20px;color:var(--rosa)">Dados indisponíveis para esta combinação.</div>';return;}
-  const evNomes=EVENTOS_CONVERSAO;
+  const resultado=document.getElementById('freq-resultado');
+  if(!ev){resultado.innerHTML='<div style="padding:20px;color:var(--rosa)">Selecione um evento oficial carregado do painel original.</div>';return;}
+  resultado.innerHTML='<div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px"><div class="spinner" style="margin:0 auto 10px"></div>Consultando resumo real do evento no painel original...</div>';
+  let resumo=null;
+  try{
+    resumo=await buscarResumoConversaoEvento(ev,mes);
+  }catch(error){
+    resultado.innerHTML=`<div style="padding:20px;color:var(--rosa)">Não foi possível consultar o resumo real de <strong>${escHTML(ev)}</strong> no painel original. ${escHTML(error.message)}</div>`;
+    return;
+  }
+  const dados=calibrarSerieFrequencia(mes,resumo);
+  const meta=eventosConversaoMeta[ev] || {campanhas:0,labels:[]};
+  const labelsEvento=(meta.labels || []).length ? meta.labels.join(', ') : 'labels CRM permitidas';
   let html=`
     <div style="margin-bottom:14px;font-size:11px;color:var(--texto-suave);line-height:1.6">
-      Evento de conversão: <strong style="color:var(--verde-escuro)">${evNomes[ev]}</strong> &nbsp;·&nbsp; Janela de conversão: <strong>5 dias após o recebimento</strong><br>
-      Campanhas filtradas pelas labels do CRM - Engajamento: <strong>cdt, copadetodos, local, rd, ug, sonhos, tvtodos, todosviagens e versão app</strong>
+      Evento de conversão oficial: <strong style="color:var(--verde-escuro)">${escHTML(ev)}</strong> &nbsp;·&nbsp; Janela de conversão: <strong>5 dias após o recebimento</strong><br>
+      Fonte do evento: <strong>campo evento_conversao das campanhas no painel original</strong> · Campanhas no mês com esse evento: <strong>${fmt(meta.campanhas || 0)}</strong> · Labels observadas: <strong>${escHTML(labelsEvento)}</strong><br>
+      Resumo real do painel original: <strong>${fmt(resumo.eventos_disparados || 0)}</strong> eventos disparados · <strong>${fmt(resumo.perfis_unicos || 0)}</strong> perfis únicos.
     </div>
     <table class="dados-tabela freq-table">
       <thead><tr>
@@ -1016,9 +1136,10 @@ function renderFreq(){
   html+=`<div class="nota-box info" style="margin-top:12px">
     📌 <strong>Last Click:</strong> usuário clicou no push e realizou o evento na janela de 5 dias.<br>
     📌 <strong>Assistidos:</strong> usuário recebeu o push (mesmo sem clicar) e realizou o evento na janela — mede o impacto indireto da comunicação.<br>
-    📌 <strong>Uplift:</strong> diferença entre assistidos e last click — quanto a presença do push influenciou mesmo sem o clique.
+    📌 <strong>Uplift:</strong> diferença entre assistidos e last click — quanto a presença do push influenciou mesmo sem o clique.<br>
+    📌 <strong>Importante:</strong> o nome do evento e os totais vêm do painel original; a distribuição por faixa de frequência é uma curva calibrada para o evento, pois o painel original não expõe frequência recebida por usuário nesta API.
   </div>`;
-  document.getElementById('freq-resultado').innerHTML=html;
+  resultado.innerHTML=html;
 }
 
 // ── DIAS CRÍTICOS ────────────────────────────────────────────────────
@@ -1207,6 +1328,7 @@ renderGrafico();
 renderCriticos();
 atualizarDiagnostico();
 renderHistFiliado();
+carregarEventosConversaoFrequencia(true);
 // renderGraficoOutros() chamado apenas ao desbloquear o painel
 </script>
 </body>
