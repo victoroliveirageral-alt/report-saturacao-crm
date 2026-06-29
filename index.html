@@ -69,7 +69,7 @@
     /* GRÁFICO — tooltip fixo, não corta nas pontas */
     .grafico-outer{position:relative;padding:0 2px;overflow-x:auto}
     .grafico-barras{display:flex;gap:6px;align-items:flex-end;height:160px}
-    .mes-grupo{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer}
+    .mes-grupo{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer}
     .mes-grupo:hover .mes-barras-inner{opacity:.75}
     .mes-barras-inner{width:80%;display:flex;flex-direction:column;border-radius:6px 6px 0 0;overflow:hidden;transition:opacity .15s}
     .mes-bar-in{width:100%;background:var(--verde);min-height:4px}
@@ -240,9 +240,10 @@
       td{padding:7px 7px;font-size:11px}
 
       /* Gráfico evolução */
-      .grafico-barras{height:120px;gap:3px}
-      .mes-eixo-label{font-size:7px}
-      .mes-barras-inner{width:90%}
+      .grafico-outer{overflow-x:auto;-webkit-overflow-scrolling:touch}
+      .grafico-barras{height:120px;gap:2px;min-width:360px}
+      .mes-eixo-label{font-size:6.5px;white-space:nowrap}
+      .mes-barras-inner{width:88%}
 
       /* Controles frequência — 1 coluna no mobile */
       .freq-controles{grid-template-columns:1fr!important;gap:10px;padding:12px}
@@ -443,12 +444,12 @@
         <div class="painel-titulo">Evolução mensal de opt-in e opt-out</div>
         <div class="painel-subtitulo" id="grafico-periodo-label">Exibindo: Jul/2025 a Jun/2026 (12 meses) · Apenas base <strong>Filiado</strong></div>
       </div>
-      <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap">
+    </div>
+    <div class="conteudo">
+      <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap;margin-bottom:14px">
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Ativaram push</span>
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push</span>
       </div>
-    </div>
-    <div class="conteudo">
       <div class="grafico-outer">
         <div class="grafico-barras" id="grafico-barras"></div>
       </div>
@@ -640,12 +641,12 @@
         <div style="margin-bottom:24px">
           <div style="font-size:13px;font-weight:800;color:#5b21b6;margin-bottom:4px">Evolução mensal de opt-in e opt-out — base Outros</div>
           <div style="font-size:10px;color:var(--texto-suave);margin-bottom:12px">Usuários com <code>Plan ≠ FILIADO</code> ou sem Plan preenchido · mesma escala e metodologia do gráfico principal</div>
-          <div style="display:flex;gap:14px;font-size:10px;font-weight:800;margin-bottom:10px;flex-wrap:wrap">
-            <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7c3aed"></i> Ativaram push (opt-in Outros)</span>
-            <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push (opt-out Outros)</span>
+          <div style="display:flex;gap:14px;font-size:10px;font-weight:800;margin-bottom:14px;flex-wrap:wrap">
+            <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7c3aed"></i> Ativaram push</span>
+            <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push</span>
           </div>
           <div class="grafico-outer">
-            <div class="grafico-barras" id="grafico-outros" style="--bar-color-in:#7c3aed"></div>
+            <div class="grafico-barras" id="grafico-outros"></div>
           </div>
           <div class="nota-box info" style="margin-top:10px;background:#faf5ff;border-color:rgba(124,58,237,.15)">
             📌 A taxa de opt-out da base Outros é de <strong>17,32%</strong> no snapshot atual — <strong>1,2pp menor</strong> que a base Filiada (18,52%). As taxas mensais acompanham o mesmo padrão sazonal, sugerindo que o aumento em ABR-JUN/26 é sistêmico (Copa do Mundo), não específico da nossa comunicação.
