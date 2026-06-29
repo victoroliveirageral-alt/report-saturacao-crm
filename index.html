@@ -79,8 +79,8 @@
 
     /* GRÁFICO — tooltip fixo, não corta nas pontas */
     .grafico-outer{position:relative;padding:0 2px;overflow-x:auto;overscroll-behavior-x:contain}
-    .grafico-barras{display:flex;gap:6px;align-items:flex-end;height:160px;min-width:520px}
-    .mes-grupo{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer}
+    .grafico-barras{position:relative;display:flex;gap:6px;align-items:flex-end;height:180px;min-width:520px;padding-top:24px;isolation:isolate}
+    .mes-grupo{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer;z-index:2}
     .mes-grupo:hover .mes-barras-inner{opacity:.75}
     .mes-barras-inner{width:80%;display:flex;flex-direction:column;border-radius:6px 6px 0 0;overflow:hidden;transition:opacity .15s}
     .mes-bar-in{width:100%;background:var(--verde);min-height:4px}
@@ -88,6 +88,13 @@
     .mes-eixo-label{font-size:8px;color:var(--texto-suave);font-weight:800;text-align:center;margin-top:5px;text-transform:uppercase}
     .mes-eixo-label span{display:inline}
     .mes-eixo-label span+span::before{content:' '}
+    .grafico-linha-optout{position:absolute;left:0;right:0;top:8px;bottom:22px;z-index:4;pointer-events:none;overflow:visible}
+    .grafico-linha-optout svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+    .grafico-linha-optout polyline{fill:none;stroke:var(--rosa);stroke-width:2.2;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 1px 2px rgba(251,42,91,.25))}
+    .optout-ponto{position:absolute;width:8px;height:8px;border-radius:50%;background:var(--rosa);border:2px solid white;box-shadow:0 1px 5px rgba(251,42,91,.45);transform:translate(-50%,-50%)}
+    .optout-label{position:absolute;transform:translate(-50%,-130%);padding:2px 5px;border-radius:999px;background:white;border:1px solid rgba(251,42,91,.25);color:var(--rosa);font-size:8px;font-weight:900;line-height:1;white-space:nowrap;box-shadow:0 2px 7px rgba(0,0,0,.06)}
+    .legenda-linha{display:inline-block;width:18px;height:3px;border-radius:999px;background:var(--rosa);position:relative}
+    .legenda-linha::after{content:'';position:absolute;right:-2px;top:50%;width:7px;height:7px;border-radius:50%;background:var(--rosa);border:2px solid white;transform:translateY(-50%);box-shadow:0 1px 4px rgba(251,42,91,.35)}
     /* Tooltip — posicionado com JS para não cortar */
     .tt{display:none;position:fixed;background:var(--verde-escuro);color:white;border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.7;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.22);min-width:200px;transition:opacity .1s}
     .tt-titulo{font-weight:800;font-size:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:5px;margin-bottom:5px}
@@ -138,16 +145,22 @@
     .nota-box{padding:12px 14px;border-radius:10px;font-size:10px;color:var(--texto-suave);line-height:1.6;margin-top:12px}
     .nota-box.aviso{background:#fff8f0;border:1px solid rgba(242,139,34,.2)}
     .nota-box.info{background:#f4f8f6;border:1px solid var(--borda)}
+    .spinner{width:26px;height:26px;border:3px solid rgba(0,169,136,.18);border-top-color:var(--verde);border-radius:50%;animation:girar .8s linear infinite}
+    @keyframes girar{to{transform:rotate(360deg)}}
 
     /* ── SEÇÃO 1: FREQUÊNCIA VS CONVERSÃO ── */
     .freq-wrap{display:flex;flex-direction:column;gap:16px}
-    .freq-controles{display:grid;grid-template-columns:1fr 1fr;align-items:end;gap:12px;padding:16px;background:#f8fbfa;border:1px solid var(--borda);border-radius:12px}
+    .freq-controles{display:grid;grid-template-columns:minmax(220px,.7fr) minmax(320px,1.3fr);align-items:start;gap:14px;padding:18px 20px;background:#f8fbfa;border:1px solid var(--borda);border-radius:12px}
     .freq-campo{display:flex;flex-direction:column;gap:5px}
     .freq-campo label{font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px}
-    .freq-campo select,.freq-campo input{padding:8px 12px;border:1.5px solid var(--borda);border-radius:10px;background:white;color:var(--texto);font:700 12px Arial;width:100%}
+    .freq-campo select,.freq-campo input{min-height:42px;padding:9px 12px;border:1.5px solid var(--borda);border-radius:10px;background:white;color:var(--texto);font:700 12px Arial;width:100%}
     .freq-campo-full{grid-column:1/-1}
-    .btn-calcular{padding:9px 18px;border-radius:10px;border:none;background:var(--verde);color:white;font:800 12px Arial;cursor:pointer;grid-column:1/-1;width:100%}
-    .btn-calcular:hover{background:var(--verde-escuro)}
+    .freq-auto-status{grid-column:1/-1;display:flex;align-items:center;gap:8px;min-height:34px;padding:8px 10px;border-radius:10px;background:rgba(0,169,136,.07);border:1px solid rgba(0,169,136,.16);color:var(--verde-escuro);font-size:10px;font-weight:800;line-height:1.35}
+    .freq-auto-status::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--verde);box-shadow:0 0 0 4px rgba(0,169,136,.12);flex-shrink:0}
+    .freq-auto-status.carregando{background:#fff8f0;border-color:rgba(242,139,34,.22);color:var(--laranja)}
+    .freq-auto-status.carregando::before{background:var(--laranja);box-shadow:0 0 0 4px rgba(242,139,34,.12)}
+    .freq-auto-status.erro{background:rgba(251,42,91,.06);border-color:rgba(251,42,91,.18);color:var(--rosa)}
+    .freq-auto-status.erro::before{background:var(--rosa);box-shadow:0 0 0 4px rgba(251,42,91,.12)}
     .freq-tabela-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
     .freq-tabela-wrap table{min-width:780px}
     #tabela-criticos{min-width:920px}
@@ -263,17 +276,19 @@
 
       /* Gráfico evolução */
       .grafico-outer{overflow:visible;padding:0}
-      .grafico-barras{width:100%;min-width:0;height:150px;gap:3px}
+      .grafico-barras{width:100%;min-width:0;height:166px;gap:3px;padding-top:28px}
       .mes-grupo{min-width:0}
       .mes-eixo-label{width:100%;min-height:14px;font-size:6px;line-height:1.05;white-space:normal;overflow:visible;letter-spacing:0}
       .mes-eixo-label span{display:block}
       .mes-eixo-label span+span::before{content:''}
       .mes-barras-inner{width:74%;border-radius:5px 5px 0 0}
+      .grafico-linha-optout{top:12px;bottom:22px}
+      .optout-label{font-size:7px;padding:2px 4px}
 
       /* Controles frequência — 1 coluna no mobile */
       .freq-controles{grid-template-columns:1fr!important;gap:10px;padding:12px}
       .freq-campo-full{grid-column:1!important}
-      .btn-calcular{grid-column:1!important;padding:11px}
+      .freq-auto-status{grid-column:1!important}
       .acesso-interno{justify-content:stretch}
       .btn-interno{width:100%;justify-content:center}
 
@@ -491,6 +506,7 @@
       <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap;margin-bottom:14px">
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Ativaram push</span>
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push</span>
+        <span style="display:flex;align-items:center;gap:7px"><i class="legenda-linha"></i> Taxa de opt-out</span>
       </div>
       <div class="grafico-outer">
         <div class="grafico-barras" id="grafico-barras"></div>
@@ -552,7 +568,7 @@
         </div>
         <div class="freq-campo">
           <label for="freq-evento">Evento de conversão</label>
-          <select id="freq-evento">
+          <select id="freq-evento" onchange="renderFreq()">
             <option value="">Carregando eventos oficiais...</option>
           </select>
           <div id="freq-evento-status" style="font-size:9px;color:var(--texto-suave);line-height:1.4;margin-top:5px">Eventos lidos do painel original.</div>
@@ -571,11 +587,11 @@
             <span class="badge-label">versão app</span>
           </div>
         </div>
-        <button class="btn-calcular" type="button" onclick="renderFreq()">Visualizar</button>
+        <div class="freq-auto-status carregando" id="freq-auto-status">Carregando resultado automaticamente...</div>
       </div>
 
       <div class="freq-tabela-wrap" id="freq-resultado">
-        <div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px">Selecione o mês e o evento de conversão e clique em <strong>Visualizar</strong>.</div>
+        <div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px">Carregando o resultado automaticamente com os eventos oficiais do painel original...</div>
       </div>
     </div>
   </div>
@@ -645,14 +661,14 @@
   </div>
 
   <div class="acesso-interno">
-    <button class="btn-interno" type="button" onclick="abrirPin()">🔒 Dados de outras frentes</button>
+    <button class="btn-interno" type="button" onclick="abrirPin()">🔒 Uso interno</button>
   </div>
 
   <!-- SEÇÃO OUTROS (oculta, PIN) -->
   <!-- Botão de recolher — sempre visível, fora do wrapper -->
   <div id="secao-outros" style="margin-top:28px">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:nowrap">
-      <button onclick="esconderOutros()" id="btn-recolher" type="button" aria-expanded="true" aria-controls="outros-conteudo-total" aria-label="Ocultar e bloquear dados de outras frentes"
+      <button onclick="esconderOutros()" id="btn-recolher" type="button" aria-expanded="true" aria-controls="outros-conteudo-total" aria-label="Ocultar e bloquear uso interno"
         style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:none;background:rgba(124,58,237,.15);color:#5b21b6;font-size:16px;cursor:pointer;flex-shrink:0;transition:background .15s"
         title="Ocultar e bloquear seção">🔒</button>
       <div id="outros-topo-visivel" style="display:none;flex:1">
@@ -689,6 +705,7 @@
           <div style="display:flex;gap:14px;font-size:10px;font-weight:800;margin-bottom:14px;flex-wrap:wrap">
             <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7c3aed"></i> Ativaram push</span>
             <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push</span>
+            <span style="display:flex;align-items:center;gap:7px"><i class="legenda-linha"></i> Taxa de opt-out</span>
           </div>
           <div class="grafico-outer">
             <div class="grafico-barras" id="grafico-outros"></div>
@@ -857,7 +874,6 @@ let graficoInternoBase='nao_filiados';
 const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
 const LABELS_CRM=['cdt','copadetodos','local','rd','ug','sonhos','tvtodos','todosviagens','versão app'];
 const EVENTOS_CONVERSAO_PADRAO=['APPCDT-LerNota_TelaResultado_Visualização','APPCDT-Checkout_Sucesso_Visualização'];
-const EVENTO_AGREGADO='__eventos_oficiais__';
 const MESES_API={
   jun26:{from:'2026-06-01',to:'2026-06-28'},
   mai26:{from:'2026-05-01',to:'2026-05-31'},
@@ -870,6 +886,7 @@ const MESES_API={
 };
 let eventosConversaoMeta={};
 let requisicaoEventosConversao=0;
+let requisicaoFreq=0;
 
 function escHTML(valor){
   return String(valor ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -885,6 +902,12 @@ function campanhaTemLabelCRM(campanha){
 function periodoFreqAtual(){
   const mes=document.getElementById('freq-mes')?.value || 'jun26';
   return MESES_API[mes] || MESES_API.jun26;
+}
+function setFreqAutoStatus(texto,estado='ok'){
+  const el=document.getElementById('freq-auto-status');
+  if(!el) return;
+  el.className=`freq-auto-status ${estado==='ok'?'':estado}`.trim();
+  el.textContent=texto;
 }
 
 // ── FILTRO PERÍODO ───────────────────────────────────────────────────
@@ -937,6 +960,28 @@ function setGraficoInternoBase(base,btn){
 }
 
 // ── GRÁFICO ─────────────────────────────────────────────────────────
+function renderLinhaOptOut(wrap,dados){
+  if(!wrap || !dados.length) return;
+  const maxTaxa=Math.max(12,...dados.map(d=>d.taxaOut))*1.12;
+  const pontos=dados.map((d,i)=>{
+    const x=dados.length===1 ? 50 : ((i+.5)/dados.length)*100;
+    const y=100-(Math.min(d.taxaOut,maxTaxa)/maxTaxa)*100;
+    return {x,y,d};
+  });
+  const camada=document.createElement('div');
+  camada.className='grafico-linha-optout';
+  camada.innerHTML=`
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <polyline points="${pontos.map(p=>`${p.x},${p.y}`).join(' ')}"></polyline>
+    </svg>
+    ${pontos.map(p=>`
+      <span class="optout-ponto" style="left:${p.x}%;top:${p.y}%"></span>
+      <span class="optout-label" style="left:${p.x}%;top:${p.y}%">${fmtPct(p.d.taxaOut,0)}</span>
+    `).join('')}
+  `;
+  wrap.appendChild(camada);
+}
+
 function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
   const dados=dadosOrigem.slice(12-recorteAtual);
   const maxTotal=Math.max(...dados.map(d=>d.optIn+d.optOut));
@@ -965,6 +1010,7 @@ function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
     col.addEventListener('mouseleave',function(){tt.style.display='none'});
     wrap.appendChild(col);
   });
+  renderLinhaOptOut(wrap,dados);
 }
 function renderGrafico(){
   const base=BASES_GRAFICO[graficoPrincipalBase];
@@ -1017,6 +1063,7 @@ async function carregarEventosConversaoFrequencia(renderizarDepois=false){
   select.disabled=true;
   select.innerHTML='<option value="">Carregando eventos oficiais...</option>';
   status.textContent='Buscando eventos oficiais no painel original...';
+  setFreqAutoStatus('Buscando eventos oficiais e preparando o resultado...', 'carregando');
   try{
     const params=new URLSearchParams({from:periodo.from,to:periodo.to});
     const response=await fetch(`${API_PAINEL_ORIGINAL}/api/dashboard?${params}`,{cache:'no-store'});
@@ -1028,6 +1075,7 @@ async function carregarEventosConversaoFrequencia(renderizarDepois=false){
     if(!eventos.length){
       select.innerHTML='<option value="">Nenhum evento oficial encontrado</option>';
       status.textContent='Nenhuma campanha com evento de conversão oficial nas labels CRM neste mês.';
+      setFreqAutoStatus('Nenhum evento oficial encontrado para atualizar.', 'erro');
       document.getElementById('freq-resultado').innerHTML='<div style="padding:20px;color:var(--rosa)">Nenhum evento oficial encontrado para o mês selecionado.</div>';
       return;
     }
@@ -1041,6 +1089,7 @@ async function carregarEventosConversaoFrequencia(renderizarDepois=false){
     if(requisicaoAtual!==requisicaoEventosConversao) return;
     select.innerHTML='<option value="">Eventos indisponíveis</option>';
     status.textContent=`Não foi possível ler os eventos oficiais: ${error.message}`;
+    setFreqAutoStatus('Falha ao atualizar os eventos oficiais.', 'erro');
     document.getElementById('freq-resultado').innerHTML=`<div style="padding:20px;color:var(--rosa)">Não foi possível carregar os eventos oficiais do painel original. ${escHTML(error.message)}</div>`;
   }finally{
     if(requisicaoAtual===requisicaoEventosConversao) select.disabled=false;
@@ -1080,18 +1129,27 @@ function calibrarSerieFrequencia(mes,resumo){
 }
 
 async function renderFreq(){
+  const requisicaoAtual=++requisicaoFreq;
   const mes=document.getElementById('freq-mes').value;
   const ev=document.getElementById('freq-evento').value;
   const resultado=document.getElementById('freq-resultado');
-  if(!ev){resultado.innerHTML='<div style="padding:20px;color:var(--rosa)">Selecione um evento oficial carregado do painel original.</div>';return;}
+  if(!ev){
+    setFreqAutoStatus('Aguardando um evento oficial para atualizar.', 'erro');
+    resultado.innerHTML='<div style="padding:20px;color:var(--rosa)">Selecione um evento oficial carregado do painel original.</div>';
+    return;
+  }
+  setFreqAutoStatus('Atualizando automaticamente com o evento selecionado...', 'carregando');
   resultado.innerHTML='<div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px"><div class="spinner" style="margin:0 auto 10px"></div>Consultando resumo real do evento no painel original...</div>';
   let resumo=null;
   try{
     resumo=await buscarResumoConversaoEvento(ev,mes);
   }catch(error){
+    if(requisicaoAtual!==requisicaoFreq) return;
+    setFreqAutoStatus('Não foi possível atualizar o resultado automaticamente.', 'erro');
     resultado.innerHTML=`<div style="padding:20px;color:var(--rosa)">Não foi possível consultar o resumo real de <strong>${escHTML(ev)}</strong> no painel original. ${escHTML(error.message)}</div>`;
     return;
   }
+  if(requisicaoAtual!==requisicaoFreq) return;
   const dados=calibrarSerieFrequencia(mes,resumo);
   const meta=eventosConversaoMeta[ev] || {campanhas:0,labels:[]};
   const labelsEvento=(meta.labels || []).length ? meta.labels.join(', ') : 'labels CRM permitidas';
@@ -1140,6 +1198,7 @@ async function renderFreq(){
     📌 <strong>Importante:</strong> o nome do evento e os totais vêm do painel original; a distribuição por faixa de frequência é uma curva calibrada para o evento, pois o painel original não expõe frequência recebida por usuário nesta API.
   </div>`;
   resultado.innerHTML=html;
+  setFreqAutoStatus(`Resultado atualizado automaticamente para ${ev}.`, 'ok');
 }
 
 // ── DIAS CRÍTICOS ────────────────────────────────────────────────────
