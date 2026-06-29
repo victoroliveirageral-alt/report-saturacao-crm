@@ -5,47 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cartão de TODOS — Saúde da Comunicação Push</title>
   <style>
-    :root {
-      --verde:#00A988;--verde-escuro:#007D55;--verde-claro:#A6FF00;
-      --azul:#05a9c4;--rosa:#FB2A5B;--laranja:#f28b22;--amarelo:#d8b719;
-      --texto:#253632;--texto-suave:#6f7977;--fundo:#f4f8f6;
-      --borda:#dce7e3;--branco:#fff;--sombra:0 10px 28px rgba(0,95,66,.07);
-    }
+    :root{--verde:#00A988;--verde-escuro:#007D55;--verde-claro:#A6FF00;--azul:#05a9c4;--rosa:#FB2A5B;--laranja:#f28b22;--amarelo:#d8b719;--roxo:#7c3aed;--texto:#253632;--texto-suave:#6f7977;--fundo:#f4f8f6;--borda:#dce7e3;--branco:#fff;--sombra:0 10px 28px rgba(0,95,66,.07)}
     *{box-sizing:border-box;margin:0;padding:0}
     body{min-height:100vh;background:var(--fundo);color:var(--texto);font-family:Arial,sans-serif}
     header{display:flex;align-items:center;justify-content:space-between;min-height:82px;padding:12px 40px;background:var(--verde)}
     .marca-titulo{color:white;font-size:18px;font-weight:800}
     .marca-subtitulo{margin-top:3px;color:rgba(255,255,255,.78);font-size:12px}
-    .header-direita{display:flex;align-items:center;gap:10px}
     .badge-periodo{padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.18);color:white;font-size:11px;font-weight:800}
     main{max-width:1300px;margin:0 auto;padding:26px 28px 60px}
-
-    /* HERO */
     .hero{position:relative;overflow:hidden;min-height:160px;padding:32px 38px;border-radius:0 0 70px 0;background:linear-gradient(45deg,var(--verde) 0%,var(--verde) 70%,var(--verde-claro) 100%);color:white;margin-bottom:24px}
     .hero::after{content:'';position:absolute;right:-70px;bottom:-115px;width:300px;height:200px;border-radius:50%;background:rgba(166,255,0,.55)}
     .hero h1{font-size:28px;line-height:1.1;position:relative;z-index:1}
     .hero p{max-width:800px;margin-top:10px;color:rgba(255,255,255,.9);font-size:13px;line-height:1.6;position:relative;z-index:1}
     .hero-tag{display:inline-flex;margin-top:14px;padding:6px 12px;border:1px solid rgba(255,255,255,.3);border-radius:999px;background:rgba(0,100,72,.2);color:white;font-size:10px;font-weight:800;position:relative;z-index:1}
-
-    /* FILTRO PERIODO */
     .filtro-periodo{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:wrap}
     .filtro-label{font-size:11px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.4px;margin-right:4px}
     .filtro-btn{padding:7px 16px;border-radius:999px;border:1.5px solid var(--borda);background:white;color:var(--texto-suave);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
     .filtro-btn:hover{border-color:var(--verde);color:var(--verde-escuro)}
     .filtro-btn.ativo{background:var(--verde);border-color:var(--verde);color:white}
-
-    /* BANNER DIAGNÓSTICO */
     .saude-banner{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;border-radius:14px;border:1px solid rgba(0,169,136,.25);background:rgba(0,169,136,.07);margin-bottom:20px}
     .saude-icone{font-size:26px;flex-shrink:0;margin-top:2px}
     .saude-titulo{font-size:14px;font-weight:800;color:var(--verde-escuro)}
     .saude-desc{font-size:11px;color:var(--texto-suave);margin-top:5px;line-height:1.7}
     .saude-desc strong{color:var(--texto)}
-
-    /* SECAO */
     .secao-titulo{font-size:15px;font-weight:800;color:var(--verde-escuro);margin:28px 0 4px}
     .secao-subtitulo{font-size:11px;color:var(--texto-suave);margin-bottom:14px;line-height:1.5}
-
-    /* CARDS */
     .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
     .card{padding:18px;border:1px solid var(--borda);border-radius:15px 15px 30px 15px;background:#f8fbfa}
     .card.verde{border-color:rgba(0,169,136,.25);background:rgba(0,169,136,.07)}
@@ -61,15 +45,11 @@
     .barra{display:flex;height:14px;margin-top:14px;overflow:hidden;border-radius:999px;background:#edf3f1}
     .barra-in{background:var(--verde)}
     .barra-out{background:var(--rosa)}
-
-    /* PAINEL */
     .painel{margin-bottom:20px;overflow:hidden;border:1px solid var(--borda);border-radius:18px 18px 42px 18px;background:var(--branco);box-shadow:var(--sombra)}
-    .painel-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:17px 20px;border-bottom:1px solid var(--borda)}
+    .painel-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:17px 20px;border-bottom:1px solid var(--borda);flex-wrap:wrap}
     .painel-titulo{color:var(--verde-escuro);font-size:15px;font-weight:800}
     .painel-subtitulo{margin-top:4px;color:var(--texto-suave);font-size:10px;line-height:1.5}
     .conteudo{padding:20px}
-
-    /* COMPARATIVO */
     .comp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .comp-card{padding:18px;border:1px solid var(--borda);border-radius:14px;background:#f8fbfa}
     .comp-card.filiado{border-color:rgba(0,169,136,.3);background:rgba(0,169,136,.05)}
@@ -86,45 +66,35 @@
     .comp-linha-label{color:var(--texto-suave);font-size:10px;line-height:1.4}
     .comp-linha-label small{display:block;font-size:9px;color:#aab8b4;margin-top:2px}
 
-    /* GRÁFICO BARRAS */
-    .grafico-wrap{position:relative;padding-bottom:8px}
-    .grafico-barras{display:flex;gap:6px;align-items:flex-end;height:160px;padding:0 4px}
-    .mes-grupo{flex:1;display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;position:relative}
+    /* GRÁFICO — tooltip fixo, não corta nas pontas */
+    .grafico-outer{position:relative;padding:0 2px}
+    .grafico-barras{display:flex;gap:6px;align-items:flex-end;height:160px}
+    .mes-grupo{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer}
     .mes-grupo:hover .mes-barras-inner{opacity:.75}
     .mes-barras-inner{width:80%;display:flex;flex-direction:column;border-radius:6px 6px 0 0;overflow:hidden;transition:opacity .15s}
     .mes-bar-in{width:100%;background:var(--verde);min-height:4px}
     .mes-bar-out{width:100%;background:var(--rosa);min-height:3px}
     .mes-eixo-label{font-size:8px;color:var(--texto-suave);font-weight:800;text-align:center;margin-top:5px;text-transform:uppercase}
-    /* Tooltip */
-    .tooltip{
-      display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
-      background:var(--verde-escuro);color:white;border-radius:10px;padding:10px 13px;
-      font-size:11px;line-height:1.6;white-space:nowrap;z-index:10;pointer-events:none;
-      box-shadow:0 4px 18px rgba(0,0,0,.18)
-    }
-    .tooltip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--verde-escuro)}
-    .mes-grupo:hover .tooltip{display:block}
-    .tooltip-titulo{font-weight:800;font-size:12px;margin-bottom:4px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:4px}
-    .tooltip-linha{display:flex;justify-content:space-between;gap:16px}
-    .tooltip-label{color:rgba(255,255,255,.7)}
-    .tooltip-val{font-weight:800}
-    .tooltip-val.verde{color:var(--verde-claro)}
-    .tooltip-val.rosa{color:#ff8fa8}
+    /* Tooltip — posicionado com JS para não cortar */
+    .tt{display:none;position:fixed;background:var(--verde-escuro);color:white;border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.7;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.22);min-width:200px}
+    .tt-titulo{font-weight:800;font-size:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:5px;margin-bottom:5px}
+    .tt-linha{display:flex;justify-content:space-between;gap:16px}
+    .tt-label{color:rgba(255,255,255,.7)}
+    .tt-val{font-weight:800}
+    .tt-val.verde{color:var(--verde-claro)}
+    .tt-val.rosa{color:#ff8fa8}
+    .tt-val.taxa{color:#ffd97d}
 
-    /* TABELA DIAS CRÍTICOS */
+    /* TABELA */
     table{width:100%;border-collapse:collapse;font-size:12px}
     th{padding:8px 10px;text-align:left;color:var(--texto-suave);font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;border-bottom:2px solid var(--borda)}
     td{padding:9px 10px;border-bottom:1px solid #f0f5f3;vertical-align:middle}
     tr:last-child td{border-bottom:none}
-    .leitura-pill{display:inline-flex;padding:3px 9px;border-radius:999px;font-size:9px;font-weight:800}
+    .pill{display:inline-flex;padding:3px 9px;border-radius:999px;font-size:9px;font-weight:800}
     .pill-alta{background:rgba(251,42,91,.12);color:var(--rosa)}
     .pill-media{background:rgba(242,139,34,.12);color:var(--laranja)}
     .pill-normal{background:rgba(0,169,136,.12);color:var(--verde-escuro)}
-
-    /* SELETOR MÊS CRÍTICOS */
     .sel-mes{padding:7px 12px;border:1px solid var(--borda);border-radius:10px;background:white;color:var(--texto);font:700 11px Arial;cursor:pointer}
-
-    /* CARDS MÉTRICAS CRÍTICAS */
     .metricas-criticas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
     .mc{padding:14px;border:1px solid var(--borda);border-radius:12px;background:white}
     .mc-label{font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.4px;line-height:1.4}
@@ -134,9 +104,8 @@
     .mc.rosa{border-color:rgba(251,42,91,.2);background:rgba(251,42,91,.04)}
     .mc.rosa .mc-valor{color:var(--rosa)}
     .mc.verde .mc-valor{color:var(--verde-escuro)}
+    .mc.azul{border-color:rgba(5,169,196,.2);background:rgba(5,169,196,.05)}
     .mc.azul .mc-valor{color:var(--azul)}
-
-    /* INSIGHTS */
     .insight-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:4px}
     .insight-box{padding:14px 16px;border-radius:13px;border:1px solid}
     .insight-box.verde{border-color:rgba(0,169,136,.2);background:rgba(0,169,136,.06)}
@@ -146,31 +115,103 @@
     .insight-icone{font-size:18px;margin-bottom:6px}
     .insight-titulo{font-size:12px;font-weight:800;color:var(--texto)}
     .insight-desc{margin-top:4px;font-size:11px;color:var(--texto-suave);line-height:1.6}
-
-    /* RECOMENDAÇÕES */
     .rec-lista{display:flex;flex-direction:column;gap:10px}
     .rec-item{display:flex;gap:12px;padding:14px;border-radius:12px;border:1px solid var(--borda);background:white}
     .rec-num{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--verde);color:white;font-size:12px;font-weight:800;flex-shrink:0;margin-top:1px}
     .rec-corpo-titulo{font-size:12px;font-weight:800;color:var(--verde-escuro)}
     .rec-corpo-desc{margin-top:3px;font-size:11px;color:var(--texto-suave);line-height:1.5}
-
-    /* FOOTER */
     .footer{margin-top:32px;padding:18px;border-radius:12px;border:1px solid var(--borda);background:white;text-align:center;font-size:10px;color:var(--texto-suave)}
     .footer strong{color:var(--verde-escuro)}
-
-    .nota-box{margin-top:12px;padding:12px 14px;border-radius:10px;font-size:10px;color:var(--texto-suave);line-height:1.6}
+    .nota-box{padding:12px 14px;border-radius:10px;font-size:10px;color:var(--texto-suave);line-height:1.6;margin-top:12px}
     .nota-box.aviso{background:#fff8f0;border:1px solid rgba(242,139,34,.2)}
     .nota-box.info{background:#f4f8f6;border:1px solid var(--borda)}
+
+    /* ── SEÇÃO 1: FREQUÊNCIA VS CONVERSÃO ── */
+    .freq-wrap{display:flex;flex-direction:column;gap:16px}
+    .freq-controles{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;padding:16px;background:#f8fbfa;border:1px solid var(--borda);border-radius:12px}
+    .freq-campo{display:flex;flex-direction:column;gap:5px}
+    .freq-campo label{font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px}
+    .freq-campo select,.freq-campo input{padding:8px 12px;border:1.5px solid var(--borda);border-radius:10px;background:white;color:var(--texto);font:700 12px Arial;min-width:160px}
+    .freq-campo input{min-width:220px}
+    .btn-calcular{padding:9px 18px;border-radius:10px;border:none;background:var(--verde);color:white;font:800 12px Arial;cursor:pointer;margin-top:auto}
+    .btn-calcular:hover{background:var(--verde-escuro)}
+    .freq-tabela-wrap{overflow-x:auto}
+    .freq-nota{font-size:10px;color:var(--texto-suave);font-style:italic;margin-top:8px;line-height:1.5}
+    .badge-label{display:inline-flex;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(0,169,136,.12);color:var(--verde-escuro);margin-right:4px;margin-bottom:3px}
+
+    /* ── SEÇÃO 3: OUTROS — EASTER EGG + PIN ── */
+    #easter-trigger{position:fixed;bottom:18px;right:22px;width:14px;height:14px;border-radius:50%;background:rgba(124,58,237,.18);border:none;cursor:pointer;z-index:100;transition:background .2s}
+    #easter-trigger:hover{background:rgba(124,58,237,.45)}
+    #pin-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center}
+    #pin-modal.show{display:flex}
+    .pin-card{background:white;border-radius:18px;padding:28px 32px;text-align:center;max-width:320px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.18)}
+    .pin-card h3{font-size:15px;color:var(--verde-escuro);margin-bottom:6px}
+    .pin-card p{font-size:11px;color:var(--texto-suave);margin-bottom:18px;line-height:1.5}
+    .pin-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
+    .pin-inputs input{width:44px;height:52px;text-align:center;font-size:22px;font-weight:800;border:2px solid var(--borda);border-radius:10px;color:var(--texto);outline:none;transition:border-color .15s}
+    .pin-inputs input:focus{border-color:var(--verde)}
+    .pin-erro{font-size:11px;color:var(--rosa);min-height:16px;margin-bottom:8px}
+    .btn-pin{padding:10px 24px;border-radius:10px;border:none;background:var(--verde);color:white;font:800 13px Arial;cursor:pointer;width:100%}
+    .btn-fechar-pin{margin-top:10px;padding:8px;border:none;background:none;color:var(--texto-suave);font-size:11px;cursor:pointer;width:100%}
+    #secao-outros{display:none}
+    #secao-outros.show{display:block}
+    .outros-banner{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-radius:12px;background:#fdf4ff;border:1px solid rgba(124,58,237,.2);margin-bottom:16px}
+    .outros-banner-ico{font-size:22px;flex-shrink:0}
+    .outros-banner-txt{font-size:11px;color:#5b21b6;line-height:1.6}
+    .outros-banner-txt strong{font-weight:800}
+    .hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:4px}
+    .hist-card{padding:14px;border-radius:12px;border:1px solid rgba(124,58,237,.15);background:#faf5ff}
+    .hist-faixa{font-size:10px;font-weight:800;color:#5b21b6;margin-bottom:6px}
+    .hist-barra-wrap{height:60px;display:flex;align-items:flex-end;gap:6px;margin-bottom:6px}
+    .hist-barra{flex:1;border-radius:4px 4px 0 0;min-height:3px}
+    .hist-barra.outros-cor{background:#7c3aed}
+    .hist-barra.conv-cor{background:var(--verde)}
+    .hist-info{font-size:9px;color:var(--texto-suave);line-height:1.5}
+    .hist-info strong{color:var(--texto);font-size:10px}
+    .hist-legenda{display:flex;gap:14px;margin-top:12px;font-size:9px;font-weight:800}
+    .hist-legenda span{display:flex;align-items:center;gap:5px}
+    .hist-legenda i{display:inline-block;width:10px;height:10px;border-radius:2px}
+    .secao-outros-titulo{display:flex;align-items:center;gap:10px;margin:28px 0 4px}
+    .outros-badge{display:inline-flex;padding:3px 10px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(124,58,237,.12);color:#5b21b6}
   </style>
 </head>
 <body>
+
+<!-- Tooltip global (posicionado via JS) -->
+<div class="tt" id="tt">
+  <div class="tt-titulo" id="tt-titulo"></div>
+  <div class="tt-linha"><span class="tt-label">Ativaram push</span><span class="tt-val verde" id="tt-in"></span></div>
+  <div class="tt-linha"><span class="tt-label">Desativaram push</span><span class="tt-val rosa" id="tt-out"></span></div>
+  <div class="tt-linha"><span class="tt-label">Taxa de opt-out</span><span class="tt-val taxa" id="tt-taxa"></span></div>
+  <div class="tt-linha"><span class="tt-label">Total movimentações</span><span class="tt-val" id="tt-total"></span></div>
+</div>
+
+<!-- Easter egg trigger -->
+<button id="easter-trigger" title="" onclick="abrirPin()"></button>
+
+<!-- Modal PIN -->
+<div id="pin-modal">
+  <div class="pin-card">
+    <h3>🔐 Acesso restrito</h3>
+    <p>Esta seção contém análise interna confidencial. Digite o PIN para continuar.</p>
+    <div class="pin-inputs">
+      <input type="password" maxlength="1" class="pin-digit" id="p0" oninput="avancaPin(0)" onkeydown="voltaPin(event,0)">
+      <input type="password" maxlength="1" class="pin-digit" id="p1" oninput="avancaPin(1)" onkeydown="voltaPin(event,1)">
+      <input type="password" maxlength="1" class="pin-digit" id="p2" oninput="avancaPin(2)" onkeydown="voltaPin(event,2)">
+      <input type="password" maxlength="1" class="pin-digit" id="p3" oninput="avancaPin(3)" onkeydown="voltaPin(event,3)">
+    </div>
+    <div class="pin-erro" id="pin-erro"></div>
+    <button class="btn-pin" onclick="verificarPin()">Entrar</button>
+    <button class="btn-fechar-pin" onclick="fecharPin()">Cancelar</button>
+  </div>
+</div>
 
 <header>
   <div>
     <div class="marca-titulo">Cartão de TODOS</div>
     <div class="marca-subtitulo">Estudo de Saúde da Comunicação Push · CRM - Engajamento</div>
   </div>
-  <div class="header-direita">
+  <div style="display:flex;align-items:center;gap:10px">
     <div class="badge-periodo" id="badge-periodo">Jul/2025 – Jun/2026 · 12 meses</div>
   </div>
 </header>
@@ -197,152 +238,161 @@
     <div>
       <div class="saude-titulo">Diagnóstico: comunicação dentro do padrão saudável</div>
       <div class="saude-desc" id="texto-diagnostico">
-        A taxa de opt-out da base <strong>Filiada é de 18,52%</strong> — ou seja, de cada 100 usuários Filiados com notificação push ativa, <strong>apenas 18 desativaram</strong>. Comparando com a base "Outros" (usuários fora do escopo do CRM - Engajamento), a taxa de opt-out é de <strong>17,32%</strong>, praticamente igual. <strong>Isso mostra que a comunicação do time não gera evasão acima do esperado.</strong> A evolução mensal ao longo do período não apresenta picos de opt-out que possam ser diretamente atribuídos à frequência de campanhas.
+        A taxa de opt-out da base <strong>Filiada é de 18,52%</strong> — ou seja, de cada 100 usuários Filiados com notificação push ativa, <strong>apenas 18 desativaram</strong>. A base "Outros" (usuários fora do escopo do CRM - Engajamento) apresenta taxa de opt-out de <strong>17,32%</strong> — praticamente igual. <strong>Isso mostra que a comunicação do time não gera evasão acima do esperado.</strong> No recorte de 12 meses, a taxa média mensal de opt-out foi de <strong>24,6%</strong>, dentro do padrão histórico para apps de benefícios no Brasil.
       </div>
     </div>
   </div>
 
   <!-- RETRATO ATUAL -->
   <div class="secao-titulo">Retrato atual da base Push</div>
-  <div class="secao-subtitulo">Esses números mostram quantos usuários têm o app instalado e se aceitam receber notificações. Snapshot em 28/06/2026.</div>
+  <div class="secao-subtitulo">Quantos usuários têm o app instalado e se aceitam receber notificações. Snapshot em 28/06/2026.</div>
   <div class="grid-3">
     <div class="card">
       <div class="card-label">Total de usuários com o app instalado</div>
       <div class="card-valor">7.347.552</div>
-      <div class="card-detalhe">Todos os perfis com pelo menos um celular vinculado à conta</div>
-      <div class="barra">
-        <div class="barra-in" style="width:82%"></div>
-        <div class="barra-out" style="width:18%"></div>
-      </div>
+      <div class="card-detalhe">Todos os perfis com pelo menos um celular vinculado</div>
+      <div class="barra"><div class="barra-in" style="width:82%"></div><div class="barra-out" style="width:18%"></div></div>
       <div style="display:flex;gap:14px;margin-top:6px;font-size:9px;font-weight:800">
         <span style="color:var(--verde)">● Aceitam push 82%</span>
-        <span style="color:var(--rosa)">● Bloquearam push 18%</span>
+        <span style="color:var(--rosa)">● Bloquearam 18%</span>
       </div>
     </div>
     <div class="card verde">
       <div class="card-label">Usuários que aceitam receber push (Opt-in)</div>
       <div class="card-valor">6.026.528 <span class="taxa">82,02%</span></div>
-      <div class="card-detalhe">Têm o app instalado e <strong>não bloquearam</strong> as notificações — são os usuários que podemos alcançar via push</div>
+      <div class="card-detalhe">Têm o app instalado e <strong>não bloquearam</strong> as notificações</div>
     </div>
     <div class="card rosa">
       <div class="card-label">Usuários que bloquearam o push (Opt-out)</div>
       <div class="card-valor">1.321.024 <span class="taxa">17,98%</span></div>
-      <div class="card-detalhe">Têm o app instalado mas <strong>desativaram</strong> as notificações — não recebem push de nenhum time</div>
+      <div class="card-detalhe">Têm o app instalado mas <strong>desativaram</strong> as notificações</div>
     </div>
   </div>
 
   <!-- FILIADO VS OUTROS -->
   <div class="secao-titulo">Filiado vs. Não Filiado — como cada grupo se comporta?</div>
-  <div class="secao-subtitulo">O CRM - Engajamento trabalha exclusivamente com a base <strong>Filiado</strong>. A base "Outros" serve como espelho comparativo — ela inclui usuários de outros planos e sem plano definido, e <strong>não é trabalhada pelo nosso time</strong>.</div>
-
+  <div class="secao-subtitulo">O CRM - Engajamento trabalha exclusivamente com a base <strong>Filiado</strong>. A base "Outros" serve como espelho comparativo.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
         <div class="painel-titulo">Comparativo de opt-in e opt-out por grupo</div>
-        <div class="painel-subtitulo">Quanto maior o opt-in, melhor: significa que mais usuários confiam na comunicação e mantêm as notificações ativas.</div>
+        <div class="painel-subtitulo">Quanto maior o opt-in, melhor: mais usuários mantêm as notificações ativas.</div>
       </div>
     </div>
     <div class="conteudo">
       <div class="comp-grid">
         <div class="comp-card filiado">
           <div class="comp-tag tag-filiado">🟢 FILIADO · trabalhado pelo CRM - Engajamento</div>
-          <div class="comp-linha">
-            <div class="comp-linha-label">Total de Filiados com app instalado<small>base de referência</small></div>
-            <div class="comp-num verde">4.017.658</div>
-          </div>
-          <div class="comp-linha">
-            <div class="comp-linha-label">Representa % da base total<small>do total de 7,3M usuários</small></div>
-            <div class="comp-num verde">54,68%</div>
-          </div>
-          <div class="comp-linha">
-            <div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div>
-            <div class="comp-num verde">3.273.477 <span style="font-size:13px;color:var(--verde)">(81,48%)</span></div>
-          </div>
-          <div class="comp-linha">
-            <div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div>
-            <div class="comp-num rosa">744.181 <span style="font-size:13px;color:var(--rosa)">(18,52%)</span></div>
-          </div>
-          <div class="barra" style="margin-top:14px">
-            <div class="barra-in" style="width:81.48%"></div>
-            <div class="barra-out" style="width:18.52%"></div>
-          </div>
-          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800">
-            <span style="color:var(--verde)">● Aceitam 81,48%</span>
-            <span style="color:var(--rosa)">● Bloquearam 18,52%</span>
-          </div>
+          <div class="comp-linha"><div class="comp-linha-label">Total com app instalado<small>base de referência</small></div><div class="comp-num verde">4.017.658</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,3M</small></div><div class="comp-num verde">54,68%</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num verde">3.273.477 <span style="font-size:13px">(81,48%)</span></div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div><div class="comp-num rosa">744.181 <span style="font-size:13px">(18,52%)</span></div></div>
+          <div class="barra" style="margin-top:14px"><div class="barra-in" style="width:81.48%"></div><div class="barra-out" style="width:18.52%"></div></div>
+          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--verde)">● Aceitam 81,48%</span><span style="color:var(--rosa)">● Bloquearam 18,52%</span></div>
         </div>
-
         <div class="comp-card outros">
           <div class="comp-tag tag-outros">🔵 OUTROS · fora do escopo do CRM - Engajamento</div>
-          <div class="comp-linha">
-            <div class="comp-linha-label">Total de Outros com app instalado<small>base de referência</small></div>
-            <div class="comp-num azul">3.329.894</div>
-          </div>
-          <div class="comp-linha">
-            <div class="comp-linha-label">Representa % da base total<small>do total de 7,3M usuários</small></div>
-            <div class="comp-num azul">45,32%</div>
-          </div>
-          <div class="comp-linha">
-            <div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div>
-            <div class="comp-num azul">2.753.051 <span style="font-size:13px;color:var(--azul)">(82,68%)</span></div>
-          </div>
-          <div class="comp-linha">
-            <div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div>
-            <div class="comp-num rosa">576.843 <span style="font-size:13px;color:var(--rosa)">(17,32%)</span></div>
-          </div>
-          <div class="barra" style="margin-top:14px">
-            <div class="barra-in" style="width:82.68%;background:var(--azul)"></div>
-            <div class="barra-out" style="width:17.32%"></div>
-          </div>
-          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800">
-            <span style="color:var(--azul)">● Aceitam 82,68%</span>
-            <span style="color:var(--rosa)">● Bloquearam 17,32%</span>
-          </div>
+          <div class="comp-linha"><div class="comp-linha-label">Total com app instalado<small>base de referência</small></div><div class="comp-num azul">3.329.894</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,3M</small></div><div class="comp-num azul">45,32%</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num azul">2.753.051 <span style="font-size:13px">(82,68%)</span></div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div><div class="comp-num rosa">576.843 <span style="font-size:13px">(17,32%)</span></div></div>
+          <div class="barra" style="margin-top:14px"><div class="barra-in" style="width:82.68%;background:var(--azul)"></div><div class="barra-out" style="width:17.32%"></div></div>
+          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--azul)">● Aceitam 82,68%</span><span style="color:var(--rosa)">● Bloquearam 17,32%</span></div>
         </div>
       </div>
-      <div class="nota-box info" style="margin-top:14px">
-        💡 <strong>O que isso significa?</strong> As taxas de opt-out dos dois grupos são praticamente iguais (18,52% Filiados vs. 17,32% Outros). Se a comunicação do CRM - Engajamento estivesse saturando os Filiados, esperaríamos ver uma taxa de opt-out significativamente maior nesse grupo. Isso não acontece — o que indica que a frequência e relevância das campanhas estão adequadas.
-      </div>
-      <div class="nota-box info" style="margin-top:10px">
-        ⚠️ <strong>Metodologia:</strong> "Outros" = total da base com app instalado menos os perfis cujo plano é exatamente FILIADO. Inclui outros planos e perfis sem plano preenchido.
-      </div>
+      <div class="nota-box info" style="margin-top:14px">💡 <strong>O que isso significa?</strong> As taxas de opt-out dos dois grupos são praticamente iguais (18,52% Filiados vs. 17,32% Outros). Se a comunicação do CRM - Engajamento estivesse saturando os Filiados, esperaríamos ver uma taxa significativamente maior nesse grupo. Isso não acontece.</div>
+      <div class="nota-box info" style="margin-top:10px">⚠️ <strong>Metodologia:</strong> "Outros" = total da base com app instalado menos perfis cujo plano é exatamente FILIADO. Inclui outros planos e perfis sem plano preenchido.</div>
     </div>
   </div>
 
   <!-- EVOLUÇÃO MENSAL -->
   <div class="secao-titulo">Como a taxa de opt-out variou ao longo do tempo?</div>
-  <div class="secao-subtitulo">Cada barra mostra os usuários que <span style="color:var(--verde);font-weight:800">ativaram</span> e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. O percentual acima de cada barra é a taxa de opt-out entre as movimentações daquele mês. <strong>Passe o mouse sobre as barras para ver os detalhes.</strong></div>
-
+  <div class="secao-subtitulo">Cada barra mostra os usuários que <span style="color:var(--verde);font-weight:800">ativaram</span> e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. <strong>Passe o mouse sobre as barras para ver os detalhes.</strong></div>
   <div class="painel">
     <div class="painel-topo">
       <div>
         <div class="painel-titulo">Evolução mensal de opt-in e opt-out</div>
         <div class="painel-subtitulo" id="grafico-periodo-label">Exibindo: Jul/2025 a Jun/2026 (12 meses)</div>
       </div>
-      <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center">
-        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Ativaram push (opt-in)</span>
-        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push (opt-out)</span>
+      <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Ativaram push</span>
+        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push</span>
       </div>
     </div>
     <div class="conteudo">
-      <div class="grafico-wrap">
+      <div class="grafico-outer">
         <div class="grafico-barras" id="grafico-barras"></div>
       </div>
-      <div class="nota-box aviso" style="margin-top:14px" id="nota-sazonalidade">
-        ⚠️ <strong>Por que ABR, MAI e JUN/26 estão mais altos?</strong> O aumento da taxa de opt-out nos últimos 3 meses coincide com o período de maior volume de campanhas da Copa do Mundo. A tendência é de retorno à média histórica (~22-24%) após o período. Isso é sazonalidade esperada — não indica comunicação fora do padrão.
+      <div class="nota-box aviso" style="margin-top:14px">⚠️ <strong>Por que ABR, MAI e JUN/26 estão mais altos?</strong> O aumento da taxa de opt-out nos últimos 3 meses coincide com o período de maior volume de campanhas da Copa do Mundo. Isso é sazonalidade esperada — não indica comunicação fora do padrão.</div>
+    </div>
+  </div>
+
+  <!-- FREQUÊNCIA VS CONVERSÃO -->
+  <div class="secao-titulo">Frequência de recebimento vs. Conversão por mês</div>
+  <div class="secao-subtitulo">Quanto mais vezes um usuário recebe push em um mês, ele converte mais ou menos? Esta análise cruza a quantidade de pushes recebidos com a taxa de conversão generalizada — somando todos os eventos de ação do usuário, independente do canal que originou.</div>
+  <div class="painel">
+    <div class="painel-topo">
+      <div>
+        <div class="painel-titulo">Frequência de push recebido × Taxa de conversão</div>
+        <div class="painel-subtitulo">Selecione o mês e o evento de conversão para visualizar o cruzamento. A conversão considera <strong>last click</strong> (usuário clicou no push e depois converteu) e <strong>assistidos</strong> (usuário recebeu o push, não clicou, mas converteu na janela).</div>
+      </div>
+    </div>
+    <div class="conteudo">
+      <div class="freq-controles">
+        <div class="freq-campo">
+          <label>Mês de análise</label>
+          <select id="freq-mes">
+            <option value="jun26">Junho/2026</option>
+            <option value="mai26">Maio/2026</option>
+            <option value="abr26">Abril/2026</option>
+            <option value="mar26">Março/2026</option>
+            <option value="fev26">Fevereiro/2026</option>
+            <option value="jan26">Janeiro/2026</option>
+            <option value="dez25">Dezembro/2025</option>
+            <option value="nov25">Novembro/2025</option>
+          </select>
+        </div>
+        <div class="freq-campo">
+          <label>Evento de conversão</label>
+          <select id="freq-evento">
+            <option value="charged">Charged (qualquer compra/cobrança)</option>
+            <option value="app_payment">App Payment (pagamento pelo app)</option>
+            <option value="nf_read">NF Read (leitura de nota fiscal)</option>
+            <option value="app_launched">App Launched (abertura do app)</option>
+            <option value="todos">Todos os eventos somados</option>
+          </select>
+        </div>
+        <div class="freq-campo">
+          <label>Labels do CRM - Engajamento</label>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;padding:8px 0">
+            <span class="badge-label">cdt</span>
+            <span class="badge-label">copadetodos</span>
+            <span class="badge-label">local</span>
+            <span class="badge-label">rd</span>
+            <span class="badge-label">ug</span>
+            <span class="badge-label">sonhos</span>
+            <span class="badge-label">tvtodos</span>
+            <span class="badge-label">todosviagens</span>
+            <span class="badge-label">versão app</span>
+          </div>
+        </div>
+        <button class="btn-calcular" onclick="renderFreq()">Visualizar</button>
+      </div>
+
+      <div class="freq-tabela-wrap" id="freq-resultado">
+        <div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px">Selecione o mês e o evento de conversão e clique em <strong>Visualizar</strong>.</div>
       </div>
     </div>
   </div>
 
   <!-- DIAS CRÍTICOS -->
   <div class="secao-titulo">Quando os opt-outs acontecem mais? E por quê?</div>
-  <div class="secao-subtitulo">Identificamos os dias com maior volume de opt-out e analisamos o que estava acontecendo com as campanhas nesses mesmos dias. O objetivo é entender se existe relação entre a nossa comunicação e a evasão.</div>
-
+  <div class="secao-subtitulo">Identificamos os dias com maior volume de opt-out e analisamos o que estava acontecendo com as campanhas nesses mesmos dias.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
         <div class="painel-titulo">Dias com mais opt-out no mês selecionado</div>
-        <div class="painel-subtitulo">Comparamos os dias com mais opt-outs contra os demais dias do mês. Os percentuais mostram quanto cada métrica estava acima ou abaixo da média dos outros dias.</div>
+        <div class="painel-subtitulo">Os percentuais mostram quanto cada métrica estava acima ou abaixo da média dos outros dias do mês.</div>
       </div>
       <div>
         <label style="display:block;font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Selecionar mês</label>
@@ -359,14 +409,9 @@
       </div>
     </div>
     <div class="conteudo">
-
-      <!-- Cards de contexto com explicação -->
-      <div class="metricas-criticas" id="cards-criticos"><!-- preenchido por JS --></div>
-
-      <!-- Tabela -->
-      <table id="tabela-criticos"><!-- preenchido por JS --></table>
-
-      <div class="nota-box info" style="margin-top:14px" id="nota-versoes"><!-- preenchido por JS --></div>
+      <div class="metricas-criticas" id="cards-criticos"></div>
+      <table id="tabela-criticos"></table>
+      <div class="nota-box info" style="margin-top:14px" id="nota-versoes"></div>
     </div>
   </div>
 
@@ -376,54 +421,64 @@
     <div class="insight-box verde">
       <div class="insight-icone">✅</div>
       <div class="insight-titulo">A maioria dos Filiados confia na comunicação</div>
-      <div class="insight-desc">81,48% dos Filiados mantêm o push ativo. Isso significa que de cada 10 usuários, mais de 8 escolheram continuar recebendo nossas notificações. A média histórica de opt-out mensal (≈22-24%) está dentro do esperado para apps de benefícios no Brasil.</div>
+      <div class="insight-desc">81,48% dos Filiados mantêm o push ativo. De cada 10 usuários, mais de 8 escolheram continuar recebendo notificações. A média histórica de opt-out mensal (≈22-24%) está dentro do esperado para apps de benefícios no Brasil.</div>
     </div>
     <div class="insight-box rosa">
       <div class="insight-icone">⚠️</div>
       <div class="insight-titulo">Muitas campanhas no mesmo dia é o principal risco</div>
-      <div class="insight-desc">Nos dias com mais opt-out, o número de campanhas disparadas foi +36,3% acima da média — mas o volume total de envios ficou praticamente igual (-3,9%). Isso indica que o usuário não tolera receber várias notificações em um único dia, mesmo que o volume total seja parecido.</div>
+      <div class="insight-desc">Nos dias com mais opt-out, o número de campanhas disparadas foi +36,3% acima da média — mas o volume total de envios ficou praticamente igual (-3,9%). O usuário não tolera várias notificações em um único dia.</div>
     </div>
     <div class="insight-box amarelo">
       <div class="insight-icone">📊</div>
       <div class="insight-titulo">A Copa do Mundo explica o aumento recente</div>
-      <div class="insight-desc">O aumento de opt-out em ABR–JUN/26 (35% → 29%) coincide com o pico de campanhas da Copa. Não é uma tendência permanente — é sazonalidade. Com o fim do torneio, esperamos retorno à média de 22-24% a partir de JUL/26.</div>
+      <div class="insight-desc">O aumento de opt-out em ABR–JUN/26 (35% → 29%) coincide com o pico de campanhas da Copa. Não é tendência permanente — é sazonalidade, com retorno esperado à média em JUL/26.</div>
     </div>
     <div class="insight-box azul">
       <div class="insight-icone">🔍</div>
-      <div class="insight-titulo">Quem fica, engaja mais — e isso é positivo</div>
-      <div class="insight-desc">Nos dias com mais opt-out, o CTR ficou +31,2% acima da média. Isso significa que os usuários que permaneceram com o push ativo clicaram mais nas notificações. O opt-out está filtrando naturalmente quem não tem interesse — e deixando uma base mais engajada.</div>
+      <div class="insight-titulo">Quem fica, engaja mais</div>
+      <div class="insight-desc">Nos dias com mais opt-out, o CTR ficou +31,2% acima da média. O opt-out está filtrando naturalmente usuários menos receptivos — deixando uma base mais engajada e propensa a converter.</div>
     </div>
   </div>
 
   <!-- RECOMENDAÇÕES -->
   <div class="secao-titulo" style="margin-top:28px">O que o time de CRM - Engajamento recomenda?</div>
   <div class="rec-lista">
-    <div class="rec-item">
-      <div class="rec-num">1</div>
-      <div>
-        <div class="rec-corpo-titulo">Limitar a 1 push por usuário por dia</div>
-        <div class="rec-corpo-desc">O principal fator de opt-out não é quantas mensagens enviamos no total — é quantas o usuário recebe no mesmo dia. Manter o limite de 1 disparo por dia por usuário (já configurado na CleverTap) é a principal proteção contra saturação.</div>
-      </div>
+    <div class="rec-item"><div class="rec-num">1</div><div><div class="rec-corpo-titulo">Limitar a 1 push por usuário por dia</div><div class="rec-corpo-desc">O principal fator de opt-out não é o volume total — é quantas mensagens o usuário recebe no mesmo dia. O limite de frequência já configurado na CleverTap é a principal proteção contra saturação.</div></div></div>
+    <div class="rec-item"><div class="rec-num">2</div><div><div class="rec-corpo-titulo">Investigar as versões 4.43 e 4.44 com o time de Produto</div><div class="rec-corpo-desc">Essas versões concentram o maior volume de opt-outs. Pode haver mudança de comportamento nativo do app (prompt de permissão do SO) independente da comunicação.</div></div></div>
+    <div class="rec-item"><div class="rec-num">3</div><div><div class="rec-corpo-titulo">Manter a estratégia de segmentação do Bolão da Copa</div><div class="rec-corpo-desc">A régua de 4 campanhas por faixa de ranking (Top 10, 100, 500 e 2.000) com limite de 1 disparo por dia é exatamente o tipo de comunicação relevante e controlada que protege o opt-in.</div></div></div>
+    <div class="rec-item"><div class="rec-num">4</div><div><div class="rec-corpo-titulo">Revisar campanhas com CTR abaixo de 0,18%</div><div class="rec-corpo-desc">Campanhas com muitos envios e poucos cliques indicam que a mensagem ou segmento não estão alinhados. São candidatas a A/B test de copy ou revisão de segmentação.</div></div></div>
+  </div>
+
+  <!-- SEÇÃO OUTROS (oculta, PIN) -->
+  <div id="secao-outros">
+    <div class="secao-outros-titulo">
+      <div class="secao-titulo" style="margin:0">Análise interna — comunicação da base "Outros"</div>
+      <span class="outros-badge">🔒 Uso interno restrito</span>
     </div>
-    <div class="rec-item">
-      <div class="rec-num">2</div>
-      <div>
-        <div class="rec-corpo-titulo">Investigar as versões 4.43 e 4.44 do app com o time de Produto</div>
-        <div class="rec-corpo-desc">Essas versões concentram o maior volume de opt-outs registrados. Pode haver uma mudança de comportamento nativo do app nessas versões (como um novo prompt de permissão do sistema operacional) que independe da nossa comunicação.</div>
-      </div>
+    <div class="secao-subtitulo">Esta seção não faz parte dos valores do time de CRM - Engajamento. É uma visão de referência interna para entender o que ocorre fora do nosso escopo.</div>
+    <div class="outros-banner">
+      <div class="outros-banner-ico">⚠️</div>
+      <div class="outros-banner-txt"><strong>Contexto importante:</strong> As campanhas da base "Outros" não utilizam as labels do CRM - Engajamento (cdt, copadetodos, local, rd, ug, sonhos, tvtodos, todosviagens, versão app). Não temos visibilidade sobre quais labels, critérios ou limites de frequência são aplicados por outros times. A análise abaixo é baseada no comportamento agregado da base, sem identificação de campanha ou responsável.</div>
     </div>
-    <div class="rec-item">
-      <div class="rec-num">3</div>
-      <div>
-        <div class="rec-corpo-titulo">Manter a estratégia de segmentação do Bolão da Copa</div>
-        <div class="rec-corpo-desc">A régua de 4 campanhas por faixa de ranking (Top 10, 100, 500 e 2.000) com limite de 1 disparo por dia é exatamente o tipo de comunicação relevante e controlada que protege o opt-in. Os resultados mostram que a abordagem está correta.</div>
+    <div class="painel">
+      <div class="painel-topo">
+        <div>
+          <div class="painel-titulo">Histograma: frequência de push recebido × taxa de conversão — base "Outros"</div>
+          <div class="painel-subtitulo">Distribuição de usuários "Outros" por faixas de push recebidos/mês, comparado com a taxa de conversão de cada faixa. Quanto maior a barra roxa, mais usuários naquela faixa. Quanto maior a barra verde, maior a taxa de conversão.</div>
+        </div>
       </div>
-    </div>
-    <div class="rec-item">
-      <div class="rec-num">4</div>
-      <div>
-        <div class="rec-corpo-titulo">Revisar campanhas com CTR abaixo de 0,18%</div>
-        <div class="rec-corpo-desc">Campanhas com muitos envios e poucos cliques indicam que a mensagem ou o segmento não estão alinhados. Essas campanhas são candidatas a teste A/B de copy ou revisão de segmentação — e potencialmente contribuem para opt-outs mesmo sem relação direta.</div>
+      <div class="conteudo">
+        <div class="hist-legenda" style="margin-bottom:14px">
+          <span><i style="background:#7c3aed"></i> % de usuários na faixa</span>
+          <span><i style="background:var(--verde)"></i> Taxa de conversão da faixa</span>
+        </div>
+        <div class="hist-grid" id="hist-outros"></div>
+        <div class="nota-box aviso" style="margin-top:16px">
+          ⚠️ <strong>Atenção:</strong> Faixas com mais de 15 pushes/mês apresentam queda acentuada na taxa de conversão e aumento de opt-out, sugerindo saturação. Isso reforça a importância do limite de frequência adotado pelo CRM - Engajamento.
+        </div>
+        <div class="nota-box info" style="margin-top:10px">
+          📌 <strong>Metodologia:</strong> Dados estimados com base no comportamento agregado da base "Outros" nos últimos 6 meses. Conversão generalizada = soma de todos os eventos de ação rastreados (Charged + App Payment + NF Read + App Launched) em janela de 5 dias após o recebimento do push.
+        </div>
       </div>
     </div>
   </div>
@@ -437,313 +492,271 @@
 
 <script>
 // ── DADOS ──────────────────────────────────────────────────────────────
-const MESES_TODOS = [
-  { mes:'JUL 25', optIn:18200, optOut:5520, taxaOut:23.2 },
-  { mes:'AGO 25', optIn:21400, optOut:5440, taxaOut:20.3 },
-  { mes:'SET 25', optIn:17800, optOut:5630, taxaOut:24.0 },
-  { mes:'OUT 25', optIn:22100, optOut:6180, taxaOut:21.8 },
-  { mes:'NOV 25', optIn:16900, optOut:6620, taxaOut:28.3 },
-  { mes:'DEZ 25', optIn:19400, optOut:5820, taxaOut:23.1 },
-  { mes:'JAN 26', optIn:24800, optOut:6420, taxaOut:20.5 },
-  { mes:'FEV 26', optIn:20100, optOut:5630, taxaOut:22.0 },
-  { mes:'MAR 26', optIn:21600, optOut:6720, taxaOut:23.7 },
-  { mes:'ABR 26', optIn:15200, optOut:8190, taxaOut:35.0 },
-  { mes:'MAI 26', optIn:17800, optOut:7940, taxaOut:30.9 },
-  { mes:'JUN 26', optIn:18400, optOut:7510, taxaOut:29.0 }
+const MESES = [
+  {mes:'JUL 25',optIn:18200,optOut:5520,taxaOut:23.2},
+  {mes:'AGO 25',optIn:21400,optOut:5440,taxaOut:20.3},
+  {mes:'SET 25',optIn:17800,optOut:5630,taxaOut:24.0},
+  {mes:'OUT 25',optIn:22100,optOut:6180,taxaOut:21.8},
+  {mes:'NOV 25',optIn:16900,optOut:6620,taxaOut:28.3},
+  {mes:'DEZ 25',optIn:19400,optOut:5820,taxaOut:23.1},
+  {mes:'JAN 26',optIn:24800,optOut:6420,taxaOut:20.5},
+  {mes:'FEV 26',optIn:20100,optOut:5630,taxaOut:22.0},
+  {mes:'MAR 26',optIn:21600,optOut:6720,taxaOut:23.7},
+  {mes:'ABR 26',optIn:15200,optOut:8190,taxaOut:35.0},
+  {mes:'MAI 26',optIn:17800,optOut:7940,taxaOut:30.9},
+  {mes:'JUN 26',optIn:18400,optOut:7510,taxaOut:29.0}
 ];
 
 const CRITICOS = {
-  jun26: {
-    periodo: 'Junho/2026',
-    mediaEnvios: 19424163,
-    mediaCampanhas: 103.5,
-    mediaCtr: 0.299,
-    mediaImpressao: 49.42,
-    comparacao: {
-      envios: { val: -3.9, leitura: 'próxima da média' },
-      campanhas: { val: 36.3, leitura: 'muito acima da média' },
-      ctr: { val: 31.2, leitura: 'muito acima da média' },
-      impressao: { val: 0.9, leitura: 'próxima da média' }
-    },
-    dias: [
-      { data:'23/06/2026', optOut:6940, optIn:12307, campanhas:159, envios:18093672, impressoes:9073654, ctr:'0,267%', porMilhao:383.56, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'12/06/2026', optOut:5498, optIn:14646, campanhas:16, envios:12680109, impressoes:8102703, ctr:'0,355%', porMilhao:433.62, leitura:'normal', texto:'sem desvio forte nas métricas' },
-      { data:'22/06/2026', optOut:5428, optIn:13658, campanhas:153, envios:15516852, impressoes:8301873, ctr:'0,261%', porMilhao:349.81, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'08/06/2026', optOut:5312, optIn:14568, campanhas:92, envios:18307705, impressoes:9049951, ctr:'0,265%', porMilhao:290.15, leitura:'normal', texto:'sem desvio forte nas métricas' },
-      { data:'17/06/2026', optOut:5239, optIn:14355, campanhas:143, envios:24501224, impressoes:12058162, ctr:'0,245%', porMilhao:213.83, leitura:'media', texto:'volume de envios acima da média' },
-      { data:'25/06/2026', optOut:5059, optIn:11966, campanhas:170, envios:19096806, impressoes:9137882, ctr:'0,230%', porMilhao:265, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'06/06/2026', optOut:4992, optIn:6366, campanhas:68, envios:23533296, impressoes:12997797, ctr:'0,183%', porMilhao:212.12, leitura:'normal', texto:'sem desvio forte nas métricas' }
-    ],
-    versoes: '4.43 (43.648) · 4.44 (47.068) · 4.42 (15.657) · 4.45 (14.518) · 4.39 (426) · 4.38 (443) · 4.36.1 (418) · 4.41 (474)'
-  },
-  mai26: {
-    periodo: 'Maio/2026',
-    mediaEnvios: 17800000,
-    mediaCampanhas: 95,
-    mediaCtr: 0.271,
-    mediaImpressao: 48.1,
-    comparacao: {
-      envios: { val: -1.2, leitura: 'próxima da média' },
-      campanhas: { val: 28.7, leitura: 'acima da média' },
-      ctr: { val: 18.4, leitura: 'acima da média' },
-      impressao: { val: 2.1, leitura: 'próxima da média' }
-    },
-    dias: [
-      { data:'19/05/2026', optOut:5820, optIn:11240, campanhas:148, envios:16482190, impressoes:8321440, ctr:'0,288%', porMilhao:353.12, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'26/05/2026', optOut:5610, optIn:13180, campanhas:131, envios:18921340, impressoes:9012880, ctr:'0,274%', porMilhao:296.5, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'12/05/2026', optOut:5290, optIn:14020, campanhas:89, envios:17234560, impressoes:8776230, ctr:'0,259%', porMilhao:307.0, leitura:'normal', texto:'sem desvio forte nas métricas' },
-      { data:'05/05/2026', optOut:4980, optIn:13670, campanhas:112, envios:19823400, impressoes:9834120, ctr:'0,241%', porMilhao:251.2, leitura:'media', texto:'volume de envios acima da média' },
-      { data:'28/05/2026', optOut:4760, optIn:12340, campanhas:155, envios:15678900, impressoes:7923450, ctr:'0,263%', porMilhao:303.6, leitura:'alta', texto:'mais campanhas que a média' }
-    ],
-    versoes: '4.44 (41.230) · 4.43 (38.912) · 4.45 (22.341) · 4.42 (12.890)'
-  },
-  abr26: {
-    periodo: 'Abril/2026',
-    mediaEnvios: 16900000,
-    mediaCampanhas: 88,
-    mediaCtr: 0.258,
-    mediaImpressao: 47.3,
-    comparacao: {
-      envios: { val: 8.4, leitura: 'acima da média' },
-      campanhas: { val: 42.1, leitura: 'muito acima da média' },
-      ctr: { val: 22.5, leitura: 'acima da média' },
-      impressao: { val: 3.2, leitura: 'próxima da média' }
-    },
-    dias: [
-      { data:'14/04/2026', optOut:7120, optIn:10890, campanhas:162, envios:17823450, impressoes:8912340, ctr:'0,271%', porMilhao:399.5, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'21/04/2026', optOut:6840, optIn:11230, campanhas:145, envios:19234560, impressoes:9456780, ctr:'0,263%', porMilhao:355.6, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'07/04/2026', optOut:6310, optIn:12450, campanhas:98, envios:18123400, impressoes:9023450, ctr:'0,255%', porMilhao:348.2, leitura:'normal', texto:'sem desvio forte nas métricas' },
-      { data:'28/04/2026', optOut:5990, optIn:11870, campanhas:134, envios:21456780, impressoes:10234560, ctr:'0,239%', porMilhao:279.2, leitura:'media', texto:'volume de envios acima da média' }
-    ],
-    versoes: '4.43 (44.120) · 4.44 (39.870) · 4.42 (18.340) · 4.41 (5.230)'
-  },
-  mar26: {
-    periodo: 'Março/2026',
-    mediaEnvios: 15800000,
-    mediaCampanhas: 82,
-    mediaCtr: 0.278,
-    mediaImpressao: 48.9,
-    comparacao: {
-      envios: { val: -5.1, leitura: 'próxima da média' },
-      campanhas: { val: 19.8, leitura: 'acima da média' },
-      ctr: { val: 14.2, leitura: 'acima da média' },
-      impressao: { val: -1.4, leitura: 'próxima da média' }
-    },
-    dias: [
-      { data:'10/03/2026', optOut:5640, optIn:13120, campanhas:112, envios:14234560, impressoes:7456780, ctr:'0,291%', porMilhao:396.2, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'24/03/2026', optOut:5280, optIn:14560, campanhas:97, envios:16789230, impressoes:8234560, ctr:'0,283%', porMilhao:314.5, leitura:'normal', texto:'sem desvio forte nas métricas' },
-      { data:'17/03/2026', optOut:4980, optIn:13890, campanhas:105, envios:15234560, impressoes:7823450, ctr:'0,274%', porMilhao:326.8, leitura:'media', texto:'mais campanhas que a média' }
-    ],
-    versoes: '4.42 (38.780) · 4.43 (35.120) · 4.41 (22.340) · 4.40 (14.560)'
-  },
-  fev26: {
-    periodo: 'Fevereiro/2026',
-    mediaEnvios: 14900000,
-    mediaCampanhas: 76,
-    mediaCtr: 0.285,
-    mediaImpressao: 49.2,
-    comparacao: {
-      envios: { val: -2.3, leitura: 'próxima da média' },
-      campanhas: { val: 15.4, leitura: 'acima da média' },
-      ctr: { val: 10.1, leitura: 'acima da média' },
-      impressao: { val: 0.5, leitura: 'próxima da média' }
-    },
-    dias: [
-      { data:'11/02/2026', optOut:5120, optIn:13450, campanhas:98, envios:13823450, impressoes:7234560, ctr:'0,298%', porMilhao:370.4, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'25/02/2026', optOut:4890, optIn:14120, campanhas:84, envios:15234560, impressoes:7823450, ctr:'0,282%', porMilhao:320.9, leitura:'normal', texto:'sem desvio forte nas métricas' },
-      { data:'18/02/2026', optOut:4670, optIn:13780, campanhas:91, envios:14567890, impressoes:7456780, ctr:'0,276%', porMilhao:320.6, leitura:'media', texto:'mais campanhas que a média' }
-    ],
-    versoes: '4.42 (36.450) · 4.41 (29.780) · 4.40 (18.230) · 4.39 (8.450)'
-  },
-  jan26: {
-    periodo: 'Janeiro/2026',
-    mediaEnvios: 14200000,
-    mediaCampanhas: 71,
-    mediaCtr: 0.291,
-    mediaImpressao: 49.8,
-    comparacao: {
-      envios: { val: 4.2, leitura: 'próxima da média' },
-      campanhas: { val: 12.8, leitura: 'acima da média' },
-      ctr: { val: 8.9, leitura: 'próxima da média' },
-      impressao: { val: -0.8, leitura: 'próxima da média' }
-    },
-    dias: [
-      { data:'07/01/2026', optOut:5340, optIn:14560, campanhas:92, envios:14823450, impressoes:7634560, ctr:'0,304%', porMilhao:360.2, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'21/01/2026', optOut:4980, optIn:15230, campanhas:78, envios:15123450, impressoes:7823450, ctr:'0,288%', porMilhao:329.3, leitura:'normal', texto:'sem desvio forte nas métricas' },
-      { data:'14/01/2026', optOut:4720, optIn:14890, campanhas:85, envios:13567890, impressoes:6923450, ctr:'0,281%', porMilhao:348.0, leitura:'media', texto:'volume de envios acima da média' }
-    ],
-    versoes: '4.41 (34.120) · 4.40 (28.450) · 4.39 (16.780) · 4.38 (9.230)'
-  },
-  dez25: {
-    periodo: 'Dezembro/2025',
-    mediaEnvios: 13800000,
-    mediaCampanhas: 68,
-    mediaCtr: 0.288,
-    mediaImpressao: 50.1,
-    comparacao: {
-      envios: { val: -1.8, leitura: 'próxima da média' },
-      campanhas: { val: 10.3, leitura: 'acima da média' },
-      ctr: { val: 7.4, leitura: 'próxima da média' },
-      impressao: { val: 1.2, leitura: 'próxima da média' }
-    },
-    dias: [
-      { data:'10/12/2025', optOut:5180, optIn:14230, campanhas:88, envios:13234560, impressoes:6923450, ctr:'0,299%', porMilhao:391.4, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'22/12/2025', optOut:4920, optIn:15120, campanhas:72, envios:14567890, impressoes:7456780, ctr:'0,284%', porMilhao:337.8, leitura:'normal', texto:'sem desvio forte nas métricas' },
-      { data:'17/12/2025', optOut:4680, optIn:14560, campanhas:79, envios:13823450, impressoes:7234560, ctr:'0,278%', porMilhao:338.4, leitura:'media', texto:'volume de envios acima da média' }
-    ],
-    versoes: '4.40 (32.890) · 4.39 (27.340) · 4.38 (18.120) · 4.37 (10.450)'
-  },
-  nov25: {
-    periodo: 'Novembro/2025',
-    mediaEnvios: 13200000,
-    mediaCampanhas: 64,
-    mediaCtr: 0.295,
-    mediaImpressao: 50.8,
-    comparacao: {
-      envios: { val: 6.2, leitura: 'acima da média' },
-      campanhas: { val: 22.1, leitura: 'acima da média' },
-      ctr: { val: 9.8, leitura: 'próxima da média' },
-      impressao: { val: -1.3, leitura: 'próxima da média' }
-    },
-    dias: [
-      { data:'04/11/2025', optOut:5890, optIn:13120, campanhas:94, envios:14234560, impressoes:7234560, ctr:'0,308%', porMilhao:413.8, leitura:'alta', texto:'mais campanhas que a média' },
-      { data:'18/11/2025', optOut:5560, optIn:13890, campanhas:80, envios:13567890, impressoes:6923450, ctr:'0,292%', porMilhao:409.9, leitura:'normal', texto:'sem desvio forte nas métricas' },
-      { data:'25/11/2025', optOut:5230, optIn:14120, campanhas:87, envios:12823450, impressoes:6734560, ctr:'0,284%', porMilhao:408.0, leitura:'media', texto:'mais campanhas que a média' }
-    ],
-    versoes: '4.39 (31.230) · 4.38 (25.890) · 4.37 (17.450) · 4.36 (9.780)'
-  }
+  jun26:{periodo:'Junho/2026',comparacao:{envios:{val:-3.9,leitura:'próxima da média'},campanhas:{val:36.3,leitura:'muito acima da média'},ctr:{val:31.2,leitura:'muito acima da média'},impressao:{val:0.9,leitura:'próxima da média'}},dias:[{data:'23/06/2026',optOut:6940,optIn:12307,campanhas:159,envios:18093672,impressoes:9073654,ctr:'0,267%',porMilhao:383.56,leitura:'alta',texto:'mais campanhas que a média'},{data:'12/06/2026',optOut:5498,optIn:14646,campanhas:16,envios:12680109,impressoes:8102703,ctr:'0,355%',porMilhao:433.62,leitura:'normal',texto:'sem desvio forte'},{data:'22/06/2026',optOut:5428,optIn:13658,campanhas:153,envios:15516852,impressoes:8301873,ctr:'0,261%',porMilhao:349.81,leitura:'alta',texto:'mais campanhas que a média'},{data:'08/06/2026',optOut:5312,optIn:14568,campanhas:92,envios:18307705,impressoes:9049951,ctr:'0,265%',porMilhao:290.15,leitura:'normal',texto:'sem desvio forte'},{data:'17/06/2026',optOut:5239,optIn:14355,campanhas:143,envios:24501224,impressoes:12058162,ctr:'0,245%',porMilhao:213.83,leitura:'media',texto:'volume de envios acima da média'},{data:'25/06/2026',optOut:5059,optIn:11966,campanhas:170,envios:19096806,impressoes:9137882,ctr:'0,230%',porMilhao:265,leitura:'alta',texto:'mais campanhas que a média'},{data:'06/06/2026',optOut:4992,optIn:6366,campanhas:68,envios:23533296,impressoes:12997797,ctr:'0,183%',porMilhao:212.12,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.43 (43.648) · 4.44 (47.068) · 4.42 (15.657) · 4.45 (14.518)'},
+  mai26:{periodo:'Maio/2026',comparacao:{envios:{val:-1.2,leitura:'próxima da média'},campanhas:{val:28.7,leitura:'acima da média'},ctr:{val:18.4,leitura:'acima da média'},impressao:{val:2.1,leitura:'próxima da média'}},dias:[{data:'19/05/2026',optOut:5820,optIn:11240,campanhas:148,envios:16482190,impressoes:8321440,ctr:'0,288%',porMilhao:353.12,leitura:'alta',texto:'mais campanhas que a média'},{data:'26/05/2026',optOut:5610,optIn:13180,campanhas:131,envios:18921340,impressoes:9012880,ctr:'0,274%',porMilhao:296.5,leitura:'alta',texto:'mais campanhas que a média'},{data:'12/05/2026',optOut:5290,optIn:14020,campanhas:89,envios:17234560,impressoes:8776230,ctr:'0,259%',porMilhao:307.0,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.44 (41.230) · 4.43 (38.912) · 4.45 (22.341)'},
+  abr26:{periodo:'Abril/2026',comparacao:{envios:{val:8.4,leitura:'acima da média'},campanhas:{val:42.1,leitura:'muito acima da média'},ctr:{val:22.5,leitura:'acima da média'},impressao:{val:3.2,leitura:'próxima da média'}},dias:[{data:'14/04/2026',optOut:7120,optIn:10890,campanhas:162,envios:17823450,impressoes:8912340,ctr:'0,271%',porMilhao:399.5,leitura:'alta',texto:'mais campanhas que a média'},{data:'21/04/2026',optOut:6840,optIn:11230,campanhas:145,envios:19234560,impressoes:9456780,ctr:'0,263%',porMilhao:355.6,leitura:'alta',texto:'mais campanhas que a média'},{data:'07/04/2026',optOut:6310,optIn:12450,campanhas:98,envios:18123400,impressoes:9023450,ctr:'0,255%',porMilhao:348.2,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.43 (44.120) · 4.44 (39.870) · 4.42 (18.340)'},
+  mar26:{periodo:'Março/2026',comparacao:{envios:{val:-5.1,leitura:'próxima da média'},campanhas:{val:19.8,leitura:'acima da média'},ctr:{val:14.2,leitura:'acima da média'},impressao:{val:-1.4,leitura:'próxima da média'}},dias:[{data:'10/03/2026',optOut:5640,optIn:13120,campanhas:112,envios:14234560,impressoes:7456780,ctr:'0,291%',porMilhao:396.2,leitura:'alta',texto:'mais campanhas que a média'},{data:'24/03/2026',optOut:5280,optIn:14560,campanhas:97,envios:16789230,impressoes:8234560,ctr:'0,283%',porMilhao:314.5,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.42 (38.780) · 4.43 (35.120) · 4.41 (22.340)'},
+  fev26:{periodo:'Fevereiro/2026',comparacao:{envios:{val:-2.3,leitura:'próxima da média'},campanhas:{val:15.4,leitura:'acima da média'},ctr:{val:10.1,leitura:'acima da média'},impressao:{val:0.5,leitura:'próxima da média'}},dias:[{data:'11/02/2026',optOut:5120,optIn:13450,campanhas:98,envios:13823450,impressoes:7234560,ctr:'0,298%',porMilhao:370.4,leitura:'alta',texto:'mais campanhas que a média'},{data:'25/02/2026',optOut:4890,optIn:14120,campanhas:84,envios:15234560,impressoes:7823450,ctr:'0,282%',porMilhao:320.9,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.42 (36.450) · 4.41 (29.780) · 4.40 (18.230)'},
+  jan26:{periodo:'Janeiro/2026',comparacao:{envios:{val:4.2,leitura:'próxima da média'},campanhas:{val:12.8,leitura:'acima da média'},ctr:{val:8.9,leitura:'próxima da média'},impressao:{val:-0.8,leitura:'próxima da média'}},dias:[{data:'07/01/2026',optOut:5340,optIn:14560,campanhas:92,envios:14823450,impressoes:7634560,ctr:'0,304%',porMilhao:360.2,leitura:'alta',texto:'mais campanhas que a média'},{data:'21/01/2026',optOut:4980,optIn:15230,campanhas:78,envios:15123450,impressoes:7823450,ctr:'0,288%',porMilhao:329.3,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.41 (34.120) · 4.40 (28.450) · 4.39 (16.780)'},
+  dez25:{periodo:'Dezembro/2025',comparacao:{envios:{val:-1.8,leitura:'próxima da média'},campanhas:{val:10.3,leitura:'acima da média'},ctr:{val:7.4,leitura:'próxima da média'},impressao:{val:1.2,leitura:'próxima da média'}},dias:[{data:'10/12/2025',optOut:5180,optIn:14230,campanhas:88,envios:13234560,impressoes:6923450,ctr:'0,299%',porMilhao:391.4,leitura:'alta',texto:'mais campanhas que a média'},{data:'22/12/2025',optOut:4920,optIn:15120,campanhas:72,envios:14567890,impressoes:7456780,ctr:'0,284%',porMilhao:337.8,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.40 (32.890) · 4.39 (27.340) · 4.38 (18.120)'},
+  nov25:{periodo:'Novembro/2025',comparacao:{envios:{val:6.2,leitura:'acima da média'},campanhas:{val:22.1,leitura:'acima da média'},ctr:{val:9.8,leitura:'próxima da média'},impressao:{val:-1.3,leitura:'próxima da média'}},dias:[{data:'04/11/2025',optOut:5890,optIn:13120,campanhas:94,envios:14234560,impressoes:7234560,ctr:'0,308%',porMilhao:413.8,leitura:'alta',texto:'mais campanhas que a média'},{data:'18/11/2025',optOut:5560,optIn:13890,campanhas:80,envios:13567890,impressoes:6923450,ctr:'0,292%',porMilhao:409.9,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.39 (31.230) · 4.38 (25.890) · 4.37 (17.450)'}
 };
 
-// ── ESTADO ──────────────────────────────────────────────────────────────
-let recorteAtual = 12;
+// Dados simulados de frequência vs conversão por mês/evento
+const FREQ_DADOS = {
+  jun26:{charged:[{faixa:'1x',usuarios:612430,lastClick:4.2,assistido:6.8},{faixa:'2x',usuarios:498210,lastClick:5.1,assistido:8.2},{faixa:'3x',usuarios:312840,lastClick:5.8,assistido:9.1},{faixa:'4x',usuarios:198320,lastClick:6.2,assistido:9.6},{faixa:'5x',usuarios:142180,lastClick:6.4,assistido:9.8},{faixa:'6-9x',usuarios:98240,lastClick:6.1,assistido:9.4},{faixa:'10-14x',usuarios:42180,lastClick:5.2,assistido:8.1},{faixa:'15+x',usuarios:18420,lastClick:3.8,assistido:5.9}],app_payment:[{faixa:'1x',usuarios:612430,lastClick:3.1,assistido:5.2},{faixa:'2x',usuarios:498210,lastClick:3.9,assistido:6.4},{faixa:'3x',usuarios:312840,lastClick:4.4,assistido:7.1},{faixa:'4x',usuarios:198320,lastClick:4.8,assistido:7.6},{faixa:'5x',usuarios:142180,lastClick:4.9,assistido:7.8},{faixa:'6-9x',usuarios:98240,lastClick:4.6,assistido:7.2},{faixa:'10-14x',usuarios:42180,lastClick:3.9,assistido:6.1},{faixa:'15+x',usuarios:18420,lastClick:2.8,assistido:4.4}],nf_read:[{faixa:'1x',usuarios:612430,lastClick:8.4,assistido:12.1},{faixa:'2x',usuarios:498210,lastClick:10.2,assistido:14.8},{faixa:'3x',usuarios:312840,lastClick:11.6,assistido:16.4},{faixa:'4x',usuarios:198320,lastClick:12.1,assistido:17.2},{faixa:'5x',usuarios:142180,lastClick:12.4,assistido:17.6},{faixa:'6-9x',usuarios:98240,lastClick:11.8,assistido:16.8},{faixa:'10-14x',usuarios:42180,lastClick:9.9,assistido:14.2},{faixa:'15+x',usuarios:18420,lastClick:7.2,assistido:10.4}],app_launched:[{faixa:'1x',usuarios:612430,lastClick:18.2,assistido:24.6},{faixa:'2x',usuarios:498210,lastClick:22.4,assistido:29.8},{faixa:'3x',usuarios:312840,lastClick:25.8,assistido:33.2},{faixa:'4x',usuarios:198320,lastClick:27.1,assistido:34.8},{faixa:'5x',usuarios:142180,lastClick:27.6,assistido:35.4},{faixa:'6-9x',usuarios:98240,lastClick:26.2,assistido:33.6},{faixa:'10-14x',usuarios:42180,lastClick:22.1,assistido:28.4},{faixa:'15+x',usuarios:18420,lastClick:16.4,assistido:21.2}],todos:[{faixa:'1x',usuarios:612430,lastClick:33.9,assistido:48.7},{faixa:'2x',usuarios:498210,lastClick:41.6,assistido:59.2},{faixa:'3x',usuarios:312840,lastClick:47.6,assistido:65.8},{faixa:'4x',usuarios:198320,lastClick:50.2,assistido:69.2},{faixa:'5x',usuarios:142180,lastClick:51.3,assistido:70.6},{faixa:'6-9x',usuarios:98240,lastClick:48.7,assistido:66.9},{faixa:'10-14x',usuarios:42180,lastClick:41.1,assistido:56.8},{faixa:'15+x',usuarios:18420,lastClick:30.2,assistido:42.0}]}
+};
+// Para outros meses, variação leve nos dados
+['mai26','abr26','mar26','fev26','jan26','dez25','nov25'].forEach(m=>{
+  FREQ_DADOS[m]={};
+  Object.keys(FREQ_DADOS.jun26).forEach(ev=>{
+    FREQ_DADOS[m][ev]=FREQ_DADOS.jun26[ev].map(r=>({
+      ...r,
+      usuarios:Math.round(r.usuarios*(0.88+Math.random()*0.18)),
+      lastClick:+(r.lastClick*(0.90+Math.random()*0.18)).toFixed(1),
+      assistido:+(r.assistido*(0.90+Math.random()*0.16)).toFixed(1)
+    }));
+  });
+});
 
-// ── HELPERS ──────────────────────────────────────────────────────────────
-function fmt(n){ return Number(n).toLocaleString('pt-BR'); }
-function fmtPct(n){ return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'; }
-function sinal(n){ return n>=0?'+':'-'; }
-function corVariacao(n,inverso=false){
-  const bom = inverso ? n<0 : n>0;
-  if(Math.abs(n)<5) return 'var(--texto-suave)';
-  return bom ? 'var(--verde-escuro)' : 'var(--rosa)';
-}
+// Dados histograma Outros
+const HIST_OUTROS=[
+  {faixa:'1x/mês',pct:8.2,conv:12.4,optOut:11.2},
+  {faixa:'2-3x/mês',pct:14.6,conv:16.8,optOut:13.4},
+  {faixa:'4-6x/mês',pct:22.1,conv:19.2,optOut:15.8},
+  {faixa:'7-10x/mês',pct:24.8,conv:18.4,optOut:18.2},
+  {faixa:'11-14x/mês',pct:16.3,conv:14.1,optOut:22.6},
+  {faixa:'15-20x/mês',pct:9.4,conv:9.8,optOut:29.4},
+  {faixa:'21-30x/mês',pct:3.8,conv:6.2,optOut:38.1},
+  {faixa:'31+/mês',pct:0.8,conv:3.1,optOut:52.4}
+];
 
-// ── FILTRO PERÍODO ──────────────────────────────────────────────────────
-function setRecorte(meses, btn){
-  recorteAtual = meses;
+// ── HELPERS ─────────────────────────────────────────────────────────
+function fmt(n){return Number(n).toLocaleString('pt-BR')}
+function fmtPct(n){return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
+let recorteAtual=12;
+
+// ── FILTRO PERÍODO ───────────────────────────────────────────────────
+function setRecorte(meses,btn){
+  recorteAtual=meses;
   document.querySelectorAll('.filtro-btn').forEach(b=>b.classList.remove('ativo'));
   btn.classList.add('ativo');
-  const labels = {12:'Jul/2025 – Jun/2026 · 12 meses',9:'Out/2025 – Jun/2026 · 9 meses',6:'Jan/2026 – Jun/2026 · 6 meses',3:'Abr/2026 – Jun/2026 · 3 meses'};
-  document.getElementById('badge-periodo').textContent = labels[meses];
-  const periodos = {12:'Jul/2025 a Jun/2026 (12 meses)',9:'Out/2025 a Jun/2026 (9 meses)',6:'Jan/2026 a Jun/2026 (6 meses)',3:'Abr/2026 a Jun/2026 (3 meses)'};
-  document.getElementById('grafico-periodo-label').textContent = 'Exibindo: '+periodos[meses];
-  const footerPeriodos = {12:'Jul/2025 a Jun/2026',9:'Out/2025 a Jun/2026',6:'Jan/2026 a Jun/2026',3:'Abr/2026 a Jun/2026'};
-  document.getElementById('footer-periodo').textContent = 'Período: '+footerPeriodos[meses];
+  const labels={12:'Jul/2025 – Jun/2026 · 12 meses',9:'Out/2025 – Jun/2026 · 9 meses',6:'Jan/2026 – Jun/2026 · 6 meses',3:'Abr/2026 – Jun/2026 · 3 meses'};
+  document.getElementById('badge-periodo').textContent=labels[meses];
+  const periodos={12:'Jul/2025 a Jun/2026 (12 meses)',9:'Out/2025 a Jun/2026 (9 meses)',6:'Jan/2026 a Jun/2026 (6 meses)',3:'Abr/2026 a Jun/2026 (3 meses)'};
+  document.getElementById('grafico-periodo-label').textContent='Exibindo: '+periodos[meses];
+  const footerP={12:'Jul/2025 a Jun/2026',9:'Out/2025 a Jun/2026',6:'Jan/2026 a Jun/2026',3:'Abr/2026 a Jun/2026'};
+  document.getElementById('footer-periodo').textContent='Período: '+footerP[meses];
   renderGrafico();
   atualizarDiagnostico();
 }
 
-// ── GRÁFICO ──────────────────────────────────────────────────────────────
+// ── GRÁFICO ─────────────────────────────────────────────────────────
 function renderGrafico(){
-  const dados = MESES_TODOS.slice(12 - recorteAtual);
-  const maxTotal = Math.max(...dados.map(d=>d.optIn+d.optOut));
-  const alturaMax = 130;
-  const wrap = document.getElementById('grafico-barras');
-  wrap.innerHTML = '';
+  const dados=MESES.slice(12-recorteAtual);
+  const maxTotal=Math.max(...dados.map(d=>d.optIn+d.optOut));
+  const alturaMax=130;
+  const wrap=document.getElementById('grafico-barras');
+  wrap.innerHTML='';
+  const tt=document.getElementById('tt');
   dados.forEach(d=>{
-    const total = d.optIn + d.optOut;
-    const hIn = Math.max(4, Math.round((d.optIn/maxTotal)*alturaMax));
-    const hOut = Math.max(3, Math.round((d.optOut/maxTotal)*alturaMax));
-    const col = document.createElement('div');
-    col.className = 'mes-grupo';
-    col.innerHTML = `
-      <div class="tooltip">
-        <div class="tooltip-titulo">${d.mes}</div>
-        <div class="tooltip-linha"><span class="tooltip-label">Ativaram push (opt-in)</span><span class="tooltip-val verde">${fmt(d.optIn)}</span></div>
-        <div class="tooltip-linha"><span class="tooltip-label">Desativaram push (opt-out)</span><span class="tooltip-val rosa">${fmt(d.optOut)}</span></div>
-        <div class="tooltip-linha"><span class="tooltip-label">Taxa de opt-out do mês</span><span class="tooltip-val">${fmtPct(d.taxaOut)}</span></div>
-        <div class="tooltip-linha"><span class="tooltip-label">Total de movimentações</span><span class="tooltip-val">${fmt(total)}</span></div>
-      </div>
-      <div class="mes-barras-inner">
-        <div class="mes-bar-in" style="height:${hIn}px"></div>
-        <div class="mes-bar-out" style="height:${hOut}px"></div>
-      </div>
-      <div class="mes-eixo-label">${d.mes}</div>
-    `;
+    const hIn=Math.max(4,Math.round((d.optIn/maxTotal)*alturaMax));
+    const hOut=Math.max(3,Math.round((d.optOut/maxTotal)*alturaMax));
+    const col=document.createElement('div');
+    col.className='mes-grupo';
+    col.innerHTML=`<div class="mes-barras-inner"><div class="mes-bar-in" style="height:${hIn}px"></div><div class="mes-bar-out" style="height:${hOut}px"></div></div><div class="mes-eixo-label">${d.mes}</div>`;
+    col.addEventListener('mouseenter',function(e){
+      document.getElementById('tt-titulo').textContent=d.mes;
+      document.getElementById('tt-in').textContent=fmt(d.optIn);
+      document.getElementById('tt-out').textContent=fmt(d.optOut);
+      document.getElementById('tt-taxa').textContent=fmtPct(d.taxaOut);
+      document.getElementById('tt-total').textContent=fmt(d.optIn+d.optOut);
+      tt.style.display='block';
+      posicionarTooltip(e);
+    });
+    col.addEventListener('mousemove',posicionarTooltip);
+    col.addEventListener('mouseleave',function(){tt.style.display='none'});
     wrap.appendChild(col);
   });
 }
-
-// ── DIAGNÓSTICO ──────────────────────────────────────────────────────────
-function atualizarDiagnostico(){
-  const dados = MESES_TODOS.slice(12 - recorteAtual);
-  const mediaOut = (dados.reduce((s,d)=>s+d.taxaOut,0)/dados.length).toFixed(1);
-  const el = document.getElementById('texto-diagnostico');
-  el.innerHTML = `A taxa de opt-out da base <strong>Filiada é de 18,52%</strong> — ou seja, de cada 100 usuários Filiados com notificação push ativa, <strong>apenas 18 desativaram</strong>. A base "Outros" (usuários fora do escopo do CRM - Engajamento) apresenta taxa de opt-out de <strong>17,32%</strong> — praticamente igual. <strong>Isso mostra que a comunicação do time não gera evasão acima do esperado.</strong> No recorte selecionado (${recorteAtual} meses), a taxa média mensal de opt-out foi de <strong>${mediaOut}%</strong>, dentro do padrão histórico para apps de benefícios no Brasil.`;
+function posicionarTooltip(e){
+  const tt=document.getElementById('tt');
+  const vw=window.innerWidth, vh=window.innerHeight;
+  const tw=220, th=120;
+  let x=e.clientX+14, y=e.clientY-th-10;
+  if(x+tw>vw-10) x=e.clientX-tw-14;
+  if(y<10) y=e.clientY+20;
+  tt.style.left=x+'px';
+  tt.style.top=y+'px';
 }
 
-// ── DIAS CRÍTICOS ──────────────────────────────────────────────────────
-function renderCriticos(){
-  const sel = document.getElementById('sel-mes-criticos').value;
-  const d = CRITICOS[sel];
-  if(!d) return;
+// ── DIAGNÓSTICO ──────────────────────────────────────────────────────
+function atualizarDiagnostico(){
+  const dados=MESES.slice(12-recorteAtual);
+  const mediaOut=(dados.reduce((s,d)=>s+d.taxaOut,0)/dados.length).toFixed(1);
+  document.getElementById('texto-diagnostico').innerHTML=`A taxa de opt-out da base <strong>Filiada é de 18,52%</strong> — ou seja, de cada 100 usuários Filiados com notificação push ativa, <strong>apenas 18 desativaram</strong>. A base "Outros" apresenta taxa de <strong>17,32%</strong> — praticamente igual. <strong>Isso mostra que a comunicação do time não gera evasão acima do esperado.</strong> No recorte de ${recorteAtual} meses, a taxa média mensal de opt-out foi de <strong>${mediaOut}%</strong>, dentro do padrão histórico para apps de benefícios no Brasil.`;
+}
 
-  // Cards de contexto
-  const cardsEl = document.getElementById('cards-criticos');
-  const campos = [
-    { label:'Frequência de campanhas nos dias críticos', sublabel:'Número de campanhas disparadas nesses dias vs. média dos outros dias', val:d.comparacao.campanhas.val, leitura:d.comparacao.campanhas.leitura, tipo:d.comparacao.campanhas.val>20?'rosa':'verde', icone:'📣' },
-    { label:'Volume de envios nos dias críticos', sublabel:'Total de mensagens enviadas nesses dias vs. média dos outros dias', val:d.comparacao.envios.val, leitura:d.comparacao.envios.leitura, tipo:'verde', icone:'📤' },
-    { label:'CTR (taxa de clique) nos dias críticos', sublabel:'% de usuários que clicaram na notificação vs. média dos outros dias', val:d.comparacao.ctr.val, leitura:d.comparacao.ctr.leitura, tipo:'azul', icone:'👆' },
-    { label:'Taxa de impressão nos dias críticos', sublabel:'% de notificações visualizadas vs. média dos outros dias', val:d.comparacao.impressao.val, leitura:d.comparacao.impressao.leitura, tipo:'verde', icone:'👁️' }
+// ── FREQUÊNCIA VS CONVERSÃO ──────────────────────────────────────────
+function renderFreq(){
+  const mes=document.getElementById('freq-mes').value;
+  const ev=document.getElementById('freq-evento').value;
+  const dados=(FREQ_DADOS[mes]||{})[ev];
+  if(!dados){document.getElementById('freq-resultado').innerHTML='<div style="padding:20px;color:var(--rosa)">Dados indisponíveis para esta combinação.</div>';return;}
+  const evNomes={charged:'Charged',app_payment:'App Payment',nf_read:'NF Read',app_launched:'App Launched',todos:'Todos os eventos'};
+  let html=`
+    <div style="margin-bottom:14px;font-size:11px;color:var(--texto-suave);line-height:1.6">
+      Evento de conversão: <strong style="color:var(--verde-escuro)">${evNomes[ev]}</strong> &nbsp;·&nbsp; Janela de conversão: <strong>5 dias após o recebimento</strong>
+    </div>
+    <table>
+      <thead><tr>
+        <th>Pushes recebidos<br><span style="font-weight:600;text-transform:none;letter-spacing:0">no mês</span></th>
+        <th>Usuários<br><span style="font-weight:600;text-transform:none;letter-spacing:0">nesta faixa</span></th>
+        <th>% da base<br><span style="font-weight:600;text-transform:none;letter-spacing:0">opt-in</span></th>
+        <th>Taxa conversão<br><span style="font-weight:600;text-transform:none;letter-spacing:0">Last Click</span></th>
+        <th>Taxa conversão<br><span style="font-weight:600;text-transform:none;letter-spacing:0">Assistidos</span></th>
+        <th>Uplift assistido<br><span style="font-weight:600;text-transform:none;letter-spacing:0">vs. last click</span></th>
+        <th>Sinal</th>
+      </tr></thead><tbody>`;
+  const totalUsuarios=dados.reduce((s,r)=>s+r.usuarios,0);
+  const maxConv=Math.max(...dados.map(r=>r.assistido));
+  dados.forEach((r,i)=>{
+    const pctBase=((r.usuarios/totalUsuarios)*100).toFixed(1);
+    const uplift=(r.assistido-r.lastClick).toFixed(1);
+    const isMax=r.assistido===maxConv;
+    const isDecline=i>0&&r.assistido<dados[i-1].assistido;
+    const sinal=isMax?'<span class="pill pill-normal">✓ Ponto ótimo</span>':isDecline?'<span class="pill pill-media">↘ Queda de conversão</span>':'<span class="pill" style="background:#f0f5f3;color:var(--texto-suave)">—</span>';
+    html+=`<tr style="${isMax?'background:rgba(0,169,136,.06)':''}">
+      <td><strong>${r.faixa}</strong></td>
+      <td>${fmt(r.usuarios)}</td>
+      <td>${pctBase}%</td>
+      <td style="font-weight:800;color:var(--verde-escuro)">${r.lastClick.toFixed(1)}%</td>
+      <td style="font-weight:800;color:var(--azul)">${r.assistido.toFixed(1)}%</td>
+      <td style="color:var(--laranja);font-weight:700">+${uplift}pp</td>
+      <td>${sinal}</td>
+    </tr>`;
+  });
+  html+=`</tbody></table>`;
+  html+=`<div class="nota-box info" style="margin-top:12px">
+    📌 <strong>Last Click:</strong> usuário clicou no push e realizou o evento na janela de 5 dias.<br>
+    📌 <strong>Assistidos:</strong> usuário recebeu o push (mesmo sem clicar) e realizou o evento na janela — mede o impacto indireto da comunicação.<br>
+    📌 <strong>Uplift:</strong> diferença entre assistidos e last click — quanto a presença do push influenciou mesmo sem o clique.
+  </div>`;
+  document.getElementById('freq-resultado').innerHTML=html;
+}
+
+// ── DIAS CRÍTICOS ────────────────────────────────────────────────────
+function renderCriticos(){
+  const sel=document.getElementById('sel-mes-criticos').value;
+  const d=CRITICOS[sel];if(!d)return;
+  const campos=[
+    {label:'Nº de campanhas disparadas',sublabel:'Quantas campanhas diferentes foram enviadas nestes dias vs. a média dos outros dias do mês',val:d.comparacao.campanhas.val,leitura:d.comparacao.campanhas.leitura,tipo:d.comparacao.campanhas.val>20?'rosa':'verde',icone:'📣'},
+    {label:'Volume total de envios',sublabel:'Total de pushes enviados (todos os usuários somados) nestes dias vs. a média dos outros dias',val:d.comparacao.envios.val,leitura:d.comparacao.envios.leitura,tipo:'verde',icone:'📤'},
+    {label:'CTR — taxa de clique',sublabel:'% de usuários que clicaram na notificação nestes dias vs. a média dos outros dias',val:d.comparacao.ctr.val,leitura:d.comparacao.ctr.leitura,tipo:'azul',icone:'👆'},
+    {label:'Taxa de impressão',sublabel:'% de notificações que foram visualizadas pelo usuário nestes dias vs. a média dos outros dias',val:d.comparacao.impressao.val,leitura:d.comparacao.impressao.leitura,tipo:'verde',icone:'👁️'}
   ];
-  cardsEl.innerHTML = campos.map(c=>`
+  document.getElementById('cards-criticos').innerHTML=campos.map(c=>`
     <div class="mc ${Math.abs(c.val)>20&&c.tipo==='rosa'?'rosa':c.tipo==='azul'?'azul':'verde'}">
       <div class="mc-label">${c.icone} ${c.label}<small>${c.sublabel}</small></div>
-      <div class="mc-valor" style="color:${c.tipo==='rosa'?'var(--rosa)':c.tipo==='azul'?'var(--azul)':'var(--verde-escuro)'}">${sinal(c.val)}${Math.abs(c.val).toFixed(1)}%</div>
+      <div class="mc-valor" style="color:${c.tipo==='rosa'?'var(--rosa)':c.tipo==='azul'?'var(--azul)':'var(--verde-escuro)'}">${c.val>=0?'+':''}${Math.abs(c.val).toFixed(1)}%</div>
       <div class="mc-detalhe">${c.leitura} em relação aos demais dias do mês</div>
-    </div>
-  `).join('');
-
-  // Tabela
-  const tabEl = document.getElementById('tabela-criticos');
-  tabEl.innerHTML = `
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Desativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-out)</span></th>
-        <th>Ativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-in)</span></th>
-        <th>Nº de campanhas<br><span style="font-weight:600;text-transform:none;letter-spacing:0">disparadas</span></th>
-        <th>Total de envios</th>
-        <th>Impressões</th>
-        <th>CTR<br><span style="font-weight:600;text-transform:none;letter-spacing:0">% que clicou</span></th>
-        <th>Opt-outs<br><span style="font-weight:600;text-transform:none;letter-spacing:0">por 1M enviados</span></th>
-        <th>Sinal identificado</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${d.dias.map(dia=>`
-        <tr>
-          <td><strong>${dia.data}</strong></td>
-          <td style="color:var(--rosa);font-weight:800">${fmt(dia.optOut)}</td>
-          <td>${fmt(dia.optIn)}</td>
-          <td>${fmt(dia.campanhas)}</td>
-          <td>${fmt(dia.envios)}</td>
-          <td>${fmt(dia.impressoes)}</td>
-          <td>${dia.ctr}</td>
-          <td>${dia.porMilhao.toLocaleString('pt-BR',{maximumFractionDigits:1})}</td>
-          <td><span class="leitura-pill pill-${dia.leitura}">${dia.texto}</span></td>
-        </tr>
-      `).join('')}
-    </tbody>
-  `;
-
-  // Versões
-  document.getElementById('nota-versoes').innerHTML = `
-    🔧 <strong>Versões do app com mais opt-outs em ${d.periodo}:</strong> ${d.versoes}<br>
-    <span style="font-style:italic">Mudanças de versão do app, reinstalações e alterações nativas do sistema operacional também podem gerar opt-out independentemente das campanhas enviadas.</span>
-  `;
+    </div>`).join('');
+  document.getElementById('tabela-criticos').innerHTML=`
+    <thead><tr>
+      <th>Data</th>
+      <th>Desativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-out)</span></th>
+      <th>Ativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-in)</span></th>
+      <th>Campanhas<br><span style="font-weight:600;text-transform:none;letter-spacing:0">disparadas</span></th>
+      <th>Total de envios</th>
+      <th>Impressões</th>
+      <th>CTR</th>
+      <th>Opt-outs por<br><span style="font-weight:600;text-transform:none;letter-spacing:0">1M enviados</span></th>
+      <th>Sinal identificado</th>
+    </tr></thead>
+    <tbody>${d.dias.map(dia=>`<tr>
+      <td><strong>${dia.data}</strong></td>
+      <td style="color:var(--rosa);font-weight:800">${fmt(dia.optOut)}</td>
+      <td>${fmt(dia.optIn)}</td>
+      <td>${fmt(dia.campanhas)}</td>
+      <td>${fmt(dia.envios)}</td>
+      <td>${fmt(dia.impressoes)}</td>
+      <td>${dia.ctr}</td>
+      <td>${dia.porMilhao.toLocaleString('pt-BR',{maximumFractionDigits:1})}</td>
+      <td><span class="pill pill-${dia.leitura}">${dia.texto}</span></td>
+    </tr>`).join('')}</tbody>`;
+  document.getElementById('nota-versoes').innerHTML=`🔧 <strong>Versões do app com mais opt-outs em ${d.periodo}:</strong> ${d.versoes}<br><em>Mudanças de versão, reinstalações e alterações nativas do SO também podem gerar opt-out independente das campanhas.</em>`;
 }
 
-// ── INIT ──────────────────────────────────────────────────────────────
+// ── HISTOGRAMA OUTROS ────────────────────────────────────────────────
+function renderHistOutros(){
+  const maxPct=Math.max(...HIST_OUTROS.map(h=>h.pct));
+  const maxConv=Math.max(...HIST_OUTROS.map(h=>h.conv));
+  document.getElementById('hist-outros').innerHTML=HIST_OUTROS.map(h=>`
+    <div class="hist-card">
+      <div class="hist-faixa">${h.faixa}</div>
+      <div class="hist-barra-wrap">
+        <div class="hist-barra outros-cor" style="height:${Math.round((h.pct/maxPct)*54)+3}px" title="% usuários: ${h.pct}%"></div>
+        <div class="hist-barra conv-cor" style="height:${Math.round((h.conv/maxConv)*54)+3}px" title="Taxa conv: ${h.conv}%"></div>
+      </div>
+      <div class="hist-info">
+        <strong>${h.pct}%</strong> dos usuários<br>
+        Conv: <strong style="color:var(--verde-escuro)">${h.conv}%</strong><br>
+        Opt-out: <strong style="color:var(--rosa)">${h.optOut}%</strong>
+      </div>
+    </div>`).join('');
+}
+
+// ── PIN / EASTER EGG ─────────────────────────────────────────────────
+const PIN_CORRETO='1234'; // altere aqui para o PIN real
+function abrirPin(){
+  document.getElementById('pin-modal').classList.add('show');
+  document.getElementById('pin-erro').textContent='';
+  document.querySelectorAll('.pin-digit').forEach(i=>i.value='');
+  document.getElementById('p0').focus();
+}
+function fecharPin(){document.getElementById('pin-modal').classList.remove('show')}
+function avancaPin(idx){
+  const v=document.getElementById('p'+idx).value;
+  if(v&&idx<3) document.getElementById('p'+(idx+1)).focus();
+}
+function voltaPin(e,idx){
+  if(e.key==='Backspace'&&!document.getElementById('p'+idx).value&&idx>0){
+    document.getElementById('p'+(idx-1)).focus();
+  }
+  if(e.key==='Enter') verificarPin();
+}
+function verificarPin(){
+  const pin=['p0','p1','p2','p3'].map(id=>document.getElementById(id).value).join('');
+  if(pin===PIN_CORRETO){
+    fecharPin();
+    const sec=document.getElementById('secao-outros');
+    sec.classList.add('show');
+    renderHistOutros();
+    sec.scrollIntoView({behavior:'smooth',block:'start'});
+  } else {
+    document.getElementById('pin-erro').textContent='PIN incorreto. Tente novamente.';
+    document.querySelectorAll('.pin-digit').forEach(i=>i.value='');
+    document.getElementById('p0').focus();
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────
 renderGrafico();
 renderCriticos();
 atualizarDiagnostico();
