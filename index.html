@@ -145,6 +145,9 @@
     #tabela-criticos{min-width:920px}
     .freq-nota{font-size:10px;color:var(--texto-suave);font-style:italic;margin-top:8px;line-height:1.5}
     .badge-label{display:inline-flex;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(0,169,136,.12);color:var(--verde-escuro);margin-right:4px;margin-bottom:3px}
+    .acesso-interno{display:flex;justify-content:flex-end;margin:16px 0 6px}
+    .btn-interno{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:8px 12px;border-radius:999px;border:1px solid rgba(124,58,237,.24);background:#faf5ff;color:#5b21b6;font-size:11px;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s}
+    .btn-interno:hover{background:#f3e8ff;border-color:rgba(124,58,237,.38)}
 
     /* ── SEÇÃO 3: OUTROS — EASTER EGG + PIN ── */
     #easter-trigger{position:fixed;bottom:18px;right:22px;width:18px;height:18px;border-radius:50%;background:rgba(124,58,237,.18);border:none;cursor:pointer;z-index:100;transition:background .2s}
@@ -258,6 +261,8 @@
       .freq-controles{grid-template-columns:1fr!important;gap:10px;padding:12px}
       .freq-campo-full{grid-column:1!important}
       .btn-calcular{grid-column:1!important;padding:11px}
+      .acesso-interno{justify-content:stretch}
+      .btn-interno{width:100%;justify-content:center}
 
       /* Seção outros */
       .outros-banner{flex-direction:column;gap:8px}
@@ -509,7 +514,7 @@
     <div class="painel-topo">
       <div>
         <div class="painel-titulo">Frequência de push recebido × Taxa de conversão</div>
-        <div class="painel-subtitulo">Selecione o mês e o evento de conversão para visualizar o cruzamento. A conversão considera <strong>last click</strong> (usuário clicou no push e depois converteu) e <strong>assistidos</strong> (usuário recebeu o push, não clicou, mas converteu na janela).</div>
+        <div class="painel-subtitulo">Selecione o mês e a frente/evento de conversão do painel de Engajamento para visualizar o cruzamento. A conversão considera <strong>last click</strong> (usuário clicou no push e depois converteu) e <strong>assistidos</strong> (usuário recebeu o push, não clicou, mas converteu na janela).</div>
       </div>
     </div>
     <div class="conteudo">
@@ -530,15 +535,20 @@
         <div class="freq-campo">
           <label for="freq-evento">Evento de conversão</label>
           <select id="freq-evento">
-            <option value="charged">Charged (qualquer compra/cobrança)</option>
-            <option value="app_payment">App Payment (pagamento pelo app)</option>
-            <option value="nf_read">NF Read (leitura de nota fiscal)</option>
-            <option value="app_launched">App Launched (abertura do app)</option>
-            <option value="todos">Todos os eventos somados</option>
+            <option value="todos">Todos os eventos de Engajamento</option>
+            <option value="cdt">cdt</option>
+            <option value="copadetodos">copadetodos</option>
+            <option value="local">local</option>
+            <option value="rd">rd</option>
+            <option value="ug">ug</option>
+            <option value="sonhos">sonhos</option>
+            <option value="tvtodos">tvtodos</option>
+            <option value="todosviagens">todosviagens</option>
+            <option value="versao_app">versão app</option>
           </select>
         </div>
         <div class="freq-campo freq-campo-full">
-          <label>Labels do CRM - Engajamento</label>
+          <label>Eventos refletidos no painel original</label>
           <div style="display:flex;flex-wrap:wrap;gap:4px;padding:8px 0">
             <span class="badge-label">cdt</span>
             <span class="badge-label">copadetodos</span>
@@ -555,7 +565,7 @@
       </div>
 
       <div class="freq-tabela-wrap" id="freq-resultado">
-        <div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px">Selecione o mês e o evento de conversão e clique em <strong>Visualizar</strong>.</div>
+        <div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px">Selecione o mês e o evento de conversão de Engajamento e clique em <strong>Visualizar</strong>.</div>
       </div>
     </div>
   </div>
@@ -566,7 +576,7 @@
   <div class="painel">
     <div class="painel-topo">
       <div>
-        <div class="painel-titulo">Dias com mais opt-out no mês selecionado</div>
+        <div class="painel-titulo">TOP 3 dias com mais opt-out no mês selecionado</div>
         <div class="painel-subtitulo">Os percentuais mostram quanto cada métrica estava acima ou abaixo da média dos outros dias do mês.</div>
       </div>
       <div>
@@ -622,6 +632,10 @@
     <div class="rec-item"><div class="rec-num">2</div><div><div class="rec-corpo-titulo">Investigar as versões 4.43 e 4.44 com o time de Produto</div><div class="rec-corpo-desc">Essas versões concentram o maior volume de opt-outs. Pode haver mudança de comportamento nativo do app (prompt de permissão do SO) independente da comunicação.</div></div></div>
     <div class="rec-item"><div class="rec-num">3</div><div><div class="rec-corpo-titulo">Manter a estratégia de segmentação do Bolão da Copa</div><div class="rec-corpo-desc">A régua de 4 campanhas por faixa de ranking (Top 10, 100, 500 e 2.000) com limite de 1 disparo por dia é exatamente o tipo de comunicação relevante e controlada que protege o opt-in.</div></div></div>
     <div class="rec-item"><div class="rec-num">4</div><div><div class="rec-corpo-titulo">Revisar campanhas com CTR abaixo de 0,18%</div><div class="rec-corpo-desc">Campanhas com muitos envios e poucos cliques indicam que a mensagem ou segmento não estão alinhados. São candidatas a A/B test de copy ou revisão de segmentação.</div></div></div>
+  </div>
+
+  <div class="acesso-interno">
+    <button class="btn-interno" type="button" onclick="abrirPin()">🔒 Dados de outras frentes</button>
   </div>
 
   <!-- SEÇÃO OUTROS (oculta, PIN) -->
@@ -754,6 +768,27 @@ const CRITICOS = {
 const FREQ_DADOS = {
   jun26:{charged:[{faixa:'1x',usuarios:612430,lastClick:4.2,assistido:6.8,optOutFaixa:11.2},{faixa:'2x',usuarios:498210,lastClick:5.1,assistido:8.2},{faixa:'3x',usuarios:312840,lastClick:5.8,assistido:9.1},{faixa:'4x',usuarios:198320,lastClick:6.2,assistido:9.6},{faixa:'5x',usuarios:142180,lastClick:6.4,assistido:9.8},{faixa:'6-9x',usuarios:98240,lastClick:6.1,assistido:9.4},{faixa:'10-14x',usuarios:42180,lastClick:5.2,assistido:8.1},{faixa:'15+x',usuarios:18420,lastClick:3.8,assistido:5.9}],app_payment:[{faixa:'1x',usuarios:612430,lastClick:3.1,assistido:5.2},{faixa:'2x',usuarios:498210,lastClick:3.9,assistido:6.4},{faixa:'3x',usuarios:312840,lastClick:4.4,assistido:7.1},{faixa:'4x',usuarios:198320,lastClick:4.8,assistido:7.6},{faixa:'5x',usuarios:142180,lastClick:4.9,assistido:7.8},{faixa:'6-9x',usuarios:98240,lastClick:4.6,assistido:7.2},{faixa:'10-14x',usuarios:42180,lastClick:3.9,assistido:6.1},{faixa:'15+x',usuarios:18420,lastClick:2.8,assistido:4.4}],nf_read:[{faixa:'1x',usuarios:612430,lastClick:8.4,assistido:12.1},{faixa:'2x',usuarios:498210,lastClick:10.2,assistido:14.8},{faixa:'3x',usuarios:312840,lastClick:11.6,assistido:16.4},{faixa:'4x',usuarios:198320,lastClick:12.1,assistido:17.2},{faixa:'5x',usuarios:142180,lastClick:12.4,assistido:17.6},{faixa:'6-9x',usuarios:98240,lastClick:11.8,assistido:16.8},{faixa:'10-14x',usuarios:42180,lastClick:9.9,assistido:14.2},{faixa:'15+x',usuarios:18420,lastClick:7.2,assistido:10.4}],app_launched:[{faixa:'1x',usuarios:612430,lastClick:18.2,assistido:24.6},{faixa:'2x',usuarios:498210,lastClick:22.4,assistido:29.8},{faixa:'3x',usuarios:312840,lastClick:25.8,assistido:33.2},{faixa:'4x',usuarios:198320,lastClick:27.1,assistido:34.8},{faixa:'5x',usuarios:142180,lastClick:27.6,assistido:35.4},{faixa:'6-9x',usuarios:98240,lastClick:26.2,assistido:33.6},{faixa:'10-14x',usuarios:42180,lastClick:22.1,assistido:28.4},{faixa:'15+x',usuarios:18420,lastClick:16.4,assistido:21.2}],todos:[{faixa:'1x',usuarios:612430,lastClick:33.9,assistido:48.7},{faixa:'2x',usuarios:498210,lastClick:41.6,assistido:59.2},{faixa:'3x',usuarios:312840,lastClick:47.6,assistido:65.8},{faixa:'4x',usuarios:198320,lastClick:50.2,assistido:69.2},{faixa:'5x',usuarios:142180,lastClick:51.3,assistido:70.6},{faixa:'6-9x',usuarios:98240,lastClick:48.7,assistido:66.9},{faixa:'10-14x',usuarios:42180,lastClick:41.1,assistido:56.8},{faixa:'15+x',usuarios:18420,lastClick:30.2,assistido:42.0}]}
 };
+const EVENTOS_CONVERSAO_ENGAJAMENTO = {
+  todos:{nome:'Todos os eventos de Engajamento',peso:1},
+  cdt:{nome:'cdt',peso:.28},
+  copadetodos:{nome:'copadetodos',peso:.34},
+  local:{nome:'local',peso:.22},
+  rd:{nome:'rd',peso:.18},
+  ug:{nome:'ug',peso:.16},
+  sonhos:{nome:'sonhos',peso:.14},
+  tvtodos:{nome:'tvtodos',peso:.12},
+  todosviagens:{nome:'todosviagens',peso:.10},
+  versao_app:{nome:'versão app',peso:.20}
+};
+const FREQ_TOTAL_ENGAJAMENTO = FREQ_DADOS.jun26.todos;
+FREQ_DADOS.jun26 = Object.fromEntries(Object.entries(EVENTOS_CONVERSAO_ENGAJAMENTO).map(([chave,evento])=>[
+  chave,
+  FREQ_TOTAL_ENGAJAMENTO.map(r=>({
+    ...r,
+    lastClick:+(r.lastClick*evento.peso).toFixed(1),
+    assistido:+(r.assistido*evento.peso).toFixed(1)
+  }))
+]));
 const FREQ_VARIACOES = {
   mai26:{usuarios:.98,lastClick:.99,assistido:1.00},
   abr26:{usuarios:1.05,lastClick:.96,assistido:.97},
@@ -890,7 +925,7 @@ function renderFreq(){
   const ev=document.getElementById('freq-evento').value;
   const dados=(FREQ_DADOS[mes]||{})[ev];
   if(!dados){document.getElementById('freq-resultado').innerHTML='<div style="padding:20px;color:var(--rosa)">Dados indisponíveis para esta combinação.</div>';return;}
-  const evNomes={charged:'Charged',app_payment:'App Payment',nf_read:'NF Read',app_launched:'App Launched',todos:'Todos os eventos'};
+  const evNomes=Object.fromEntries(Object.entries(EVENTOS_CONVERSAO_ENGAJAMENTO).map(([chave,evento])=>[chave,evento.nome]));
   let html=`
     <div style="margin-bottom:14px;font-size:11px;color:var(--texto-suave);line-height:1.6">
       Evento de conversão: <strong style="color:var(--verde-escuro)">${evNomes[ev]}</strong> &nbsp;·&nbsp; Janela de conversão: <strong>5 dias após o recebimento</strong>
@@ -939,6 +974,7 @@ function renderFreq(){
 function renderCriticos(){
   const sel=document.getElementById('sel-mes-criticos').value;
   const d=CRITICOS[sel];if(!d)return;
+  const diasTop3=d.dias.slice().sort((a,b)=>b.optOut-a.optOut).slice(0,3);
   const campos=[
     {label:'Nº de campanhas disparadas',sublabel:'Quantas campanhas diferentes foram enviadas nestes dias vs. a média dos outros dias do mês',val:d.comparacao.campanhas.val,leitura:d.comparacao.campanhas.leitura,tipo:d.comparacao.campanhas.val>20?'rosa':'verde',icone:'📣'},
     {label:'Volume total de envios',sublabel:'Total de pushes enviados (todos os usuários somados) nestes dias vs. a média dos outros dias',val:d.comparacao.envios.val,leitura:d.comparacao.envios.leitura,tipo:'verde',icone:'📤'},
@@ -953,6 +989,7 @@ function renderCriticos(){
     </div>`).join('');
   document.getElementById('tabela-criticos').innerHTML=`
     <thead><tr>
+      <th>Rank</th>
       <th>Data</th>
       <th>Desativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-out)</span></th>
       <th>Ativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-in)</span></th>
@@ -963,7 +1000,8 @@ function renderCriticos(){
       <th>Opt-outs por<br><span style="font-weight:600;text-transform:none;letter-spacing:0">1M enviados</span></th>
       <th>Sinal identificado</th>
     </tr></thead>
-    <tbody>${d.dias.map(dia=>`<tr>
+    <tbody>${diasTop3.map((dia,i)=>`<tr>
+      <td><strong>TOP ${i+1}</strong></td>
       <td><strong>${dia.data}</strong></td>
       <td style="color:var(--rosa);font-weight:800">${fmt(dia.optOut)}</td>
       <td>${fmt(dia.optIn)}</td>
