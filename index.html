@@ -23,6 +23,21 @@
     .hero h1{font-size:28px;line-height:1.1;position:relative;z-index:1}
     .hero p{max-width:800px;margin-top:10px;color:rgba(255,255,255,.9);font-size:13px;line-height:1.6;position:relative;z-index:1}
     .hero-tag{display:inline-flex;margin-top:14px;padding:6px 12px;border:1px solid rgba(255,255,255,.3);border-radius:999px;background:rgba(0,100,72,.2);color:white;font-size:10px;font-weight:800;position:relative;z-index:1;max-width:100%;line-height:1.4}
+    .benchmark{margin-bottom:22px;padding:18px 20px;border:1px solid rgba(0,169,136,.24);border-radius:12px;background:white;box-shadow:var(--sombra)}
+    .benchmark-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+    .benchmark-titulo{font-size:15px;font-weight:900;color:var(--verde-escuro)}
+    .benchmark-sub{margin-top:4px;font-size:10px;color:var(--texto-suave);line-height:1.5}
+    .benchmark-fonte{display:inline-flex;align-items:center;min-height:28px;padding:6px 10px;border-radius:999px;background:#f4f8f6;border:1px solid var(--borda);color:var(--texto-suave);font-size:9px;font-weight:800;text-decoration:none}
+    .benchmark-grid{display:grid;grid-template-columns:1.2fr .9fr .9fr .9fr;gap:10px}
+    .benchmark-metrica{min-width:0;padding:14px;border:1px solid var(--borda);border-radius:10px;background:#fbfdfc}
+    .benchmark-metrica.destaque{border-color:rgba(0,169,136,.28);background:rgba(0,169,136,.07)}
+    .benchmark-label{font-size:9px;font-weight:900;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.35px;line-height:1.35}
+    .benchmark-valor{margin-top:8px;font-size:26px;font-weight:900;color:var(--verde-escuro);font-variant-numeric:tabular-nums;line-height:1}
+    .benchmark-valor.azul{color:var(--azul)}
+    .benchmark-valor.texto{color:var(--texto)}
+    .benchmark-detalhe{margin-top:8px;font-size:10px;color:var(--texto-suave);line-height:1.45}
+    .benchmark-detalhe strong{color:var(--texto)}
+    .benchmark-nota{margin-top:12px;padding-top:10px;border-top:1px solid var(--borda);font-size:10px;color:var(--texto-suave);line-height:1.55}
     .filtro-periodo{display:flex;align-items:center;gap:8px;margin-bottom:22px;flex-wrap:wrap}
     .filtro-label{font-size:11px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.4px;margin-right:4px}
     .filtro-btn{min-height:34px;padding:7px 16px;border-radius:999px;border:1.5px solid var(--borda);background:white;color:var(--texto-suave);font-size:12px;font-weight:700;cursor:pointer;transition:all .15s}
@@ -203,6 +218,10 @@
       .hero h1{font-size:20px}
       .hero p{font-size:12px}
       .hero-tag{font-size:9px}
+      .benchmark{padding:14px}
+      .benchmark-grid{grid-template-columns:1fr 1fr}
+      .benchmark-metrica.destaque{grid-column:1/-1}
+      .benchmark-valor{font-size:22px}
 
       /* Filtros */
       .filtro-periodo{gap:6px}
@@ -306,6 +325,8 @@
       .hero h1{font-size:18px}
       .hero-tag{border-radius:10px}
       .badge-periodo{white-space:normal;line-height:1.35}
+      .benchmark-grid{grid-template-columns:1fr}
+      .benchmark-fonte{width:100%;justify-content:center}
       .filtro-periodo{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
       .filtro-label{grid-column:1/-1;margin-right:0}
       .filtro-btn{width:100%;padding-inline:8px}
@@ -350,6 +371,40 @@
     <p>Este relatório apresenta o estudo de saturação da base Push dos usuários Filiados, cruzando volume de envios, evolução de opt-out e comportamento comparativo com a base Não Filiada. O objetivo é demonstrar que o time de CRM - Engajamento opera com critério, frequência controlada e foco em resultado.</p>
     <div class="hero-tag">📅 Painel V2 · Dados extraídos via API oficial CleverTap · Atualizado em 29/06/2026</div>
   </div>
+
+  <!-- BENCHMARK RETAIL -->
+  <section class="benchmark" aria-labelledby="benchmark-retail-titulo">
+    <div class="benchmark-topo">
+      <div>
+        <div class="benchmark-titulo" id="benchmark-retail-titulo">Retail vs. Cartão de TODOS</div>
+        <div class="benchmark-sub">Comparativo de opt-in do snapshot atual com o benchmark Pushwoosh para E-commerce & Retail.</div>
+      </div>
+      <a class="benchmark-fonte" href="https://www.pushwoosh.com/pt/blog/push%20notification%20benchmarks/" target="_blank" rel="noopener">Fonte: Pushwoosh · Retail</a>
+    </div>
+    <div class="benchmark-grid">
+      <div class="benchmark-metrica destaque">
+        <div class="benchmark-label">Cartão de TODOS · opt-in total</div>
+        <div class="benchmark-valor">82,01%</div>
+        <div class="benchmark-detalhe"><strong>+6,73pp</strong> vs. Retail Android e <strong>+29,23pp</strong> vs. Retail iOS.</div>
+      </div>
+      <div class="benchmark-metrica">
+        <div class="benchmark-label">Retail benchmark · Android opt-in</div>
+        <div class="benchmark-valor azul">75,28%</div>
+        <div class="benchmark-detalhe">Referência de opt-in para apps de E-commerce & Retail.</div>
+      </div>
+      <div class="benchmark-metrica">
+        <div class="benchmark-label">Retail benchmark · iOS opt-in</div>
+        <div class="benchmark-valor texto">52,78%</div>
+        <div class="benchmark-detalhe">Referência de opt-in para apps de E-commerce & Retail.</div>
+      </div>
+      <div class="benchmark-metrica">
+        <div class="benchmark-label">Retail benchmark · CTR push</div>
+        <div class="benchmark-valor texto">3,78%</div>
+        <div class="benchmark-detalhe">Android; no iOS, a referência do estudo é <strong>3,05%</strong>.</div>
+      </div>
+    </div>
+    <div class="benchmark-nota">Leitura: a comparação direta usa opt-in porque é a métrica equivalente ao snapshot do painel. CTR fica como referência de mercado, sem misturar com opt-in/out.</div>
+  </section>
 
   <!-- FILTRO PERÍODO -->
   <div class="filtro-periodo">
