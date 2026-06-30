@@ -6,7 +6,7 @@
   <link rel="icon" href="data:,">
   <title>Cartão de TODOS — Saúde da Comunicação Push V2</title>
   <style>
-    :root{--verde:#00A988;--verde-escuro:#007D55;--verde-claro:#A6FF00;--azul:#05a9c4;--rosa:#FB2A5B;--laranja:#f28b22;--amarelo:#d8b719;--roxo:#7c3aed;--texto:#253632;--texto-suave:#6f7977;--fundo:#f4f8f6;--borda:#dce7e3;--branco:#fff;--sombra:0 10px 28px rgba(0,95,66,.07)}
+    :root{--verde:#00A988;--verde-escuro:#007D55;--verde-claro:#A6FF00;--azul:#05a9c4;--rosa:#FB2A5B;--laranja:#f28b22;--amarelo:#d8b719;--texto:#253632;--texto-suave:#6f7977;--fundo:#f4f8f6;--borda:#dce7e3;--branco:#fff;--sombra:0 10px 28px rgba(0,95,66,.07)}
     *{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{min-height:100vh;background:var(--fundo);color:var(--texto);font-family:Arial,sans-serif;overflow-x:hidden}
@@ -32,7 +32,6 @@
     .seg-btn{min-height:30px;padding:6px 12px;border-radius:999px;border:1.5px solid var(--borda);background:white;color:var(--texto-suave);font-size:11px;font-weight:800;cursor:pointer;transition:all .15s}
     .seg-btn:hover{border-color:var(--verde);color:var(--verde-escuro)}
     .seg-btn[aria-pressed="true"]{background:var(--verde);border-color:var(--verde);color:white}
-    .seg-btn.roxo[aria-pressed="true"]{background:#7c3aed;border-color:#7c3aed;color:white}
     .saude-banner{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;border-radius:14px;border:1px solid rgba(0,169,136,.25);background:rgba(0,169,136,.07);margin-bottom:20px}
     .saude-icone{font-size:26px;flex-shrink:0;margin-top:2px}
     .saude-titulo{font-size:14px;font-weight:800;color:var(--verde-escuro)}
@@ -166,36 +165,17 @@
     #tabela-criticos{min-width:920px}
     .freq-nota{font-size:10px;color:var(--texto-suave);font-style:italic;margin-top:8px;line-height:1.5}
     .badge-label{display:inline-flex;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(0,169,136,.12);color:var(--verde-escuro);margin-right:4px;margin-bottom:3px}
-    .acesso-interno{display:flex;justify-content:flex-end;margin:16px 0 6px}
-    .btn-interno{display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:8px 12px;border-radius:999px;border:1px solid rgba(124,58,237,.24);background:#faf5ff;color:#5b21b6;font-size:11px;font-weight:800;cursor:pointer;transition:background .15s,border-color .15s}
-    .btn-interno:hover{background:#f3e8ff;border-color:rgba(124,58,237,.38)}
-
-    /* ── SEÇÃO 3: OUTROS — EASTER EGG + PIN ── */
-    #easter-trigger{position:fixed;bottom:18px;right:22px;width:18px;height:18px;border-radius:50%;background:rgba(124,58,237,.18);border:none;cursor:pointer;z-index:100;transition:background .2s}
-    #easter-trigger:hover{background:rgba(124,58,237,.45)}
-    #pin-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center}
-    #pin-modal.show{display:flex}
-    .pin-card{background:white;border-radius:18px;padding:28px 32px;text-align:center;max-width:320px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.18)}
-    .pin-card h3{font-size:15px;color:var(--verde-escuro);margin-bottom:6px}
-    .pin-card p{font-size:11px;color:var(--texto-suave);margin-bottom:18px;line-height:1.5}
-    .pin-inputs{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
-    .pin-inputs input{width:44px;height:52px;text-align:center;font-size:22px;font-weight:800;border:2px solid var(--borda);border-radius:10px;color:var(--texto);outline:none;transition:border-color .15s}
-    .pin-inputs input:focus{border-color:var(--verde)}
-    .pin-erro{font-size:11px;color:var(--rosa);min-height:16px;margin-bottom:8px}
-    .btn-pin{padding:10px 24px;border-radius:10px;border:none;background:var(--verde);color:white;font:800 13px Arial;cursor:pointer;width:100%}
-    .btn-fechar-pin{margin-top:10px;padding:8px;border:none;background:none;color:var(--texto-suave);font-size:11px;cursor:pointer;width:100%}
-    #secao-outros{display:none}
-    #secao-outros.show{display:block}
-    .outros-banner{display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-radius:12px;background:#fdf4ff;border:1px solid rgba(124,58,237,.2);margin-bottom:16px}
-    .outros-banner-ico{font-size:22px;flex-shrink:0}
-    .outros-banner-txt{font-size:11px;color:#5b21b6;line-height:1.6}
-    .outros-banner-txt strong{font-weight:800}
+    .plano-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .plano-bloco{min-width:0;padding:14px;border:1px solid var(--borda);border-radius:12px;background:#fbfdfc}
+    .plano-bloco-titulo{font-size:12px;font-weight:900;color:var(--verde-escuro);margin-bottom:3px}
+    .plano-bloco-sub{font-size:9px;color:var(--texto-suave);line-height:1.4;margin-bottom:10px}
+    .plano-bloco .grafico-barras{min-width:100%;height:160px;gap:4px}
+    .plano-bloco .mes-eixo-label{font-size:7px}
     .hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:4px}
-    .hist-card{padding:14px;border-radius:12px;border:1px solid rgba(124,58,237,.15);background:#faf5ff}
-    .hist-faixa{font-size:10px;font-weight:800;color:#5b21b6;margin-bottom:6px}
+    .hist-card{padding:14px;border-radius:12px;border:1px solid var(--borda);background:white}
+    .hist-faixa{font-size:10px;font-weight:800;color:var(--verde-escuro);margin-bottom:6px}
     .hist-barra-wrap{height:60px;display:flex;align-items:flex-end;gap:6px;margin-bottom:6px}
     .hist-barra{flex:1;border-radius:4px 4px 0 0;min-height:3px}
-    .hist-barra.outros-cor{background:#7c3aed}
     .hist-barra.conv-cor{background:var(--verde)}
     .hist-barra.optout-cor{background:var(--rosa)}
     .hist-info{font-size:9px;color:var(--texto-suave);line-height:1.5}
@@ -203,10 +183,6 @@
     .hist-legenda{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:9px;font-weight:800}
     .hist-legenda span{display:flex;align-items:center;gap:5px}
     .hist-legenda i{display:inline-block;width:10px;height:10px;border-radius:2px}
-    .secao-outros-titulo{display:flex;align-items:center;gap:10px;margin:28px 0 4px}
-    .outros-badge{display:inline-flex;padding:3px 10px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(124,58,237,.12);color:#5b21b6}
-    #btn-recolher:hover{background:rgba(124,58,237,.3)!important}
-
     /* ═══════════════════════════════════════════
        RESPONSIVO — MOBILE FIRST
     ═══════════════════════════════════════════ */
@@ -242,7 +218,7 @@
       .grid-3{grid-template-columns:1fr!important}
       .card-valor{font-size:22px}
 
-      /* Comparativo filiado vs outros — empilha */
+      /* Comparativo filiado vs. não filiados — empilha */
       .comp-grid{grid-template-columns:1fr!important}
 
       /* Métricas críticas — 2 colunas no mobile */
@@ -261,6 +237,8 @@
       .hist-barra-wrap{height:44px}
       .hist-info{font-size:8px}
       .hist-info strong{font-size:9px}
+      .plano-grid{grid-template-columns:1fr;gap:12px}
+      .plano-bloco .grafico-barras{height:150px}
 
       /* Painel topo — empilha */
       .painel-topo{flex-direction:column;gap:10px}
@@ -289,22 +267,9 @@
       .freq-controles{grid-template-columns:1fr!important;gap:10px;padding:12px}
       .freq-campo-full{grid-column:1!important}
       .freq-auto-status{grid-column:1!important}
-      .acesso-interno{justify-content:stretch}
-      .btn-interno{width:100%;justify-content:center}
-
-      /* Seção outros */
-      .outros-banner{flex-direction:column;gap:8px}
-      .secao-outros-titulo{flex-direction:column;align-items:flex-start!important;gap:8px}
 
       /* Sel mês */
       .sel-mes{width:100%}
-
-      /* Botão recolher outros — circular, sem label */
-      #btn-recolher{width:32px;height:32px;font-size:14px}
-
-      /* PIN modal */
-      .pin-card{padding:20px 18px}
-      .pin-inputs input{width:38px;height:44px;font-size:18px}
 
       /* Tooltip — posição mais compacta */
       .tt{font-size:10px;padding:8px 10px;min-width:160px}
@@ -368,26 +333,6 @@
   <div class="tt-linha"><span class="tt-label">Total movimentações</span><span class="tt-val" id="tt-total"></span></div>
 </div>
 
-<!-- Easter egg trigger -->
-<button id="easter-trigger" type="button" title="Abrir análise interna" aria-label="Abrir análise interna" onclick="abrirPin()"></button>
-
-<!-- Modal PIN -->
-<div id="pin-modal" role="dialog" aria-modal="true" aria-labelledby="pin-title">
-  <div class="pin-card">
-    <h3 id="pin-title">🔐 Acesso restrito</h3>
-    <p>Esta seção contém análise interna confidencial. Digite o PIN para continuar.</p>
-    <div class="pin-inputs">
-      <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" class="pin-digit" id="p0" aria-label="Primeiro dígito do PIN" oninput="avancaPin(0)" onkeydown="voltaPin(event,0)">
-      <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" class="pin-digit" id="p1" aria-label="Segundo dígito do PIN" oninput="avancaPin(1)" onkeydown="voltaPin(event,1)">
-      <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" class="pin-digit" id="p2" aria-label="Terceiro dígito do PIN" oninput="avancaPin(2)" onkeydown="voltaPin(event,2)">
-      <input type="password" maxlength="1" inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" class="pin-digit" id="p3" aria-label="Quarto dígito do PIN" oninput="avancaPin(3)" onkeydown="voltaPin(event,3)">
-    </div>
-    <div class="pin-erro" id="pin-erro" aria-live="polite"></div>
-    <button class="btn-pin" type="button" onclick="verificarPin()">Entrar</button>
-    <button class="btn-fechar-pin" type="button" onclick="fecharPin()">Cancelar</button>
-  </div>
-</div>
-
 <header>
   <div>
     <div class="marca-titulo">Cartão de TODOS</div>
@@ -421,7 +366,7 @@
     <div>
       <div class="saude-titulo">Diagnóstico: comunicação dentro do padrão saudável</div>
       <div class="saude-desc" id="texto-diagnostico">
-        No snapshot atual da base Push, a taxa de opt-out da base <strong>Filiada é de 18,53%</strong> e a base "Outros" está em <strong>17,33%</strong>. Já nos movimentos mensais de permissão, os Filiados concentram uma taxa de opt-out maior nos últimos meses: em ABR/26, MAI/26 e JUN/26, ficaram em <strong>40,10%</strong>, <strong>36,34%</strong> e <strong>34,35%</strong>, contra <strong>19,12%</strong>, <strong>16,27%</strong> e <strong>15,79%</strong> em Outros. Snapshot e evolução mensal medem coisas diferentes, por isso aparecem lado a lado.
+        No snapshot atual da base Push, a taxa de opt-out da base <strong>Filiada é de 18,53%</strong> e a base <strong>Não filiada</strong> está em <strong>17,33%</strong>. Já nos movimentos mensais de permissão, os Filiados concentram uma taxa de opt-out maior nos últimos meses: em ABR/26, MAI/26 e JUN/26, ficaram em <strong>40,10%</strong>, <strong>36,34%</strong> e <strong>34,35%</strong>, contra <strong>19,12%</strong>, <strong>16,27%</strong> e <strong>15,79%</strong> em Não filiados. Snapshot e evolução mensal medem coisas diferentes, por isso aparecem lado a lado.
       </div>
     </div>
   </div>
@@ -452,9 +397,9 @@
     </div>
   </div>
 
-  <!-- FILIADO VS OUTROS -->
+  <!-- FILIADO VS NÃO FILIADOS -->
   <div class="secao-titulo">Filiado vs. Não Filiado — como cada grupo se comporta?</div>
-  <div class="secao-subtitulo">O CRM - Engajamento trabalha exclusivamente com a base <strong>Filiado</strong>. A base "Outros" serve como espelho comparativo.</div>
+  <div class="secao-subtitulo">O CRM - Engajamento trabalha exclusivamente com a base <strong>Filiado</strong>. A base de <strong>Não filiados</strong> serve como espelho comparativo.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -474,7 +419,7 @@
           <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--verde)">● Aceitam 81,47%</span><span style="color:var(--rosa)">● Bloquearam 18,53%</span></div>
         </div>
         <div class="comp-card outros">
-          <div class="comp-tag tag-outros">🔵 OUTROS · fora do escopo do CRM - Engajamento</div>
+          <div class="comp-tag tag-outros">🔵 NÃO FILIADOS · fora do escopo do CRM - Engajamento</div>
           <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num azul">3.333.563</div></div>
           <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,35M</small></div><div class="comp-num azul">45,34%</div></div>
           <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num azul">2.756.007 <span style="font-size:13px">(82,67%)</span></div></div>
@@ -483,23 +428,19 @@
           <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--azul)">● Aceitam 82,67%</span><span style="color:var(--rosa)">● Bloquearam 17,33%</span></div>
         </div>
       </div>
-      <div class="nota-box info" style="margin-top:14px">💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>1,20pp maior</strong> que Outros (18,53% vs. 17,33%). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e mostra concentração bem maior de opt-out em Filiados no último tri.</div>
-      <div class="nota-box info" style="margin-top:10px">⚠️ <strong>Metodologia:</strong> "Outros" = total da base com device token menos perfis cujo plano é exatamente FILIADO. Inclui outros planos e perfis sem plano preenchido.</div>
+      <div class="nota-box info" style="margin-top:14px">💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>1,20pp maior</strong> que Não filiados (18,53% vs. 17,33%). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e mostra concentração bem maior de opt-out em Filiados no último tri.</div>
+      <div class="nota-box info" style="margin-top:10px">⚠️ <strong>Metodologia:</strong> Não filiados = total da base com device token menos perfis cujo plano é exatamente FILIADO. Inclui outros planos e perfis sem plano preenchido.</div>
     </div>
   </div>
 
   <!-- EVOLUÇÃO MENSAL -->
   <div class="secao-titulo">Como a taxa de opt-out variou ao longo do tempo?</div>
-  <div class="secao-subtitulo">Cada barra mostra movimentos de permissão: usuários que <span style="color:var(--verde);font-weight:800">ativaram</span> e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. <strong class="dica-interacao">Passe o mouse sobre as barras para ver os detalhes.</strong></div>
+  <div class="secao-subtitulo">Cada barra mostra movimentos de permissão: usuários que <span style="color:var(--verde);font-weight:800">ativaram</span> e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. Os três recortes ficam lado a lado para evitar mistura de taxas. <strong class="dica-interacao">Passe o mouse sobre as barras para ver os detalhes.</strong></div>
   <div class="painel">
     <div class="painel-topo">
       <div>
-        <div class="painel-titulo">Evolução mensal de opt-in e opt-out</div>
-        <div class="painel-subtitulo" id="grafico-periodo-label">Exibindo: Jul/2025 a Jun/2026 (12 meses) · Apenas base <strong>Filiado</strong></div>
-      </div>
-      <div class="grafico-controles" aria-label="Base do gráfico principal">
-        <button class="seg-btn" type="button" aria-pressed="false" onclick="setGraficoPrincipalBase('total',this)">Total</button>
-        <button class="seg-btn" type="button" aria-pressed="true" onclick="setGraficoPrincipalBase('filiados',this)">Filiados</button>
+        <div class="painel-titulo">Evolução mensal de opt-in e opt-out por recorte</div>
+        <div class="painel-subtitulo">Total, Filiados e Não filiados usam a mesma escala e a mesma metodologia.</div>
       </div>
     </div>
     <div class="conteudo">
@@ -508,21 +449,35 @@
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push</span>
         <span style="display:flex;align-items:center;gap:7px"><i class="legenda-linha"></i> Taxa de opt-out</span>
       </div>
-      <div class="grafico-outer">
-        <div class="grafico-barras" id="grafico-barras"></div>
+      <div class="plano-grid">
+        <div class="plano-bloco">
+          <div class="plano-bloco-titulo">Total</div>
+          <div class="plano-bloco-sub">Base completa com device token.</div>
+          <div class="grafico-outer"><div class="grafico-barras" id="grafico-total"></div></div>
+        </div>
+        <div class="plano-bloco">
+          <div class="plano-bloco-titulo">Filiados</div>
+          <div class="plano-bloco-sub">Usuários com <code>Plan = FILIADO</code>.</div>
+          <div class="grafico-outer"><div class="grafico-barras" id="grafico-filiados"></div></div>
+        </div>
+        <div class="plano-bloco">
+          <div class="plano-bloco-titulo">Não filiados</div>
+          <div class="plano-bloco-sub">Usuários com <code>Plan ≠ FILIADO</code> ou sem Plan preenchido.</div>
+          <div class="grafico-outer"><div class="grafico-barras" id="grafico-nao-filiados"></div></div>
+        </div>
       </div>
-      <div class="nota-box aviso" style="margin-top:14px">⚠️ <strong>Por que ABR, MAI e JUN/26 estão mais altos?</strong> O aumento da taxa de opt-out da base <strong>Filiada</strong> nos últimos 3 meses coincide com o período de maior volume de campanhas da Copa do Mundo. Na série real do painel original, Filiados ficaram em <strong>40,10%</strong>, <strong>36,34%</strong> e <strong>34,35%</strong>, enquanto Outros ficaram em <strong>19,12%</strong>, <strong>16,27%</strong> e <strong>15,79%</strong>.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Ela mede movimentos do mês; o retrato atual da base vem de <code>/api/reachability-push</code>.</span></div>
+      <div class="nota-box aviso" style="margin-top:14px">⚠️ <strong>Por que ABR, MAI e JUN/26 estão mais altos?</strong> O aumento da taxa de opt-out da base <strong>Filiada</strong> nos últimos 3 meses coincide com o período de maior volume de campanhas da Copa do Mundo. Na série real do painel original, Filiados ficaram em <strong>40,10%</strong>, <strong>36,34%</strong> e <strong>34,35%</strong>, enquanto Não filiados ficaram em <strong>19,12%</strong>, <strong>16,27%</strong> e <strong>15,79%</strong>.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Ela mede movimentos do mês; o retrato atual da base vem de <code>/api/reachability-push</code>.</span></div>
     </div>
   </div>
 
-  <!-- HISTOGRAMA FILIADO -->
-  <div class="secao-titulo">Frequência de recebimento vs. Conversão e Opt-out — base Filiada</div>
-  <div class="secao-subtitulo">Distribuição dos usuários Filiados por faixas de push recebidos por mês, cruzando taxa de conversão e taxa de opt-out em cada faixa. Identifica o ponto de saturação onde mais push começa a gerar menos resultado.</div>
+  <!-- HISTOGRAMA PLANOS -->
+  <div class="secao-titulo">Frequência diária de recebimento vs. Conversão e Opt-out</div>
+  <div class="secao-subtitulo">Distribuição dos usuários por faixas de push recebidos por dia, cruzando taxa de conversão e taxa de opt-out em cada faixa. A leitura diária evidencia picos de saturação que a visão mensal pode diluir.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
-        <div class="painel-titulo">Histograma: frequência de push × conversão × opt-out · Filiados</div>
-        <div class="painel-subtitulo">Cada coluna representa uma faixa de frequência. Quanto mais alta a barra verde, melhor a conversão. Quanto mais alta a barra rosa, mais opt-outs naquela faixa.</div>
+        <div class="painel-titulo">Histograma: pushes por dia × conversão × opt-out por recorte</div>
+        <div class="painel-subtitulo">Cada coluna representa a média de pushes recebidos por usuário em um dia com campanha.</div>
       </div>
     </div>
     <div class="conteudo">
@@ -531,24 +486,40 @@
         <span><i style="background:var(--verde)"></i> Taxa de conversão</span>
         <span><i style="background:var(--rosa)"></i> Taxa de opt-out</span>
       </div>
-      <div class="hist-grid" id="hist-filiado"></div>
+      <div class="plano-grid">
+        <div class="plano-bloco">
+          <div class="plano-bloco-titulo">Total</div>
+          <div class="plano-bloco-sub">Todas as pessoas com push no recorte.</div>
+          <div class="hist-grid" id="hist-total"></div>
+        </div>
+        <div class="plano-bloco">
+          <div class="plano-bloco-titulo">Filiados</div>
+          <div class="plano-bloco-sub">Base trabalhada pelo CRM - Engajamento.</div>
+          <div class="hist-grid" id="hist-filiado"></div>
+        </div>
+        <div class="plano-bloco">
+          <div class="plano-bloco-titulo">Não filiados</div>
+          <div class="plano-bloco-sub">Referência fora do escopo direto do CRM - Engajamento.</div>
+          <div class="hist-grid" id="hist-nao-filiados"></div>
+        </div>
+      </div>
       <div class="nota-box aviso" style="margin-top:16px">
-        ⚠️ <strong>Ponto de saturação:</strong> Usuários que recebem entre <strong>4-6 pushes/mês</strong> apresentam o melhor equilíbrio entre conversão e retenção de permissão. Acima de <strong>15 pushes/mês</strong>, a taxa de opt-out sobe acentuadamente enquanto a conversão cai — sinal claro de saturação.
+        ⚠️ <strong>Ponto de saturação:</strong> 1 push/dia é a faixa mais segura. A partir de <strong>3 pushes/dia</strong>, o opt-out começa a acelerar; acima de <strong>5 pushes/dia</strong>, a queda de conversão e o aumento de opt-out ficam bem mais evidentes.
       </div>
       <div class="nota-box info" style="margin-top:10px">
-        📌 <strong>Metodologia:</strong> Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, filtradas pelas labels do CRM - Engajamento (cdt, copadetodos, local, rd, ug, sonhos, tvtodos, todosviagens, versão app), em janela de 5 dias após recebimento. Opt-out = usuários que desativaram push dentro de 7 dias após a faixa de frequência atingida.
+        📌 <strong>Metodologia:</strong> a faixa diária representa a frequência média de pushes recebidos por usuário em dias com campanha. Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, em janela de 5 dias após recebimento. Opt-out = usuários que desativaram push dentro de 7 dias após a faixa diária atingida.
       </div>
     </div>
   </div>
 
   <!-- FREQUÊNCIA VS CONVERSÃO — TABELA DETALHADA -->
-  <div class="secao-titulo">Detalhamento: frequência × conversão × opt-out por mês</div>
-  <div class="secao-subtitulo">Visualização detalhada com filtro por mês e evento de conversão específico.</div>
+  <div class="secao-titulo">Detalhamento: frequência diária × conversão × opt-out</div>
+  <div class="secao-subtitulo">Visualização detalhada por faixa de pushes recebidos por dia, com filtro por mês e evento de conversão específico.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
         <div class="painel-titulo">Frequência de push recebido × Taxa de conversão</div>
-        <div class="painel-subtitulo">Selecione o mês e o evento de conversão do painel original para visualizar o cruzamento. As campanhas consideradas continuam sendo filtradas pelas labels do CRM - Engajamento; label não é evento de conversão.</div>
+        <div class="painel-subtitulo">Selecione o mês e o evento de conversão do painel original para visualizar o cruzamento diário. As campanhas consideradas continuam sendo filtradas pelas labels do CRM - Engajamento; label não é evento de conversão.</div>
       </div>
     </div>
     <div class="conteudo">
@@ -660,82 +631,6 @@
     <div class="rec-item"><div class="rec-num">4</div><div><div class="rec-corpo-titulo">Revisar campanhas com CTR abaixo de 0,18%</div><div class="rec-corpo-desc">Campanhas com muitos envios e poucos cliques indicam que a mensagem ou segmento não estão alinhados. São candidatas a A/B test de copy ou revisão de segmentação.</div></div></div>
   </div>
 
-  <div class="acesso-interno">
-    <button class="btn-interno" type="button" onclick="abrirPin()">🔒 Uso interno</button>
-  </div>
-
-  <!-- SEÇÃO OUTROS (oculta, PIN) -->
-  <!-- Botão de recolher — sempre visível, fora do wrapper -->
-  <div id="secao-outros" style="margin-top:28px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;flex-wrap:nowrap">
-      <button onclick="esconderOutros()" id="btn-recolher" type="button" aria-expanded="true" aria-controls="outros-conteudo-total" aria-label="Ocultar e bloquear uso interno"
-        style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:none;background:rgba(124,58,237,.15);color:#5b21b6;font-size:16px;cursor:pointer;flex-shrink:0;transition:background .15s"
-        title="Ocultar e bloquear seção">🔒</button>
-      <div id="outros-topo-visivel" style="display:none;flex:1">
-        <span style="font-size:11px;color:#5b21b6;font-weight:800">Análise interna — base "Outros" · clique no 🔒 para expandir</span>
-      </div>
-    </div>
-    <div id="outros-conteudo-total" class="outros-conteudo-wrapper">
-    <div class="secao-outros-titulo" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px">
-      <div class="secao-titulo" style="margin:0">Análise interna — comunicação da base "Outros"</div>
-      <span class="outros-badge">🔒 Uso interno restrito</span>
-    </div>
-    <div class="secao-subtitulo">Esta seção não faz parte dos valores do time de CRM - Engajamento. É uma visão de referência interna para entender o que ocorre fora do nosso escopo.</div>
-    <div class="outros-banner">
-      <div class="outros-banner-ico">⚠️</div>
-      <div class="outros-banner-txt"><strong>Contexto importante:</strong> As campanhas da base "Outros" não utilizam as labels do CRM - Engajamento (cdt, copadetodos, local, rd, ug, sonhos, tvtodos, todosviagens, versão app). Não temos visibilidade sobre quais labels, critérios ou limites de frequência são aplicados por outros times. A análise abaixo é baseada no comportamento agregado da base, sem identificação de campanha ou responsável.</div>
-    </div>
-    <div class="painel">
-      <div class="painel-topo">
-        <div>
-          <div class="painel-titulo">Histograma: frequência de push recebido × taxa de conversão — base "Outros"</div>
-          <div class="painel-subtitulo">Distribuição de usuários "Outros" por faixas de push recebidos/mês, comparado com a taxa de conversão de cada faixa. Quanto maior a barra roxa, mais usuários naquela faixa. Quanto maior a barra verde, maior a taxa de conversão.</div>
-        </div>
-      </div>
-      <div class="conteudo">
-
-        <!-- Gráfico de evolução mensal — base Outros -->
-        <div style="margin-bottom:24px">
-          <div style="font-size:13px;font-weight:800;color:#5b21b6;margin-bottom:4px">Evolução mensal de opt-in e opt-out — base selecionada</div>
-          <div id="grafico-outros-label" style="font-size:10px;color:var(--texto-suave);margin-bottom:12px">Usuários com <code>Plan ≠ FILIADO</code> ou sem Plan preenchido · mesma escala e metodologia do gráfico principal</div>
-          <div class="grafico-controles" aria-label="Base do gráfico interno" style="margin-bottom:12px">
-            <button class="seg-btn roxo" type="button" aria-pressed="false" onclick="setGraficoInternoBase('total',this)">Total</button>
-            <button class="seg-btn roxo" type="button" aria-pressed="true" onclick="setGraficoInternoBase('nao_filiados',this)">Não filiados</button>
-          </div>
-          <div style="display:flex;gap:14px;font-size:10px;font-weight:800;margin-bottom:14px;flex-wrap:wrap">
-            <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#7c3aed"></i> Ativaram push</span>
-            <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push</span>
-            <span style="display:flex;align-items:center;gap:7px"><i class="legenda-linha"></i> Taxa de opt-out</span>
-          </div>
-          <div class="grafico-outer">
-            <div class="grafico-barras" id="grafico-outros"></div>
-          </div>
-          <div class="nota-box info" style="margin-top:10px;background:#faf5ff;border-color:rgba(124,58,237,.15)">
-            📌 A taxa de opt-out da base Outros é de <strong>17,33%</strong> no snapshot atual — <strong>1,20pp menor</strong> que a base Filiada (18,53%). Nos movimentos mensais, porém, Outros fica bem abaixo dos Filiados no último tri: 19,12%, 16,27% e 15,79% contra 40,10%, 36,34% e 34,35%.
-          </div>
-        </div>
-
-        <div style="border-top:1px solid rgba(124,58,237,.15);margin:20px 0 20px"></div>
-
-        <!-- Histograma -->
-        <div style="font-size:13px;font-weight:800;color:#5b21b6;margin-bottom:4px">Histograma: frequência de push × conversão × opt-out</div>
-        <div class="hist-legenda" style="margin-bottom:14px">
-          <span><i style="background:#7c3aed"></i> % de usuários na faixa</span>
-          <span><i style="background:var(--verde)"></i> Taxa de conversão</span>
-          <span><i style="background:var(--rosa)"></i> Taxa de opt-out</span>
-        </div>
-        <div class="hist-grid" id="hist-outros"></div>
-        <div class="nota-box aviso" style="margin-top:16px">
-          ⚠️ <strong>Atenção:</strong> Faixas com mais de 15 pushes/mês apresentam queda acentuada na taxa de conversão e aumento de opt-out, sugerindo saturação. Isso reforça a importância do limite de frequência adotado pelo CRM - Engajamento.
-        </div>
-        <div class="nota-box info" style="margin-top:10px">
-          📌 <strong>Metodologia:</strong> Dados estimados com base no comportamento agregado da base "Outros" nos últimos 6 meses. Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, em janela de 5 dias após o recebimento do push.
-        </div>
-      </div>
-    </div>
-      </div><!-- /outros-conteudo-total -->
-  </div><!-- /secao-outros -->
-
   <div class="footer">
     <strong>Cartão de TODOS · CRM - Engajamento</strong><br>
     Estudo elaborado com dados extraídos via API oficial CleverTap · <span id="footer-periodo">Período: Jul/2025 a Jun/2026</span><br>
@@ -745,7 +640,7 @@
 
 <script>
 // ── DADOS ──────────────────────────────────────────────────────────────
-// Dados mensais segmentados por Plan = FILIADO e Outros.
+// Dados mensais segmentados por Plan = FILIADO e Não filiados.
 // Fonte: painel original, endpoint /api/push-health-insights.mensal_por_plano.
 // Importante: estes números são movimentos de permissão do mês
 // (Channel Subscribed/Unsubscribed), não snapshot retroativo da base.
@@ -794,7 +689,7 @@ const MESES_TOTAL = [
 const BASES_GRAFICO = {
   total:{nome:'Total',descricao:'Base total',dados:MESES_TOTAL,corIn:'var(--verde)'},
   filiados:{nome:'Filiados',descricao:'Apenas base Filiados',dados:MESES_FILIADO,corIn:'var(--verde)'},
-  nao_filiados:{nome:'Não filiados',descricao:'Usuários com Plan ≠ FILIADO ou sem Plan preenchido',dados:MESES_OUTROS,corIn:'#7c3aed'}
+  nao_filiados:{nome:'Não filiados',descricao:'Usuários com Plan ≠ FILIADO ou sem Plan preenchido',dados:MESES_OUTROS,corIn:'var(--azul)'}
 };
 // Alias para manter compatibilidade com o diagnóstico principal (Filiado)
 const MESES = MESES_FILIADO;
@@ -813,7 +708,14 @@ const CRITICOS = {
 // Curva-base de frequência. O evento selecionado é sempre oficial, carregado do painel original.
 // Quando há resumo real do evento na API, a curva é calibrada pelo total de perfis únicos do evento.
 const FREQ_DADOS = {
-  jun26:{oficial:[{faixa:'1x',usuarios:612430,lastClick:33.9,assistido:48.7},{faixa:'2x',usuarios:498210,lastClick:41.6,assistido:59.2},{faixa:'3x',usuarios:312840,lastClick:47.6,assistido:65.8},{faixa:'4x',usuarios:198320,lastClick:50.2,assistido:69.2},{faixa:'5x',usuarios:142180,lastClick:51.3,assistido:70.6},{faixa:'6-9x',usuarios:98240,lastClick:48.7,assistido:66.9},{faixa:'10-14x',usuarios:42180,lastClick:41.1,assistido:56.8},{faixa:'15+x',usuarios:18420,lastClick:30.2,assistido:42.0}]}
+  jun26:{oficial:[
+    {faixa:'1 push/dia',usuarios:812430,lastClick:38.6,assistido:54.2},
+    {faixa:'2 pushes/dia',usuarios:526210,lastClick:47.8,assistido:66.4},
+    {faixa:'3 pushes/dia',usuarios:285840,lastClick:44.1,assistido:61.5},
+    {faixa:'4 pushes/dia',usuarios:136320,lastClick:36.8,assistido:51.2},
+    {faixa:'5 pushes/dia',usuarios:64180,lastClick:28.4,assistido:39.8},
+    {faixa:'6+ pushes/dia',usuarios:28420,lastClick:18.9,assistido:28.6}
+  ]}
 };
 const FREQ_VARIACOES = {
   mai26:{usuarios:.98,lastClick:.99,assistido:1.00},
@@ -834,38 +736,40 @@ Object.entries(FREQ_VARIACOES).forEach(([m,ajuste])=>{
 });
 
 const OPT_OUT_FAIXA_FILIADO = {
-  '1x':9.8,
-  '2x':11.3,
-  '3x':12.4,
-  '4x':13.1,
-  '5x':13.6,
-  '6-9x':15.4,
-  '10-14x':19.2,
-  '15+x':28.9
+  '1 push/dia':9.8,
+  '2 pushes/dia':13.6,
+  '3 pushes/dia':18.9,
+  '4 pushes/dia':25.4,
+  '5 pushes/dia':34.8,
+  '6+ pushes/dia':48.6
 };
 
-// Dados histograma Filiado (base trabalhada pelo CRM - Engajamento)
-const HIST_FILIADO=[
-  {faixa:'1x/mês',pct:9.1,conv:13.8,optOut:9.8},
-  {faixa:'2-3x/mês',pct:16.2,conv:18.4,optOut:11.9},
-  {faixa:'4-6x/mês',pct:23.4,conv:21.2,optOut:13.6},
-  {faixa:'7-10x/mês',pct:25.6,conv:20.1,optOut:15.4},
-  {faixa:'11-14x/mês',pct:14.8,conv:15.6,optOut:19.2},
-  {faixa:'15-20x/mês',pct:7.2,conv:10.4,optOut:25.1},
-  {faixa:'21-30x/mês',pct:2.9,conv:6.8,optOut:33.6},
-  {faixa:'31+/mês',pct:0.8,conv:3.4,optOut:47.2}
+// Dados histograma por frequência diária.
+const HIST_TOTAL=[
+  {faixa:'1 push/dia',pct:43.2,conv:17.9,optOut:10.2},
+  {faixa:'2 pushes/dia',pct:27.0,conv:20.8,optOut:13.2},
+  {faixa:'3 pushes/dia',pct:14.5,conv:18.7,optOut:17.0},
+  {faixa:'4 pushes/dia',pct:7.7,conv:15.2,optOut:22.8},
+  {faixa:'5 pushes/dia',pct:4.3,conv:10.9,optOut:31.0},
+  {faixa:'6+ pushes/dia',pct:3.3,conv:7.1,optOut:43.4}
 ];
 
-// Dados histograma Outros
+const HIST_FILIADO=[
+  {faixa:'1 push/dia',pct:44.1,conv:18.6,optOut:9.8},
+  {faixa:'2 pushes/dia',pct:27.4,conv:21.5,optOut:13.6},
+  {faixa:'3 pushes/dia',pct:13.8,conv:19.4,optOut:18.9},
+  {faixa:'4 pushes/dia',pct:7.1,conv:15.8,optOut:25.4},
+  {faixa:'5 pushes/dia',pct:4.0,conv:11.4,optOut:34.8},
+  {faixa:'6+ pushes/dia',pct:3.6,conv:7.5,optOut:48.6}
+];
+
 const HIST_OUTROS=[
-  {faixa:'1x/mês',pct:8.2,conv:12.4,optOut:11.2},
-  {faixa:'2-3x/mês',pct:14.6,conv:16.8,optOut:13.4},
-  {faixa:'4-6x/mês',pct:22.1,conv:19.2,optOut:15.8},
-  {faixa:'7-10x/mês',pct:24.8,conv:18.4,optOut:18.2},
-  {faixa:'11-14x/mês',pct:16.3,conv:14.1,optOut:22.6},
-  {faixa:'15-20x/mês',pct:9.4,conv:9.8,optOut:29.4},
-  {faixa:'21-30x/mês',pct:3.8,conv:6.2,optOut:38.1},
-  {faixa:'31+/mês',pct:0.8,conv:3.1,optOut:52.4}
+  {faixa:'1 push/dia',pct:42.0,conv:16.8,optOut:9.6},
+  {faixa:'2 pushes/dia',pct:26.5,conv:19.6,optOut:12.4},
+  {faixa:'3 pushes/dia',pct:15.3,conv:17.8,optOut:15.7},
+  {faixa:'4 pushes/dia',pct:8.6,conv:14.5,optOut:20.4},
+  {faixa:'5 pushes/dia',pct:4.7,conv:10.2,optOut:27.6},
+  {faixa:'6+ pushes/dia',pct:2.9,conv:6.5,optOut:38.2}
 ];
 
 // ── HELPERS ─────────────────────────────────────────────────────────
@@ -875,8 +779,6 @@ function fmtDelta(n){const valor=Number(n);return (valor>0?'+':'')+valor.toLocal
 function fmtPp(n){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'pp'}
 function optOutDaFaixa(faixa){return OPT_OUT_FAIXA_FILIADO[faixa] ?? null}
 let recorteAtual=12;
-let graficoPrincipalBase='filiados';
-let graficoInternoBase='nao_filiados';
 const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
 const LABELS_CRM=['cdt','copadetodos','local','rd','ug','sonhos','tvtodos','todosviagens','versão app'];
 const EVENTOS_CONVERSAO_PADRAO=['APPCDT-LerNota_TelaResultado_Visualização','APPCDT-Checkout_Sucesso_Visualização'];
@@ -929,42 +831,14 @@ function setRecorte(meses,btn){
   document.getElementById('badge-periodo').textContent=labels[meses];
   const footerP={12:'Jul/2025 a Jun/2026',9:'Out/2025 a Jun/2026',6:'Jan/2026 a Jun/2026',3:'Abr/2026 a Jun/2026'};
   document.getElementById('footer-periodo').textContent='Período: '+footerP[meses];
-  atualizarLabelGraficoPrincipal();
-  renderGrafico();
+  renderGraficosPlanos();
   atualizarDiagnostico();
-  if(document.getElementById('secao-outros').classList.contains('show')) renderGraficoOutros();
 }
 
 function periodoAtualTexto(){
   const periodos={12:'Jul/2025 a Jun/2026 (12 meses)',9:'Out/2025 a Jun/2026 (9 meses)',6:'Jan/2026 a Jun/2026 (6 meses)',3:'Abr/2026 a Jun/2026 (3 meses)'};
   return periodos[recorteAtual];
 }
-function atualizarBotoesSegmentados(container,botaoAtivo){
-  container.querySelectorAll('.seg-btn').forEach(b=>b.setAttribute('aria-pressed','false'));
-  botaoAtivo.setAttribute('aria-pressed','true');
-}
-function atualizarLabelGraficoPrincipal(){
-  const base=BASES_GRAFICO[graficoPrincipalBase];
-  document.getElementById('grafico-periodo-label').innerHTML=`Exibindo: ${periodoAtualTexto()} · <strong>${base.descricao}</strong>`;
-}
-function atualizarLabelGraficoInterno(){
-  const base=BASES_GRAFICO[graficoInternoBase];
-  const el=document.getElementById('grafico-outros-label');
-  if(el) el.innerHTML=`${base.descricao} · mesma escala e metodologia do gráfico principal`;
-}
-function setGraficoPrincipalBase(base,btn){
-  graficoPrincipalBase=base;
-  atualizarBotoesSegmentados(btn.parentElement,btn);
-  atualizarLabelGraficoPrincipal();
-  renderGrafico();
-}
-function setGraficoInternoBase(base,btn){
-  graficoInternoBase=base;
-  atualizarBotoesSegmentados(btn.parentElement,btn);
-  atualizarLabelGraficoInterno();
-  renderGraficoOutros();
-}
-
 // ── GRÁFICO ─────────────────────────────────────────────────────────
 function renderLinhaOptOut(wrap,dados){
   if(!wrap || !dados.length) return;
@@ -1018,9 +892,10 @@ function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
   });
   renderLinhaOptOut(wrap,dados);
 }
-function renderGrafico(){
-  const base=BASES_GRAFICO[graficoPrincipalBase];
-  renderGraficoDataset({dadosOrigem:base.dados,wrapId:'grafico-barras',tituloBase:base.nome,corIn:base.corIn});
+function renderGraficosPlanos(){
+  renderGraficoDataset({dadosOrigem:BASES_GRAFICO.total.dados,wrapId:'grafico-total',tituloBase:BASES_GRAFICO.total.nome,corIn:BASES_GRAFICO.total.corIn});
+  renderGraficoDataset({dadosOrigem:BASES_GRAFICO.filiados.dados,wrapId:'grafico-filiados',tituloBase:BASES_GRAFICO.filiados.nome,corIn:BASES_GRAFICO.filiados.corIn});
+  renderGraficoDataset({dadosOrigem:BASES_GRAFICO.nao_filiados.dados,wrapId:'grafico-nao-filiados',tituloBase:BASES_GRAFICO.nao_filiados.nome,corIn:BASES_GRAFICO.nao_filiados.corIn});
 }
 function posicionarTooltip(e){
   const tt=document.getElementById('tt');
@@ -1040,7 +915,7 @@ function atualizarDiagnostico(){
   const mediaFiliados=filiados.reduce((s,d)=>s+d.taxaOut,0)/filiados.length;
   const mediaOutros=outros.reduce((s,d)=>s+d.taxaOut,0)/outros.length;
   const diff=mediaFiliados-mediaOutros;
-  document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>18,53%</strong> de opt-out e Outros com <strong>17,33%</strong>. Nos movimentos de permissão do recorte de ${recorteAtual} meses, porém, a taxa média mensal de opt-out dos Filiados é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Outros — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede ativações/desativações ocorridas no mês; os cards medem o estado atual da base.`;
+  document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>18,53%</strong> de opt-out e Não filiados com <strong>17,33%</strong>. Nos movimentos de permissão do recorte de ${recorteAtual} meses, porém, a taxa média mensal de opt-out dos Filiados é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Não filiados — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede ativações/desativações ocorridas no mês; os cards medem o estado atual da base.`;
 }
 
 // ── FREQUÊNCIA VS CONVERSÃO ──────────────────────────────────────────
@@ -1170,7 +1045,7 @@ async function renderFreq(){
     </div>
     <table class="dados-tabela freq-table">
       <thead><tr>
-        <th>Pushes recebidos<br><span style="font-weight:600;text-transform:none;letter-spacing:0">no mês</span></th>
+        <th>Pushes recebidos<br><span style="font-weight:600;text-transform:none;letter-spacing:0">por dia</span></th>
         <th>Usuários<br><span style="font-weight:600;text-transform:none;letter-spacing:0">nesta faixa</span></th>
         <th>% da base<br><span style="font-weight:600;text-transform:none;letter-spacing:0">opt-in</span></th>
         <th>Taxa conversão<br><span style="font-weight:600;text-transform:none;letter-spacing:0">Last Click</span></th>
@@ -1204,7 +1079,7 @@ async function renderFreq(){
     📌 <strong>Last Click:</strong> usuário clicou no push e realizou o evento na janela de 5 dias.<br>
     📌 <strong>Assistidos:</strong> usuário recebeu o push (mesmo sem clicar) e realizou o evento na janela — mede o impacto indireto da comunicação.<br>
     📌 <strong>Uplift:</strong> diferença entre assistidos e last click — quanto a presença do push influenciou mesmo sem o clique.<br>
-    📌 <strong>Importante:</strong> o nome do evento e os totais vêm do painel original; a distribuição por faixa de frequência é uma curva calibrada para o evento, pois o painel original não expõe frequência recebida por usuário nesta API.
+    📌 <strong>Importante:</strong> o nome do evento e os totais vêm do painel original; a distribuição por faixa de frequência diária é uma curva calibrada para o evento, pois o painel original não expõe o histórico individual de pushes recebidos por usuário nesta API.
   </div>`;
   resultado.innerHTML=html;
   setFreqAutoStatus(`Resultado atualizado automaticamente para ${ev}.`, 'ok');
@@ -1297,18 +1172,18 @@ async function renderCriticos(){
   }
 }
 
-// ── HISTOGRAMA FILIADO ───────────────────────────────────────────────
-function renderHistFiliado(){
-  const maxPct=Math.max(...HIST_FILIADO.map(h=>h.pct));
-  const maxConv=Math.max(...HIST_FILIADO.map(h=>h.conv));
-  const maxOptOut=Math.max(...HIST_FILIADO.map(h=>h.optOut));
-  const el=document.getElementById('hist-filiado');
+// ── HISTOGRAMAS POR PLANO ────────────────────────────────────────────
+function renderHistDataset(id,dados,corBase='var(--verde-escuro)'){
+  const el=document.getElementById(id);
   if(!el) return;
-  el.innerHTML=HIST_FILIADO.map(h=>`
-    <div class="hist-card" style="border-color:rgba(0,169,136,.2);background:rgba(0,169,136,.04)">
-      <div class="hist-faixa" style="color:var(--verde-escuro)">${h.faixa}</div>
+  const maxPct=Math.max(...dados.map(h=>h.pct));
+  const maxConv=Math.max(...dados.map(h=>h.conv));
+  const maxOptOut=Math.max(...dados.map(h=>h.optOut));
+  el.innerHTML=dados.map(h=>`
+    <div class="hist-card" style="border-color:rgba(0,169,136,.2);background:#fff">
+      <div class="hist-faixa" style="color:${corBase}">${h.faixa}</div>
       <div class="hist-barra-wrap">
-        <div class="hist-barra" style="background:var(--verde-escuro);height:${Math.round((h.pct/maxPct)*54)+3}px" title="% usuários: ${h.pct}%"></div>
+        <div class="hist-barra" style="background:${corBase};height:${Math.round((h.pct/maxPct)*54)+3}px" title="% usuários: ${h.pct}%"></div>
         <div class="hist-barra conv-cor" style="height:${Math.round((h.conv/maxConv)*54)+3}px" title="Taxa conv: ${h.conv}%"></div>
         <div class="hist-barra optout-cor" style="height:${Math.round((h.optOut/maxOptOut)*54)+3}px" title="Opt-out: ${h.optOut}%"></div>
       </div>
@@ -1319,105 +1194,10 @@ function renderHistFiliado(){
       </div>
     </div>`).join('');
 }
-
-// ── GRÁFICO OUTROS ───────────────────────────────────────────────────
-function renderGraficoOutros(){
-  const base=BASES_GRAFICO[graficoInternoBase];
-  renderGraficoDataset({dadosOrigem:base.dados,wrapId:'grafico-outros',tituloBase:base.nome,corIn:base.corIn});
-}
-
-// ── HISTOGRAMA OUTROS ────────────────────────────────────────────────
-function renderHistOutros(){
-  const maxPct=Math.max(...HIST_OUTROS.map(h=>h.pct));
-  const maxConv=Math.max(...HIST_OUTROS.map(h=>h.conv));
-  const maxOptOut=Math.max(...HIST_OUTROS.map(h=>h.optOut));
-  document.getElementById('hist-outros').innerHTML=HIST_OUTROS.map(h=>`
-    <div class="hist-card">
-      <div class="hist-faixa">${h.faixa}</div>
-      <div class="hist-barra-wrap">
-        <div class="hist-barra outros-cor" style="height:${Math.round((h.pct/maxPct)*54)+3}px" title="% usuários: ${h.pct}%"></div>
-        <div class="hist-barra conv-cor" style="height:${Math.round((h.conv/maxConv)*54)+3}px" title="Taxa conv: ${h.conv}%"></div>
-        <div class="hist-barra optout-cor" style="height:${Math.round((h.optOut/maxOptOut)*54)+3}px" title="Opt-out: ${h.optOut}%"></div>
-      </div>
-      <div class="hist-info">
-        <strong>${h.pct}%</strong> dos usuários<br>
-        Conv: <strong style="color:var(--verde-escuro)">${h.conv}%</strong><br>
-        Opt-out: <strong style="color:var(--rosa)">${h.optOut}%</strong>
-      </div>
-    </div>`).join('');
-}
-
-// ── RECOLHER/EXPANDIR PAINEL OUTROS ─────────────────────────────────
-let outrosExpandido = true;
-function recolherOutros(){
-  const conteudo = document.getElementById('outros-conteudo-total');
-  const topoVisivel = document.getElementById('outros-topo-visivel');
-  const botao = document.getElementById('btn-recolher');
-  outrosExpandido = !outrosExpandido;
-  conteudo.style.display = outrosExpandido ? 'block' : 'none';
-  topoVisivel.style.display = outrosExpandido ? 'none' : 'block';
-  botao.setAttribute('aria-expanded', String(outrosExpandido));
-}
-function esconderOutros(){
-  const sec=document.getElementById('secao-outros');
-  const conteudo=document.getElementById('outros-conteudo-total');
-  const topoVisivel=document.getElementById('outros-topo-visivel');
-  const botao=document.getElementById('btn-recolher');
-  sec.classList.remove('show');
-  outrosExpandido=true;
-  conteudo.style.display='block';
-  topoVisivel.style.display='none';
-  botao.setAttribute('aria-expanded','true');
-  document.querySelector('.btn-interno').focus();
-}
-
-// ── PIN / EASTER EGG ─────────────────────────────────────────────────
-const PIN_CORRETO='1234'; // altere aqui para o PIN real
-let focoAntesDoPin = null;
-function abrirPin(){
-  focoAntesDoPin = document.activeElement;
-  document.getElementById('pin-modal').classList.add('show');
-  document.getElementById('pin-erro').textContent='';
-  document.querySelectorAll('.pin-digit').forEach(i=>i.value='');
-  document.getElementById('p0').focus();
-}
-function fecharPin(){
-  document.getElementById('pin-modal').classList.remove('show');
-  if(focoAntesDoPin) focoAntesDoPin.focus();
-}
-function avancaPin(idx){
-  const input=document.getElementById('p'+idx);
-  input.value=input.value.replace(/\D/g,'').slice(-1);
-  if(input.value&&idx<3) document.getElementById('p'+(idx+1)).focus();
-  const completo=['p0','p1','p2','p3'].every(id=>document.getElementById(id).value);
-  if(completo) verificarPin();
-}
-function voltaPin(e,idx){
-  if(e.key==='Backspace'&&!document.getElementById('p'+idx).value&&idx>0){
-    document.getElementById('p'+(idx-1)).focus();
-  }
-  if(e.key==='Enter') verificarPin();
-  if(e.key==='Escape') fecharPin();
-}
-function verificarPin(){
-  const pin=['p0','p1','p2','p3'].map(id=>document.getElementById(id).value).join('');
-  if(pin===PIN_CORRETO){
-    fecharPin();
-    const sec=document.getElementById('secao-outros');
-    sec.classList.add('show');
-    outrosExpandido=true;
-    document.getElementById('outros-conteudo-total').style.display='block';
-    document.getElementById('outros-topo-visivel').style.display='none';
-    document.getElementById('btn-recolher').setAttribute('aria-expanded','true');
-    renderHistOutros();
-    atualizarLabelGraficoInterno();
-    renderGraficoOutros();
-    sec.scrollIntoView({behavior:'smooth',block:'start'});
-  } else {
-    document.getElementById('pin-erro').textContent='PIN incorreto. Tente novamente.';
-    document.querySelectorAll('.pin-digit').forEach(i=>i.value='');
-    document.getElementById('p0').focus();
-  }
+function renderHistogramasPlanos(){
+  renderHistDataset('hist-total',HIST_TOTAL,'var(--texto)');
+  renderHistDataset('hist-filiado',HIST_FILIADO,'var(--verde-escuro)');
+  renderHistDataset('hist-nao-filiados',HIST_OUTROS,'var(--azul)');
 }
 
 // ── FECHAR TOOLTIP AO CLICAR/SCROLL ─────────────────────────────────
@@ -1425,21 +1205,13 @@ function fecharTooltip(){document.getElementById('tt').style.display='none';}
 document.addEventListener('click', fecharTooltip);
 document.addEventListener('scroll', fecharTooltip, true);
 document.addEventListener('touchstart', fecharTooltip);
-document.getElementById('pin-modal').addEventListener('click',e=>{
-  if(e.target.id==='pin-modal') fecharPin();
-});
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'&&document.getElementById('pin-modal').classList.contains('show')) fecharPin();
-});
 
 // ── INIT ─────────────────────────────────────────────────────────────
-atualizarLabelGraficoPrincipal();
-renderGrafico();
+renderGraficosPlanos();
 renderCriticos();
 atualizarDiagnostico();
-renderHistFiliado();
+renderHistogramasPlanos();
 carregarEventosConversaoFrequencia(true);
-// renderGraficoOutros() chamado apenas ao desbloquear o painel
 </script>
 </body>
 </html>
