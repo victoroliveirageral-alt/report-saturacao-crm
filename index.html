@@ -237,7 +237,7 @@
       .grid-3{grid-template-columns:1fr!important}
       .card-valor{font-size:22px}
 
-      /* Comparativo filiado vs. não filiados — empilha */
+      /* Comparativo filiado vs. outros — empilha */
       .comp-grid{grid-template-columns:1fr!important}
 
       /* Métricas críticas — 2 colunas no mobile */
@@ -399,7 +399,7 @@
     <div class="card">
       <div class="card-label">Total de usuários com o app instalado</div>
       <div class="card-valor" id="snapshot-total">7.353.584</div>
-      <div class="card-detalhe">Perfis com <code>has_token = true</code></div>
+      <div class="card-detalhe">Perfis com <code>has_token = true</code>, independente de plano</div>
       <div class="barra"><div class="barra-in" id="snapshot-bar-in" style="width:82%"></div><div class="barra-out" id="snapshot-bar-out" style="width:18%"></div></div>
       <div style="display:flex;gap:14px;margin-top:6px;font-size:9px;font-weight:800">
         <span style="color:var(--verde)" id="snapshot-leg-in">● Aceitam push 82,00%</span>
@@ -418,7 +418,8 @@
     </div>
   </div>
   <div class="nota-box info" style="margin-top:-6px;margin-bottom:20px">
-    📌 <strong>Metodologia CleverTap:</strong> Opt-in = perfis com <code>has_token = true</code> e <code>MSG-push = true</code>. Opt-out = perfis com <code>has_token = true</code> e <code>MSG-push = false</code>.
+    📌 <strong>Metodologia CleverTap:</strong> Opt-in = <code>has_token = true</code> + <code>MSG-push = true</code>. Opt-out = <code>has_token = true</code> + <code>MSG-push = false</code>. Filiados adiciona <code>Plan = FILIADO</code>; Outros soma os demais planos e perfis sem <code>Plan</code>.
+    <br><span style="font-size:9px">Consulta lógica: <code>common_profile_properties.reachability</code> para <code>has_token</code> e <code>MSG-push</code>; <code>common_profile_properties.profile_fields.Plan</code> para segmentar Filiados vs. Outros.</span>
   </div>
 
   <!-- BENCHMARK RETAIL -->
@@ -455,9 +456,9 @@
     <div class="benchmark-nota">Leitura: a Pushwoosh publica o opt-in de Retail por plataforma. O <strong>64,03%</strong> é uma média simples para leitura executiva, não um agregado ponderado oficial. CTR de Retail fica fora deste bloco para manter a comparação focada em opt-in.</div>
   </section>
 
-  <!-- FILIADO VS NÃO FILIADOS -->
-  <div class="secao-titulo">Filiado vs. Não Filiado — como cada grupo se comporta?</div>
-  <div class="secao-subtitulo">O CRM - Engajamento trabalha exclusivamente com a base <strong>Filiado</strong>. A base de <strong>Não filiados</strong> serve como espelho comparativo.</div>
+  <!-- FILIADO VS OUTROS -->
+  <div class="secao-titulo">Filiado vs. Outros — como cada grupo se comporta?</div>
+  <div class="secao-subtitulo">O CRM - Engajamento trabalha exclusivamente com a base <strong>Filiado</strong> (<code>Plan = FILIADO</code>). A base de <strong>Outros</strong> soma os demais planos e perfis sem <code>Plan</code>.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -468,7 +469,7 @@
     <div class="conteudo">
       <div class="comp-grid">
         <div class="comp-card filiado">
-          <div class="comp-tag tag-filiado">🟢 FILIADO · trabalhado pelo CRM - Engajamento</div>
+          <div class="comp-tag tag-filiado">🟢 FILIADO · Plan = FILIADO</div>
           <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num verde" id="comp-filiado-base">4.019.137</div></div>
           <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,35M</small></div><div class="comp-num verde" id="comp-filiado-share">54,66%</div></div>
           <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num verde"><span id="comp-filiado-optin">3.273.526</span> <span id="comp-filiado-optin-taxa" style="font-size:13px">(81,45%)</span></div></div>
@@ -477,7 +478,7 @@
           <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--verde)" id="comp-filiado-leg-in">● Aceitam 81,45%</span><span style="color:var(--rosa)" id="comp-filiado-leg-out">● Bloquearam 18,55%</span></div>
         </div>
         <div class="comp-card outros">
-          <div class="comp-tag tag-outros">🔵 NÃO FILIADOS · fora do escopo do CRM - Engajamento</div>
+          <div class="comp-tag tag-outros">🔵 OUTROS · Plan diferente de FILIADO ou vazio</div>
           <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num azul" id="comp-outros-base">3.334.447</div></div>
           <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,35M</small></div><div class="comp-num azul" id="comp-outros-share">45,34%</div></div>
           <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num azul"><span id="comp-outros-optin">2.756.738</span> <span id="comp-outros-optin-taxa" style="font-size:13px">(82,67%)</span></div></div>
@@ -486,8 +487,8 @@
           <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--azul)" id="comp-outros-leg-in">● Aceitam 82,67%</span><span style="color:var(--rosa)" id="comp-outros-leg-out">● Bloquearam 17,33%</span></div>
         </div>
       </div>
-      <div class="nota-box info" id="nota-comparativo-planos" style="margin-top:14px">💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>+1,22pp maior</strong> que Não filiados (18,55% vs. 17,33%). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e permite comparar os três recortes sem misturar taxas.</div>
-      <div class="nota-box info" style="margin-top:10px">⚠️ <strong>Metodologia:</strong> Não filiados = total da base com device token menos perfis cujo plano é exatamente FILIADO. Inclui outros planos e perfis sem plano preenchido.</div>
+      <div class="nota-box info" id="nota-comparativo-planos" style="margin-top:14px">💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>+1,22pp maior</strong> que Outros (18,55% vs. 17,33%). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e permite comparar os três recortes sem misturar taxas.</div>
+      <div class="nota-box info" style="margin-top:10px">⚠️ <strong>Metodologia:</strong> em cada recorte, opt-in usa <code>has_token = true</code> + <code>MSG-push = true</code>; opt-out usa <code>has_token = true</code> + <code>MSG-push = false</code>. Filiados adiciona <code>Plan = FILIADO</code>. Outros soma todos os demais valores de <code>Plan</code> e perfis sem <code>Plan</code>.</div>
     </div>
   </div>
 
@@ -498,7 +499,7 @@
     <div class="painel-topo">
       <div>
         <div class="painel-titulo">Evolução mensal de opt-in e opt-out por recorte</div>
-        <div class="painel-subtitulo">Total, Filiados e Não filiados usam a mesma escala e a mesma metodologia.</div>
+        <div class="painel-subtitulo">Total, Filiados e Outros usam a mesma escala e a mesma metodologia.</div>
       </div>
     </div>
     <div class="conteudo">
@@ -519,7 +520,7 @@
           <div class="grafico-outer"><div class="grafico-barras" id="grafico-filiados"></div></div>
         </div>
         <div class="plano-bloco">
-          <div class="plano-bloco-titulo">Não filiados</div>
+          <div class="plano-bloco-titulo">Outros</div>
           <div class="plano-bloco-sub">Usuários com <code>Plan ≠ FILIADO</code> ou sem Plan preenchido.</div>
           <div class="grafico-outer"><div class="grafico-barras" id="grafico-nao-filiados"></div></div>
         </div>
@@ -556,8 +557,8 @@
           <div class="hist-grid" id="hist-filiado"></div>
         </div>
         <div class="plano-bloco">
-          <div class="plano-bloco-titulo">Não filiados</div>
-          <div class="plano-bloco-sub">Referência fora do escopo direto do CRM - Engajamento.</div>
+          <div class="plano-bloco-titulo">Outros</div>
+          <div class="plano-bloco-sub">Demais planos e perfis sem Plan preenchido.</div>
           <div class="hist-grid" id="hist-nao-filiados"></div>
         </div>
       </div>
@@ -565,7 +566,7 @@
         ⚠️ <strong>Ponto de saturação:</strong> 1 push/dia é a faixa mais segura. A partir de <strong>3 pushes/dia</strong>, o opt-out começa a acelerar; acima de <strong>5 pushes/dia</strong>, a queda de conversão e o aumento de opt-out ficam bem mais evidentes.
       </div>
       <div class="nota-box info" style="margin-top:10px">
-        📌 <strong>Metodologia:</strong> a faixa diária representa a frequência média de pushes recebidos por usuário em dias com campanha. Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, em janela de 5 dias após recebimento. Opt-out considera perfis com <code>has_token = true</code> e <code>MSG-push = false</code>.
+        📌 <strong>Metodologia:</strong> a faixa diária representa a frequência média de pushes recebidos por usuário em dias com campanha. Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, em janela de 5 dias após recebimento. Opt-out considera perfis com <code>has_token = true</code> e <code>MSG-push = false</code>; Filiados aplica <code>Plan = FILIADO</code> e Outros soma os demais valores de <code>Plan</code> e perfis sem <code>Plan</code>.
       </div>
     </div>
   </div>
@@ -698,7 +699,7 @@
 
 <script>
 // ── DADOS ──────────────────────────────────────────────────────────────
-// Dados mensais segmentados por Plan = FILIADO e Não filiados.
+// Dados mensais segmentados por Plan = FILIADO e Outros.
 // Fonte: painel original, endpoint /api/push-health-insights.mensal_por_plano.
 // Importante: estes números são movimentos de permissão do mês
 // (Channel Subscribed/Unsubscribed), não snapshot retroativo da base.
@@ -747,7 +748,7 @@ const MESES_TOTAL = [
 const BASES_GRAFICO = {
   total:{nome:'Total',descricao:'Base total',dados:MESES_TOTAL,corIn:'var(--verde)'},
   filiados:{nome:'Filiados',descricao:'Apenas base Filiados',dados:MESES_FILIADO,corIn:'var(--verde)'},
-  nao_filiados:{nome:'Não filiados',descricao:'Usuários com Plan ≠ FILIADO ou sem Plan preenchido',dados:MESES_OUTROS,corIn:'var(--azul)'}
+  nao_filiados:{nome:'Outros',descricao:'Usuários com Plan ≠ FILIADO ou sem Plan preenchido',dados:MESES_OUTROS,corIn:'var(--azul)'}
 };
 // Alias para manter compatibilidade com o diagnóstico principal (Filiado)
 const MESES = MESES_FILIADO;
@@ -864,6 +865,8 @@ let snapshotAtual={
   outros:{base:3334447,optIn:2756738,optOut:577709,taxaIn:82.67,taxaOut:17.33,shareBase:45.34},
   atualizadoEm:null
 };
+let tentativasReachability=0;
+let timerReachability=null;
 
 function escHTML(valor){
   return String(valor ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1124,14 +1127,14 @@ function atualizarSnapshotUI(){
   preencherGrupo('comp-outros',snapshotAtual.outros,'var(--azul)');
   const diff=(snapshotAtual.filiado?.taxaOut || 0)-(snapshotAtual.outros?.taxaOut || 0);
   const direcao=diff>=0?'maior':'menor';
-  setHTML('nota-comparativo-planos',`💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>${fmtPp(Math.abs(diff),2)} ${direcao}</strong> que Não filiados (${fmtPct(snapshotAtual.filiado.taxaOut,2)} vs. ${fmtPct(snapshotAtual.outros.taxaOut,2)}). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e permite comparar os três recortes sem misturar taxas.`);
+  setHTML('nota-comparativo-planos',`💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>${fmtPp(Math.abs(diff),2)} ${direcao}</strong> que Outros (${fmtPct(snapshotAtual.filiado.taxaOut,2)} vs. ${fmtPct(snapshotAtual.outros.taxaOut,2)}). O cálculo usa <code>has_token = true</code> + <code>MSG-push = true/false</code>; Filiados adiciona <code>Plan = FILIADO</code> e Outros soma os demais planos e perfis sem <code>Plan</code>.`);
   atualizarTextoFonteDados();
 }
 function aplicarReachability(dados){
-  if(!dados?.sucesso) return;
+  if(!dados?.sucesso || dados.processando || dados.base_com_token == null) return false;
   const totalBase=Number(dados.base_com_token || 0);
   const totalIn=Number(dados.perfis_opt_in || 0);
-  const totalOut=Number(dados.perfis_opt_out || Math.max(0,totalBase-totalIn));
+  const totalOut=Number(dados.perfis_opt_out || 0);
   const plano=dados.segmentacao_plan || {};
   const filiado=plano.filiado || {};
   const outros=plano.outros || {};
@@ -1141,7 +1144,13 @@ function aplicarReachability(dados){
     outros:{base:Number(outros.base_com_token || 0),optIn:Number(outros.perfis_opt_in || 0),optOut:Number(outros.perfis_opt_out || 0),taxaIn:Number(outros.taxa_opt_in || pct(outros.perfis_opt_in,outros.base_com_token)),taxaOut:Number(outros.taxa_opt_out || pct(outros.perfis_opt_out,outros.base_com_token)),shareBase:Number(outros.share_base || 0)},
     atualizadoEm:dados.atualizado_em || null
   };
+  tentativasReachability=0;
+  if(timerReachability){
+    clearTimeout(timerReachability);
+    timerReachability=null;
+  }
   atualizarSnapshotUI();
+  return true;
 }
 function aplicarInsights(dados){
   if(!dados?.sucesso) return;
@@ -1161,9 +1170,28 @@ async function carregarDadosAtuaisPainel(){
     fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`)
   ]);
   if(insights.status==='fulfilled') aplicarInsights(insights.value);
-  if(reachability.status==='fulfilled') aplicarReachability(reachability.value);
+  if(reachability.status==='fulfilled'){
+    const aplicado=aplicarReachability(reachability.value);
+    if(!aplicado && reachability.value?.processando) agendarAtualizacaoReachability(reachability.value.aguarde_segundos);
+  }
   atualizarPeriodoUI();
   atualizarTextoFonteDados();
+}
+
+function agendarAtualizacaoReachability(segundos=25){
+  if(timerReachability || tentativasReachability>=3) return;
+  const atraso=Math.max(5,Number(segundos)||25)*1000;
+  timerReachability=setTimeout(async ()=>{
+    timerReachability=null;
+    tentativasReachability+=1;
+    try{
+      const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`);
+      const aplicado=aplicarReachability(dados);
+      if(!aplicado && dados?.processando) agendarAtualizacaoReachability(dados.aguarde_segundos || 25);
+    }catch(error){
+      if(tentativasReachability<3) agendarAtualizacaoReachability(20);
+    }
+  },atraso);
 }
 
 // ── FILTRO PERÍODO ───────────────────────────────────────────────────
@@ -1186,7 +1214,7 @@ function periodoAtualTexto(){
 // ── GRÁFICO ─────────────────────────────────────────────────────────
 function renderLinhaOptOut(wrap,dados){
   if(!wrap || !dados.length) return;
-  const maxTaxa=45; // escala fixa para comparar Total, Filiados e Não filiados sem distorção visual
+  const maxTaxa=45; // escala fixa para comparar Total, Filiados e Outros sem distorção visual
   const pontos=dados.map((d,i)=>{
     const x=dados.length===1 ? 50 : ((i+.5)/dados.length)*100;
     const y=100-(Math.min(d.taxaOut,maxTaxa)/maxTaxa)*100;
@@ -1261,7 +1289,7 @@ function atualizarDiagnostico(){
   const mediaFiliados=filiados.reduce((s,d)=>s+d.taxaOut,0)/filiados.length;
   const mediaOutros=outros.reduce((s,d)=>s+d.taxaOut,0)/outros.length;
   const diff=mediaFiliados-mediaOutros;
-  document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>${fmtPct(snapshotAtual.filiado.taxaOut,2)}</strong> de opt-out e Não filiados com <strong>${fmtPct(snapshotAtual.outros.taxaOut,2)}</strong>. Nos movimentos de permissão do recorte de ${recorteAtual} meses, porém, a taxa média mensal de opt-out dos Filiados é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Não filiados — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede ativações/desativações ocorridas no mês; os cards medem o estado atual da base.`;
+  document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>${fmtPct(snapshotAtual.filiado.taxaOut,2)}</strong> de opt-out e Outros com <strong>${fmtPct(snapshotAtual.outros.taxaOut,2)}</strong>. Nos movimentos de permissão do recorte de ${recorteAtual} meses, porém, a taxa média mensal de opt-out dos Filiados é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Outros — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede ativações/desativações ocorridas no mês; os cards medem o estado atual da base.`;
   atualizarNotaAumentoRecente();
 }
 function atualizarNotaAumentoRecente(){
@@ -1271,7 +1299,7 @@ function atualizarNotaAumentoRecente(){
   const meses=filiados.map(rotuloMesItemPeriodo).join(', ');
   const taxasFiliados=filiados.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
   const taxasOutros=outros.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
-  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na série real do painel original, Filiados ficaram em ${taxasFiliados}, enquanto Não filiados ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Quando o mês final ainda está aberto, o último ponto é recalculado pela soma diária até ontem (MTD-1). O retrato atual da base vem de <code>/api/reachability-push</code> usando <code>has_token = true</code> e <code>MSG-push</code>.</span>`);
+  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na série real do painel original, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Quando o mês final ainda está aberto, o último ponto é recalculado pela soma diária até ontem (MTD-1). O retrato atual da base vem de <code>/api/reachability-push</code>: opt-in = <code>has_token = true</code> + <code>MSG-push = true</code>; opt-out = <code>has_token = true</code> + <code>MSG-push = false</code>.</span>`);
   const inicio=rotuloMesItemPeriodo(filiados[0]);
   const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
   setText('insight-sazonalidade',`O aumento recente de opt-out em ${inicio}–${fim} deve ser lido junto do calendário de campanhas. O painel atualiza esse recorte automaticamente quando um novo mês fica disponível na API.`);
