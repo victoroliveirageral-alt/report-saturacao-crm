@@ -361,7 +361,7 @@
   </div>
   <div style="display:flex;align-items:center;gap:10px">
     <div class="badge-versao">V2</div>
-    <div class="badge-periodo" id="badge-periodo">Jul/2025 – Jun/2026 · 12 meses</div>
+    <div class="badge-periodo" id="badge-periodo">Período em atualização</div>
   </div>
 </header>
 
@@ -369,7 +369,7 @@
   <div class="hero">
     <h1>Estamos comunicando de forma saudável?</h1>
     <p>Este relatório apresenta o estudo de saturação da base Push dos usuários Filiados, cruzando volume de envios, evolução de opt-out e comportamento comparativo com a base Não Filiada. O objetivo é demonstrar que o time de CRM - Engajamento opera com critério, frequência controlada e foco em resultado.</p>
-    <div class="hero-tag">📅 Painel V2 · Dados extraídos via API oficial CleverTap · Atualizado em 29/06/2026</div>
+    <div class="hero-tag" id="hero-tag">📅 Painel V2 · Dados extraídos via API oficial CleverTap · Atualizando dados...</div>
   </div>
 
   <!-- FILTRO PERÍODO -->
@@ -387,33 +387,33 @@
     <div>
       <div class="saude-titulo">Diagnóstico: comunicação dentro do padrão saudável</div>
       <div class="saude-desc" id="texto-diagnostico">
-        No snapshot atual da base Push, a taxa de opt-out da base <strong>Filiada é de 18,53%</strong> e a base <strong>Não filiada</strong> está em <strong>17,33%</strong>. Já nos movimentos mensais de permissão, os Filiados concentram uma taxa de opt-out maior nos últimos meses: em ABR/26, MAI/26 e JUN/26, ficaram em <strong>40,10%</strong>, <strong>36,34%</strong> e <strong>34,35%</strong>, contra <strong>19,12%</strong>, <strong>16,27%</strong> e <strong>15,79%</strong> em Não filiados. Snapshot e evolução mensal medem coisas diferentes, por isso aparecem lado a lado.
+        Carregando snapshot atual e histórico rolante de opt-in/opt-out pela API oficial.
       </div>
     </div>
   </div>
 
   <!-- RETRATO ATUAL -->
   <div class="secao-titulo">Retrato atual da base Push</div>
-  <div class="secao-subtitulo">Quantos usuários têm device token e se aceitam receber notificações. Snapshot em 29/06/2026.</div>
+  <div class="secao-subtitulo" id="snapshot-subtitulo">Quantos usuários têm device token e se aceitam receber notificações. Snapshot em atualização.</div>
   <div class="grid-3">
     <div class="card">
       <div class="card-label">Total de usuários com o app instalado</div>
-      <div class="card-valor">7.352.367</div>
+      <div class="card-valor" id="snapshot-total">7.353.584</div>
       <div class="card-detalhe">Todos os perfis com pelo menos um device token</div>
-      <div class="barra"><div class="barra-in" style="width:82.01%"></div><div class="barra-out" style="width:17.99%"></div></div>
+      <div class="barra"><div class="barra-in" id="snapshot-bar-in" style="width:82%"></div><div class="barra-out" id="snapshot-bar-out" style="width:18%"></div></div>
       <div style="display:flex;gap:14px;margin-top:6px;font-size:9px;font-weight:800">
-        <span style="color:var(--verde)">● Aceitam push 82,01%</span>
-        <span style="color:var(--rosa)">● Bloquearam 17,99%</span>
+        <span style="color:var(--verde)" id="snapshot-leg-in">● Aceitam push 82,00%</span>
+        <span style="color:var(--rosa)" id="snapshot-leg-out">● Bloquearam 18,00%</span>
       </div>
     </div>
     <div class="card verde">
       <div class="card-label">Usuários que aceitam receber push (Opt-in)</div>
-      <div class="card-valor">6.030.004 <span class="taxa">82,01%</span></div>
+      <div class="card-valor"><span id="snapshot-optin">6.030.264</span> <span class="taxa" id="snapshot-optin-taxa">82,00%</span></div>
       <div class="card-detalhe">Têm o app instalado e <strong>não bloquearam</strong> as notificações</div>
     </div>
     <div class="card rosa">
       <div class="card-label">Usuários que bloquearam o push (Opt-out)</div>
-      <div class="card-valor">1.322.363 <span class="taxa">17,99%</span></div>
+      <div class="card-valor"><span id="snapshot-optout">1.323.320</span> <span class="taxa" id="snapshot-optout-taxa">18,00%</span></div>
       <div class="card-detalhe">Têm o app instalado mas <strong>desativaram</strong> as notificações</div>
     </div>
   </div>
@@ -430,8 +430,8 @@
     <div class="benchmark-grid">
       <div class="benchmark-metrica destaque">
         <div class="benchmark-label">Cartão de TODOS · opt-in total</div>
-        <div class="benchmark-valor">82,01%</div>
-        <div class="benchmark-detalhe"><strong>+17,98pp</strong> vs. Retail médio estimado.</div>
+        <div class="benchmark-valor" id="benchmark-ctd-optin">82,00%</div>
+        <div class="benchmark-detalhe"><strong id="benchmark-ctd-diff">+17,97pp</strong> vs. Retail médio estimado.</div>
       </div>
       <div class="benchmark-metrica">
         <div class="benchmark-label">Retail · opt-in médio</div>
@@ -466,24 +466,24 @@
       <div class="comp-grid">
         <div class="comp-card filiado">
           <div class="comp-tag tag-filiado">🟢 FILIADO · trabalhado pelo CRM - Engajamento</div>
-          <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num verde">4.018.804</div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,35M</small></div><div class="comp-num verde">54,66%</div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num verde">3.273.997 <span style="font-size:13px">(81,47%)</span></div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div><div class="comp-num rosa">744.807 <span style="font-size:13px">(18,53%)</span></div></div>
-          <div class="barra" style="margin-top:14px"><div class="barra-in" style="width:81.47%"></div><div class="barra-out" style="width:18.53%"></div></div>
-          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--verde)">● Aceitam 81,47%</span><span style="color:var(--rosa)">● Bloquearam 18,53%</span></div>
+          <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num verde" id="comp-filiado-base">4.019.137</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,35M</small></div><div class="comp-num verde" id="comp-filiado-share">54,66%</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num verde"><span id="comp-filiado-optin">3.273.526</span> <span id="comp-filiado-optin-taxa" style="font-size:13px">(81,45%)</span></div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div><div class="comp-num rosa"><span id="comp-filiado-optout">745.611</span> <span id="comp-filiado-optout-taxa" style="font-size:13px">(18,55%)</span></div></div>
+          <div class="barra" style="margin-top:14px"><div class="barra-in" id="comp-filiado-bar-in" style="width:81.45%"></div><div class="barra-out" id="comp-filiado-bar-out" style="width:18.55%"></div></div>
+          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--verde)" id="comp-filiado-leg-in">● Aceitam 81,45%</span><span style="color:var(--rosa)" id="comp-filiado-leg-out">● Bloquearam 18,55%</span></div>
         </div>
         <div class="comp-card outros">
           <div class="comp-tag tag-outros">🔵 NÃO FILIADOS · fora do escopo do CRM - Engajamento</div>
-          <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num azul">3.333.563</div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,35M</small></div><div class="comp-num azul">45,34%</div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num azul">2.756.007 <span style="font-size:13px">(82,67%)</span></div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div><div class="comp-num rosa">577.556 <span style="font-size:13px">(17,33%)</span></div></div>
-          <div class="barra" style="margin-top:14px"><div class="barra-in" style="width:82.67%;background:var(--azul)"></div><div class="barra-out" style="width:17.33%"></div></div>
-          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--azul)">● Aceitam 82,67%</span><span style="color:var(--rosa)">● Bloquearam 17,33%</span></div>
+          <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num azul" id="comp-outros-base">3.334.447</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,35M</small></div><div class="comp-num azul" id="comp-outros-share">45,34%</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num azul"><span id="comp-outros-optin">2.756.738</span> <span id="comp-outros-optin-taxa" style="font-size:13px">(82,67%)</span></div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div><div class="comp-num rosa"><span id="comp-outros-optout">577.709</span> <span id="comp-outros-optout-taxa" style="font-size:13px">(17,33%)</span></div></div>
+          <div class="barra" style="margin-top:14px"><div class="barra-in" id="comp-outros-bar-in" style="width:82.67%;background:var(--azul)"></div><div class="barra-out" id="comp-outros-bar-out" style="width:17.33%"></div></div>
+          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--azul)" id="comp-outros-leg-in">● Aceitam 82,67%</span><span style="color:var(--rosa)" id="comp-outros-leg-out">● Bloquearam 17,33%</span></div>
         </div>
       </div>
-      <div class="nota-box info" style="margin-top:14px">💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>1,20pp maior</strong> que Não filiados (18,53% vs. 17,33%). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e mostra concentração bem maior de opt-out em Filiados no último tri.</div>
+      <div class="nota-box info" id="nota-comparativo-planos" style="margin-top:14px">💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>+1,22pp maior</strong> que Não filiados (18,55% vs. 17,33%). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e permite comparar os três recortes sem misturar taxas.</div>
       <div class="nota-box info" style="margin-top:10px">⚠️ <strong>Metodologia:</strong> Não filiados = total da base com device token menos perfis cujo plano é exatamente FILIADO. Inclui outros planos e perfis sem plano preenchido.</div>
     </div>
   </div>
@@ -521,7 +521,7 @@
           <div class="grafico-outer"><div class="grafico-barras" id="grafico-nao-filiados"></div></div>
         </div>
       </div>
-      <div class="nota-box aviso" style="margin-top:14px">⚠️ <strong>Por que ABR, MAI e JUN/26 estão mais altos?</strong> O aumento da taxa de opt-out da base <strong>Filiada</strong> nos últimos 3 meses coincide com o período de maior volume de campanhas da Copa do Mundo. Na série real do painel original, Filiados ficaram em <strong>40,10%</strong>, <strong>36,34%</strong> e <strong>34,35%</strong>, enquanto Não filiados ficaram em <strong>19,12%</strong>, <strong>16,27%</strong> e <strong>15,79%</strong>.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Ela mede movimentos do mês; o retrato atual da base vem de <code>/api/reachability-push</code>.</span></div>
+      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Ela mede movimentos do mês; o retrato atual da base vem de <code>/api/reachability-push</code>.</span></div>
     </div>
   </div>
 
@@ -668,7 +668,7 @@
     <div class="insight-box amarelo">
       <div class="insight-icone">📊</div>
       <div class="insight-titulo">A Copa do Mundo explica o aumento recente</div>
-      <div class="insight-desc">O aumento de opt-out em ABR–JUN/26 (35% → 29%) coincide com o pico de campanhas da Copa. Não é tendência permanente — é sazonalidade, com retorno esperado à média em JUL/26.</div>
+      <div class="insight-desc" id="insight-sazonalidade">Os meses mais recentes devem ser lidos como sazonalidade de campanha, não como tendência isolada. O painel atualiza o recorte assim que um novo mês fica disponível na API.</div>
     </div>
     <div class="insight-box azul">
       <div class="insight-icone">🔍</div>
@@ -688,8 +688,8 @@
 
   <div class="footer">
     <strong>Cartão de TODOS · CRM - Engajamento</strong><br>
-    Estudo elaborado com dados extraídos via API oficial CleverTap · <span id="footer-periodo">Período: Jul/2025 a Jun/2026</span><br>
-    Gerado em 29/06/2026 · Uso interno — diretoria e time de CRM
+    Estudo elaborado com dados extraídos via API oficial CleverTap · <span id="footer-periodo">Período em atualização</span><br>
+    <span id="footer-gerado">Gerado com dados atuais</span> · Uso interno — diretoria e time de CRM
   </div>
 </main>
 
@@ -831,10 +831,11 @@ const HIST_OUTROS=[
 function fmt(n){return Number(n).toLocaleString('pt-BR')}
 function fmtPct(n,digitos=1){return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:digitos,maximumFractionDigits:digitos})+'%'}
 function fmtDelta(n){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
-function fmtPp(n){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'pp'}
+function fmtPp(n,digitos=1){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:digitos,maximumFractionDigits:digitos})+'pp'}
 function optOutDaFaixa(faixa){return OPT_OUT_FAIXA_FILIADO[faixa] ?? null}
 let recorteAtual=12;
 const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
+const RETAIL_OPT_IN_MEDIO=64.03;
 const LABELS_CRM=['cdt','copadetodos','local','rd','ug','sonhos','tvtodos','todosviagens','versão app'];
 const EVENTOS_CONVERSAO_PADRAO=['APPCDT-LerNota_TelaResultado_Visualização','APPCDT-Checkout_Sucesso_Visualização'];
 const MESES_API={
@@ -850,6 +851,14 @@ const MESES_API={
 let eventosConversaoMeta={};
 let requisicaoEventosConversao=0;
 let requisicaoFreq=0;
+let mesSelecionadoAtual='2026-06';
+let periodoHistoricoAtual={from:'2025-07-01',to:'2026-06-30'};
+let snapshotAtual={
+  total:{base:7353584,optIn:6030264,optOut:1323320,taxaIn:82.0044,taxaOut:17.9956},
+  filiado:{base:4019137,optIn:3273526,optOut:745611,taxaIn:81.45,taxaOut:18.55,shareBase:54.66},
+  outros:{base:3334447,optIn:2756738,optOut:577709,taxaIn:82.67,taxaOut:17.33,shareBase:45.34},
+  atualizadoEm:null
+};
 
 function escHTML(valor){
   return String(valor ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -872,6 +881,217 @@ function setFreqAutoStatus(texto,estado='ok'){
   el.className=`freq-auto-status ${estado==='ok'?'':estado}`.trim();
   el.textContent=texto;
 }
+function setText(id,valor){
+  const el=document.getElementById(id);
+  if(el) el.textContent=valor;
+}
+function setHTML(id,valor){
+  const el=document.getElementById(id);
+  if(el) el.innerHTML=valor;
+}
+function setWidth(id,valor){
+  const el=document.getElementById(id);
+  if(el) el.style.width=Math.max(0,Math.min(100,Number(valor)||0))+'%';
+}
+const NOMES_MES_CURTO=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const NOMES_MES_LONGO=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+function partesMesISO(mesISO){
+  const [ano,mes]=String(mesISO || '').slice(0,7).split('-').map(Number);
+  return {ano,mes};
+}
+function chaveMesISO(mesISO){
+  const {ano,mes}=partesMesISO(mesISO);
+  return `${NOMES_MES_CURTO[mes-1].toLowerCase()}${String(ano).slice(-2)}`;
+}
+function rotuloMesGrafico(mesISO){
+  const {ano,mes}=partesMesISO(mesISO);
+  return `${NOMES_MES_CURTO[mes-1].toUpperCase()} ${String(ano).slice(-2)}`;
+}
+function rotuloMesPeriodo(mesISO){
+  const {ano,mes}=partesMesISO(mesISO);
+  return `${NOMES_MES_CURTO[mes-1]}/${ano}`;
+}
+function rotuloMesItemPeriodo(item){
+  if(item?.iso) return rotuloMesPeriodo(item.iso);
+  const [mesTxt,anoTxt]=String(item?.mes || '').split(' ');
+  const idx=NOMES_MES_CURTO.findIndex(nome=>nome.toUpperCase()===String(mesTxt || '').toUpperCase());
+  if(idx>=0 && anoTxt) return `${NOMES_MES_CURTO[idx]}/20${anoTxt}`;
+  return 'mês em atualização';
+}
+function rotuloMesSelect(mesISO){
+  const {ano,mes}=partesMesISO(mesISO);
+  return `${NOMES_MES_LONGO[mes-1]}/${ano}`;
+}
+function fimDoMesISO(mesISO){
+  const {ano,mes}=partesMesISO(mesISO);
+  return new Date(Date.UTC(ano,mes,0)).toISOString().slice(0,10);
+}
+function somarMesISO(mesISO,delta){
+  const {ano,mes}=partesMesISO(mesISO);
+  const data=new Date(Date.UTC(ano,mes-1+delta,1));
+  return `${data.getUTCFullYear()}-${String(data.getUTCMonth()+1).padStart(2,'0')}`;
+}
+function mesISOAtual(){
+  const hoje=new Date();
+  return `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}`;
+}
+function candidatosMesAtual(){
+  const atual=mesISOAtual();
+  return Array.from({length:14},(_,i)=>somarMesISO(atual,-i));
+}
+function dataHoraBr(iso){
+  if(!iso) return '';
+  const data=new Date(iso);
+  if(Number.isNaN(data.getTime())) return dataBrISO(iso);
+  return data.toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function pct(parte,total){
+  return total ? (Number(parte)/Number(total))*100 : 0;
+}
+async function fetchJSON(url){
+  const response=await fetch(url,{cache:'no-store'});
+  if(!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+async function buscarInsightsMaisRecente(){
+  for(const mes of candidatosMesAtual()){
+    try{
+      const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/push-health-insights?month=${encodeURIComponent(mes)}`);
+      if(dados?.sucesso) return dados;
+    }catch(error){}
+  }
+  return fetchJSON(`${API_PAINEL_ORIGINAL}/api/push-health-insights`);
+}
+function normalizarMensal(item){
+  return {
+    iso:item.mes,
+    mes:rotuloMesGrafico(item.mes),
+    optIn:Number(item.opt_in || 0),
+    optOut:Number(item.opt_out || 0),
+    taxaIn:Number(item.taxa_opt_in || 0),
+    taxaOut:Number(item.taxa_opt_out || 0)
+  };
+}
+function aplicarSerieMensal(destino,origem){
+  if(!Array.isArray(origem) || !origem.length) return;
+  destino.splice(0,destino.length,...origem.map(normalizarMensal));
+}
+function atualizarMESESAPI(mensal,periodoAnalise){
+  (mensal || []).forEach(item=>{
+    const key=chaveMesISO(item.mes);
+    MESES_API[key]={from:`${item.mes}-01`,to:fimDoMesISO(item.mes)};
+  });
+  if(periodoAnalise?.from && periodoAnalise?.to){
+    MESES_API[chaveMesISO(periodoAnalise.from.slice(0,7))]={from:periodoAnalise.from,to:periodoAnalise.to};
+  }
+}
+function atualizarSelectMeses(mensal,selecionadoISO){
+  const meses=[...(mensal || [])].map(item=>item.mes).filter(Boolean).reverse();
+  ['freq-mes','sel-mes-criticos'].forEach(id=>{
+    const select=document.getElementById(id);
+    if(!select || !meses.length) return;
+    select.innerHTML=meses.map(mes=>`<option value="${chaveMesISO(mes)}">${rotuloMesSelect(mes)}</option>`).join('');
+    const selecionado=chaveMesISO(selecionadoISO || meses[0]);
+    if([...select.options].some(option=>option.value===selecionado)) select.value=selecionado;
+  });
+}
+function periodoDoRecorte(meses){
+  const dados=MESES_TOTAL;
+  const fim=dados[dados.length-1];
+  const inicio=dados[Math.max(0,dados.length-meses)];
+  if(!inicio || !fim) return {badge:'Período em atualização',footer:'Período em atualização',texto:'período em atualização'};
+  const ini=rotuloMesItemPeriodo(inicio);
+  const end=rotuloMesItemPeriodo(fim);
+  return {
+    badge:`${ini} – ${end} · ${meses} meses`,
+    footer:`Período: ${ini} a ${end}`,
+    texto:`${ini} a ${end} (${meses} meses)`
+  };
+}
+function atualizarPeriodoUI(){
+  const periodo=periodoDoRecorte(recorteAtual);
+  setText('badge-periodo',periodo.badge);
+  setText('footer-periodo',periodo.footer);
+}
+function atualizarTextoFonteDados(){
+  const snapshotTexto=snapshotAtual.atualizadoEm ? `Snapshot atualizado em ${dataHoraBr(snapshotAtual.atualizadoEm)}` : 'Snapshot atualizado pela API';
+  setText('hero-tag',`📅 Painel V2 · Dados extraídos via API oficial CleverTap · ${snapshotTexto}`);
+  setText('snapshot-subtitulo',`Quantos usuários têm device token e se aceitam receber notificações. ${snapshotTexto}.`);
+  setText('footer-gerado',snapshotTexto);
+}
+function preencherGrupo(prefixo,dados,cor='var(--verde)'){
+  if(!dados) return;
+  setText(`${prefixo}-base`,fmt(dados.base));
+  setText(`${prefixo}-share`,fmtPct(dados.shareBase,2));
+  setText(`${prefixo}-optin`,fmt(dados.optIn));
+  setText(`${prefixo}-optin-taxa`,`(${fmtPct(dados.taxaIn,2)})`);
+  setText(`${prefixo}-optout`,fmt(dados.optOut));
+  setText(`${prefixo}-optout-taxa`,`(${fmtPct(dados.taxaOut,2)})`);
+  setWidth(`${prefixo}-bar-in`,dados.taxaIn);
+  setWidth(`${prefixo}-bar-out`,dados.taxaOut);
+  const barIn=document.getElementById(`${prefixo}-bar-in`);
+  if(barIn) barIn.style.background=cor;
+  setText(`${prefixo}-leg-in`,`● Aceitam ${fmtPct(dados.taxaIn,2)}`);
+  setText(`${prefixo}-leg-out`,`● Bloquearam ${fmtPct(dados.taxaOut,2)}`);
+}
+function atualizarSnapshotUI(){
+  const total=snapshotAtual.total;
+  setText('snapshot-total',fmt(total.base));
+  setText('snapshot-optin',fmt(total.optIn));
+  setText('snapshot-optout',fmt(total.optOut));
+  setText('snapshot-optin-taxa',fmtPct(total.taxaIn,2));
+  setText('snapshot-optout-taxa',fmtPct(total.taxaOut,2));
+  setWidth('snapshot-bar-in',total.taxaIn);
+  setWidth('snapshot-bar-out',total.taxaOut);
+  setText('snapshot-leg-in',`● Aceitam push ${fmtPct(total.taxaIn,2)}`);
+  setText('snapshot-leg-out',`● Bloquearam ${fmtPct(total.taxaOut,2)}`);
+  setText('benchmark-ctd-optin',fmtPct(total.taxaIn,2));
+  setText('benchmark-ctd-diff',fmtPp(total.taxaIn-RETAIL_OPT_IN_MEDIO,2));
+  preencherGrupo('comp-filiado',snapshotAtual.filiado,'var(--verde)');
+  preencherGrupo('comp-outros',snapshotAtual.outros,'var(--azul)');
+  const diff=(snapshotAtual.filiado?.taxaOut || 0)-(snapshotAtual.outros?.taxaOut || 0);
+  const direcao=diff>=0?'maior':'menor';
+  setHTML('nota-comparativo-planos',`💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>${fmtPp(Math.abs(diff),2)} ${direcao}</strong> que Não filiados (${fmtPct(snapshotAtual.filiado.taxaOut,2)} vs. ${fmtPct(snapshotAtual.outros.taxaOut,2)}). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e permite comparar os três recortes sem misturar taxas.`);
+  atualizarTextoFonteDados();
+}
+function aplicarReachability(dados){
+  if(!dados?.sucesso) return;
+  const totalBase=Number(dados.base_com_token || 0);
+  const totalIn=Number(dados.perfis_opt_in || 0);
+  const totalOut=Number(dados.perfis_opt_out || Math.max(0,totalBase-totalIn));
+  const plano=dados.segmentacao_plan || {};
+  const filiado=plano.filiado || {};
+  const outros=plano.outros || {};
+  snapshotAtual={
+    total:{base:totalBase,optIn:totalIn,optOut:totalOut,taxaIn:pct(totalIn,totalBase),taxaOut:pct(totalOut,totalBase)},
+    filiado:{base:Number(filiado.base_com_token || 0),optIn:Number(filiado.perfis_opt_in || 0),optOut:Number(filiado.perfis_opt_out || 0),taxaIn:Number(filiado.taxa_opt_in || pct(filiado.perfis_opt_in,filiado.base_com_token)),taxaOut:Number(filiado.taxa_opt_out || pct(filiado.perfis_opt_out,filiado.base_com_token)),shareBase:Number(filiado.share_base || 0)},
+    outros:{base:Number(outros.base_com_token || 0),optIn:Number(outros.perfis_opt_in || 0),optOut:Number(outros.perfis_opt_out || 0),taxaIn:Number(outros.taxa_opt_in || pct(outros.perfis_opt_in,outros.base_com_token)),taxaOut:Number(outros.taxa_opt_out || pct(outros.perfis_opt_out,outros.base_com_token)),shareBase:Number(outros.share_base || 0)},
+    atualizadoEm:dados.atualizado_em || null
+  };
+  atualizarSnapshotUI();
+}
+function aplicarInsights(dados){
+  if(!dados?.sucesso) return;
+  const mensalPlano=dados.mensal_por_plano || {};
+  aplicarSerieMensal(MESES_TOTAL,mensalPlano.total || dados.mensal);
+  aplicarSerieMensal(MESES_FILIADO,mensalPlano.filiado);
+  aplicarSerieMensal(MESES_OUTROS,mensalPlano.outros);
+  mesSelecionadoAtual=dados.mes_selecionado || MESES_TOTAL[MESES_TOTAL.length-1]?.iso || mesSelecionadoAtual;
+  periodoHistoricoAtual=dados.periodo_historico || periodoHistoricoAtual;
+  atualizarMESESAPI(mensalPlano.total || dados.mensal,dados.periodo_analise_diaria);
+  atualizarSelectMeses(mensalPlano.total || dados.mensal,mesSelecionadoAtual);
+  atualizarPeriodoUI();
+}
+async function carregarDadosAtuaisPainel(){
+  const [insights,reachability]=await Promise.allSettled([
+    buscarInsightsMaisRecente(),
+    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`)
+  ]);
+  if(insights.status==='fulfilled') aplicarInsights(insights.value);
+  if(reachability.status==='fulfilled') aplicarReachability(reachability.value);
+  atualizarPeriodoUI();
+  atualizarTextoFonteDados();
+}
 
 // ── FILTRO PERÍODO ───────────────────────────────────────────────────
 function setRecorte(meses,btn){
@@ -882,17 +1102,13 @@ function setRecorte(meses,btn){
   });
   btn.classList.add('ativo');
   btn.setAttribute('aria-pressed','true');
-  const labels={12:'Jul/2025 – Jun/2026 · 12 meses',9:'Out/2025 – Jun/2026 · 9 meses',6:'Jan/2026 – Jun/2026 · 6 meses',3:'Abr/2026 – Jun/2026 · 3 meses'};
-  document.getElementById('badge-periodo').textContent=labels[meses];
-  const footerP={12:'Jul/2025 a Jun/2026',9:'Out/2025 a Jun/2026',6:'Jan/2026 a Jun/2026',3:'Abr/2026 a Jun/2026'};
-  document.getElementById('footer-periodo').textContent='Período: '+footerP[meses];
+  atualizarPeriodoUI();
   renderGraficosPlanos();
   atualizarDiagnostico();
 }
 
 function periodoAtualTexto(){
-  const periodos={12:'Jul/2025 a Jun/2026 (12 meses)',9:'Out/2025 a Jun/2026 (9 meses)',6:'Jan/2026 a Jun/2026 (6 meses)',3:'Abr/2026 a Jun/2026 (3 meses)'};
-  return periodos[recorteAtual];
+  return periodoDoRecorte(recorteAtual).texto;
 }
 // ── GRÁFICO ─────────────────────────────────────────────────────────
 function renderLinhaOptOut(wrap,dados){
@@ -918,12 +1134,13 @@ function renderLinhaOptOut(wrap,dados){
 }
 
 function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
-  const dados=dadosOrigem.slice(12-recorteAtual);
+  const dados=dadosOrigem.slice(Math.max(0,dadosOrigem.length-recorteAtual));
   const maxTotal=Math.max(...dados.map(d=>d.optIn+d.optOut));
   const alturaMax=130;
   const wrap=document.getElementById(wrapId);
   if(!wrap) return;
   wrap.innerHTML='';
+  if(!dados.length) return;
   const tt=document.getElementById('tt');
   dados.forEach(d=>{
     const hIn=Math.max(4,Math.round((d.optIn/maxTotal)*alturaMax));
@@ -965,12 +1182,26 @@ function posicionarTooltip(e){
 
 // ── DIAGNÓSTICO ──────────────────────────────────────────────────────
 function atualizarDiagnostico(){
-  const filiados=MESES_FILIADO.slice(12-recorteAtual);
-  const outros=MESES_OUTROS.slice(12-recorteAtual);
+  const filiados=MESES_FILIADO.slice(Math.max(0,MESES_FILIADO.length-recorteAtual));
+  const outros=MESES_OUTROS.slice(Math.max(0,MESES_OUTROS.length-recorteAtual));
+  if(!filiados.length || !outros.length) return;
   const mediaFiliados=filiados.reduce((s,d)=>s+d.taxaOut,0)/filiados.length;
   const mediaOutros=outros.reduce((s,d)=>s+d.taxaOut,0)/outros.length;
   const diff=mediaFiliados-mediaOutros;
-  document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>18,53%</strong> de opt-out e Não filiados com <strong>17,33%</strong>. Nos movimentos de permissão do recorte de ${recorteAtual} meses, porém, a taxa média mensal de opt-out dos Filiados é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Não filiados — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede ativações/desativações ocorridas no mês; os cards medem o estado atual da base.`;
+  document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>${fmtPct(snapshotAtual.filiado.taxaOut,2)}</strong> de opt-out e Não filiados com <strong>${fmtPct(snapshotAtual.outros.taxaOut,2)}</strong>. Nos movimentos de permissão do recorte de ${recorteAtual} meses, porém, a taxa média mensal de opt-out dos Filiados é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Não filiados — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede ativações/desativações ocorridas no mês; os cards medem o estado atual da base.`;
+  atualizarNotaAumentoRecente();
+}
+function atualizarNotaAumentoRecente(){
+  const filiados=MESES_FILIADO.slice(-3);
+  const outros=MESES_OUTROS.slice(-3);
+  if(filiados.length<3 || outros.length<3) return;
+  const meses=filiados.map(rotuloMesItemPeriodo).join(', ');
+  const taxasFiliados=filiados.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
+  const taxasOutros=outros.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
+  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na série real do painel original, Filiados ficaram em ${taxasFiliados}, enquanto Não filiados ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Ela mede movimentos do mês; o retrato atual da base vem de <code>/api/reachability-push</code>.</span>`);
+  const inicio=rotuloMesItemPeriodo(filiados[0]);
+  const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
+  setText('insight-sazonalidade',`O aumento recente de opt-out em ${inicio}–${fim} deve ser lido junto do calendário de campanhas. O painel atualiza esse recorte automaticamente quando um novo mês fica disponível na API.`);
 }
 
 // ── FREQUÊNCIA VS CONVERSÃO ──────────────────────────────────────────
@@ -1262,11 +1493,21 @@ document.addEventListener('scroll', fecharTooltip, true);
 document.addEventListener('touchstart', fecharTooltip);
 
 // ── INIT ─────────────────────────────────────────────────────────────
-renderGraficosPlanos();
-renderCriticos();
-atualizarDiagnostico();
-renderHistogramasPlanos();
-carregarEventosConversaoFrequencia(true);
+async function inicializarPainel(){
+  try{
+    await carregarDadosAtuaisPainel();
+  }catch(error){
+    console.warn('Não foi possível atualizar os dados dinâmicos do painel.',error);
+    atualizarPeriodoUI();
+    atualizarSnapshotUI();
+  }
+  renderGraficosPlanos();
+  renderCriticos();
+  atualizarDiagnostico();
+  renderHistogramasPlanos();
+  carregarEventosConversaoFrequencia(true);
+}
+inicializarPainel();
 </script>
 </body>
 </html>
