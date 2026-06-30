@@ -131,6 +131,8 @@
     .pill-media{background:rgba(242,139,34,.12);color:var(--laranja)}
     .pill-normal{background:rgba(0,169,136,.12);color:var(--verde-escuro)}
     .sel-mes{padding:7px 12px;border:1px solid var(--borda);border-radius:10px;background:white;color:var(--texto);font:700 11px Arial;cursor:pointer}
+    .criticos-controles{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap}
+    .criticos-controle{min-width:140px}
     .metricas-criticas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
     .mc{padding:14px;border:1px solid var(--borda);border-radius:12px;background:white}
     .mc-label{font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.4px;line-height:1.4}
@@ -267,6 +269,8 @@
       .painel-subtitulo{font-size:10px}
 
       /* Tabela dias críticos — scroll horizontal */
+      .criticos-controles{width:100%;gap:8px}
+      .criticos-controle{width:100%;min-width:0}
       .freq-tabela-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
       #tabela-criticos{min-width:680px}
       table{font-size:11px}
@@ -631,25 +635,34 @@
 
   <!-- DIAS CRÍTICOS -->
   <div class="secao-titulo">Quando os opt-outs acontecem mais? E por quê?</div>
-  <div class="secao-subtitulo">Identificamos os dias com maior volume de opt-out entre usuários Filiados e analisamos o que estava acontecendo com as campanhas nesses mesmos dias.</div>
+  <div class="secao-subtitulo" id="subtitulo-secao-criticos">Identificamos os dias com maior volume de opt-out no público selecionado e analisamos o que estava acontecendo com as campanhas nesses mesmos dias.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
-        <div class="painel-titulo">TOP 3 dias com mais opt-out de Filiados no mês selecionado</div>
-        <div class="painel-subtitulo">Os percentuais usam apenas opt-ins e opt-outs de Filiados; envios, impressões, campanhas e CTR seguem como pressão operacional total do dia.</div>
+        <div class="painel-titulo" id="titulo-criticos">TOP 3 dias com mais opt-out por público no mês selecionado</div>
+        <div class="painel-subtitulo" id="subtitulo-criticos">Escolha Filiados ou Outros para recalcular ranking, percentuais e leitura do período.</div>
       </div>
-      <div>
-        <label for="sel-mes-criticos" style="display:block;font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Selecionar mês</label>
-        <select class="sel-mes" id="sel-mes-criticos" onchange="renderCriticos()">
-          <option value="jun26">Junho/2026</option>
-          <option value="mai26">Maio/2026</option>
-          <option value="abr26">Abril/2026</option>
-          <option value="mar26">Março/2026</option>
-          <option value="fev26">Fevereiro/2026</option>
-          <option value="jan26">Janeiro/2026</option>
-          <option value="dez25">Dezembro/2025</option>
-          <option value="nov25">Novembro/2025</option>
-        </select>
+      <div class="criticos-controles">
+        <div class="criticos-controle">
+          <label for="sel-publico-criticos" style="display:block;font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Público</label>
+          <select class="sel-mes" id="sel-publico-criticos" onchange="renderCriticos()">
+            <option value="filiado">Filiados</option>
+            <option value="outros">Outros</option>
+          </select>
+        </div>
+        <div class="criticos-controle">
+          <label for="sel-mes-criticos" style="display:block;font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Selecionar mês</label>
+          <select class="sel-mes" id="sel-mes-criticos" onchange="renderCriticos()">
+            <option value="jun26">Junho/2026</option>
+            <option value="mai26">Maio/2026</option>
+            <option value="abr26">Abril/2026</option>
+            <option value="mar26">Março/2026</option>
+            <option value="fev26">Fevereiro/2026</option>
+            <option value="jan26">Janeiro/2026</option>
+            <option value="dez25">Dezembro/2025</option>
+            <option value="nov25">Novembro/2025</option>
+          </select>
+        </div>
       </div>
     </div>
     <div class="conteudo">
@@ -845,6 +858,10 @@ const TODAS_CONVERSOES_ID='__todas_conversoes__';
 const TODAS_CONVERSOES_LABEL='Todas as conversões';
 const LABELS_CRM=['cdt','copadetodos','local','rd','ug','sonhos','tvtodos','todosviagens','versão app'];
 const EVENTOS_CONVERSAO_PADRAO=['APPCDT-LerNota_TelaResultado_Visualização','APPCDT-Checkout_Sucesso_Visualização'];
+const PUBLICOS_CRITICOS={
+  filiado:{nome:'Filiados',nomeCurto:'Filiados',chave:'filiado',descricao:'plan = filiado'},
+  outros:{nome:'Outros',nomeCurto:'Outros',chave:'outros',descricao:'plan = freemium + plan = Pro'}
+};
 const MESES_API={
   jun26:{from:'2026-06-01',to:'2026-06-28'},
   mai26:{from:'2026-05-01',to:'2026-05-31'},
@@ -869,12 +886,20 @@ let snapshotAtual={
 let tentativasReachability=0;
 let timerReachability=null;
 let contextoCriticosAtual=null;
+let requisicaoCriticos=0;
 
 function escHTML(valor){
   return String(valor ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function normalizarTexto(valor){
   return String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+}
+function publicoCriticosSelecionado(){
+  const valor=document.getElementById('sel-publico-criticos')?.value || 'filiado';
+  return PUBLICOS_CRITICOS[valor] ? valor : 'filiado';
+}
+function metaPublicoCriticos(publico=publicoCriticosSelecionado()){
+  return PUBLICOS_CRITICOS[publico] || PUBLICOS_CRITICOS.filiado;
 }
 function campanhaTemLabelCRM(campanha){
   const labels=Array.isArray(campanha.labels)?campanha.labels:[];
@@ -1386,6 +1411,10 @@ function mesContextoCriticos(contexto){
   const sel=document.getElementById('sel-mes-criticos');
   return sel?.selectedOptions?.[0]?.textContent || contexto?.mes || 'mês selecionado';
 }
+function publicoContextoCriticos(contexto){
+  if(contexto?.publicoLabel) return contexto.publicoLabel;
+  return metaPublicoCriticos(contexto?.publico || publicoCriticosSelecionado()).nome;
+}
 function versoesPrincipais(contexto){
   const origem=contexto?.dados?.versoes_opt_out || contexto?.versoes || [];
   if(Array.isArray(origem)){
@@ -1430,6 +1459,7 @@ function atualizarInsightsFinais(contexto=contextoCriticosAtual){
   const optoutOutros=numeroSeguro(snapshotAtual.outros?.taxaOut,0);
   const diffPlanos=optoutFiliado-optoutOutros;
   const mesCritico=mesContextoCriticos(contexto);
+  const publicoCritico=publicoContextoCriticos(contexto);
   const versoes=versoesPrincipais(contexto);
 
   setText('insight-confianca-titulo',snapshotAtual.filiado?.taxaIn >= 80 ? 'A maioria dos Filiados mantém push ativo' : 'A base Filiada pede atenção de opt-in');
@@ -1437,7 +1467,7 @@ function atualizarInsightsFinais(contexto=contextoCriticosAtual){
 
   setText('insight-risco-titulo',!contexto ? 'Carregando risco por campanha' : campanhas>=20 ? 'Concentração de campanhas é o principal risco' : 'Risco atual está mais distribuído');
   setHTML('insight-risco',contexto
-    ? `No TOP 3 de ${escHTML(mesCritico)}, campanhas ficaram <strong>${fmtDelta(campanhas)}</strong> vs. demais dias (${escHTML(leituraComparacaoCriticos(contexto,'campanhas'))}) e envios ficaram <strong>${fmtDelta(envios)}</strong>. A leitura evita misturar volume geral com plano: o TOP 3 é ordenado por opt-outs de Filiados.`
+    ? `No TOP 3 de ${escHTML(publicoCritico)} em ${escHTML(mesCritico)}, campanhas ficaram <strong>${fmtDelta(campanhas)}</strong> vs. demais dias (${escHTML(leituraComparacaoCriticos(contexto,'campanhas'))}) e envios ficaram <strong>${fmtDelta(envios)}</strong>. A leitura evita misturar volume geral com plano: o ranking é ordenado pelo opt-out do público selecionado.`
     : 'Carregando o TOP 3 do mês mais recente para atualizar a leitura de risco por campanha.');
 
   setText('insight-sazonalidade-titulo',variacaoRecente>10 ? 'Aumento recente merece leitura de calendário' : variacaoRecente<-10 ? 'Recorte recente melhorou' : 'Recorte recente está estável');
@@ -1451,8 +1481,8 @@ function atualizarInsightsFinais(contexto=contextoCriticosAtual){
   const recomendacoes=[];
   if(contexto){
     recomendacoes.push(campanhas>=20
-      ? {titulo:'Espaçar campanhas nos dias de maior concentração',desc:`No TOP 3 de ${mesCritico}, a quantidade de campanhas ficou ${fmtDelta(campanhas)} em relação aos demais dias. Use limite operacional de 1 push/dia por usuário e distribua campanhas concorrentes em janelas diferentes.`}
-      : {titulo:'Manter limite de frequência e monitorar picos reais',desc:`No TOP 3 de ${mesCritico}, a concentração de campanhas ficou ${fmtDelta(campanhas)}. O limite de 1 push/dia segue como proteção, mas o alerta deve focar em dias com desvio real de opt-out.`});
+      ? {titulo:'Espaçar campanhas nos dias de maior concentração',desc:`No TOP 3 de ${publicoCritico} em ${mesCritico}, a quantidade de campanhas ficou ${fmtDelta(campanhas)} em relação aos demais dias. Use limite operacional de 1 push/dia por usuário e distribua campanhas concorrentes em janelas diferentes.`}
+      : {titulo:'Manter limite de frequência e monitorar picos reais',desc:`No TOP 3 de ${publicoCritico} em ${mesCritico}, a concentração de campanhas ficou ${fmtDelta(campanhas)}. O limite de 1 push/dia segue como proteção, mas o alerta deve focar em dias com desvio real de opt-out.`});
   }else{
     recomendacoes.push({titulo:'Aguardar TOP 3 do mês selecionado',desc:'Assim que a API retornar os dias críticos, esta recomendação passa a refletir campanhas, envios, CTR e versões do mês selecionado.'});
   }
@@ -1714,23 +1744,30 @@ function calcularComparacaoDiasCriticos(dias,diasTop3){
 async function renderCriticos(){
   const sel=document.getElementById('sel-mes-criticos').value;
   const mes=mesApiCriticos(sel);
+  const publico=publicoCriticosSelecionado();
+  const meta=metaPublicoCriticos(publico);
+  const requisicaoAtual=++requisicaoCriticos;
   const cards=document.getElementById('cards-criticos');
   const tabela=document.getElementById('tabela-criticos');
   const nota=document.getElementById('nota-versoes');
-  cards.innerHTML='<div class="estado"><div class="spinner"></div>Carregando TOP 3 de opt-outs de Filiados...</div>';
+  setText('titulo-criticos',`TOP 3 dias com mais opt-out de ${meta.nome} no mês selecionado`);
+  setText('subtitulo-criticos',`Os percentuais usam apenas opt-ins e opt-outs de ${meta.nome} (${meta.descricao}); envios, impressões, campanhas e CTR seguem como pressão operacional total do dia.`);
+  setText('subtitulo-secao-criticos',`Identificamos os dias com maior volume de opt-out em ${meta.nome} e analisamos o que estava acontecendo com as campanhas nesses mesmos dias.`);
+  cards.innerHTML=`<div class="estado"><div class="spinner"></div>Carregando TOP 3 de opt-outs de ${meta.nome}...</div>`;
   tabela.innerHTML='';
   nota.innerHTML='';
   try{
     const response=await fetch(`${API_PAINEL_ORIGINAL}${API_INSIGHTS_PUSH}?month=${encodeURIComponent(mes)}`,{cache:'no-store'});
     const dados=aplicarMTDmenos1(await response.json());
+    if(requisicaoAtual!==requisicaoCriticos) return;
     if(!response.ok || !dados.sucesso) throw new Error(dados.erro || dados.detalhes || 'Dados indisponíveis.');
-    const analise=dados.analise_por_plano?.filiado || {};
-    const diasBase=(analise.diario || dados.diario_por_plano?.filiado || []);
+    const analise=dados.analise_por_plano?.[meta.chave] || {};
+    const diasBase=(analise.diario || dados.diario_por_plano?.[meta.chave] || []);
     const diasTop3=diasBase
       .slice()
       .sort((a,b)=>Number(b.opt_out||0)-Number(a.opt_out||0))
       .slice(0,3);
-    if(!diasTop3.length) throw new Error('Nenhum opt-out de Filiados encontrado no mês selecionado.');
+    if(!diasTop3.length) throw new Error(`Nenhum opt-out de ${meta.nome} encontrado no mês selecionado.`);
     const comparacao=deveAplicarMTD(mes) ? calcularComparacaoDiasCriticos(diasBase,diasTop3) : (analise.comparacao_dias_criticos || {});
     const obterComp=campo=>comparacao[campo] || {};
     const campos=[
@@ -1751,14 +1788,14 @@ async function renderCriticos(){
       <thead><tr>
         <th class="rank-col">Rank</th>
         <th>Data</th>
-        <th>Filiados que desativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-out)</span></th>
-        <th>Filiados que ativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-in)</span></th>
-        <th>Taxa opt-out<br><span style="font-weight:600;text-transform:none;letter-spacing:0">Filiados</span></th>
+        <th>${meta.nome} que desativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-out)</span></th>
+        <th>${meta.nome} que ativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-in)</span></th>
+        <th>Taxa opt-out<br><span style="font-weight:600;text-transform:none;letter-spacing:0">${meta.nome}</span></th>
         <th>Campanhas<br><span style="font-weight:600;text-transform:none;letter-spacing:0">disparadas</span></th>
         <th>Total de envios</th>
         <th>Impressões</th>
         <th>CTR</th>
-        <th>Opt-outs Filiados por<br><span style="font-weight:600;text-transform:none;letter-spacing:0">1M enviados</span></th>
+        <th>Opt-outs ${meta.nome} por<br><span style="font-weight:600;text-transform:none;letter-spacing:0">1M enviados</span></th>
         <th>Sinal identificado</th>
       </tr></thead>
       <tbody>${diasTop3.map((dia,i)=>{
@@ -1777,12 +1814,13 @@ async function renderCriticos(){
           <td><span class="pill pill-${leitura.classe}">${escHTML(leitura.texto)}</span></td>
         </tr>`;
       }).join('')}</tbody>`;
-    nota.innerHTML=`<strong>Recorte aplicado:</strong> TOP 3 ordenado somente por opt-outs de usuários Filiados em ${dataBrISO(dados.periodo_analise_diaria?.from)} a ${dataBrISO(dados.periodo_analise_diaria?.to)}.<br><em>Envios, impressões, campanhas e CTR continuam representando a pressão operacional total das campanhas Push do dia, porque essas métricas não são segmentadas por plano no relatório de campanhas.</em>`;
-    contextoCriticosAtual={comparacao,diasTop3,dados,mes,rotuloMes:document.getElementById('sel-mes-criticos')?.selectedOptions?.[0]?.textContent || mes,versoes:dados.versoes_opt_out || []};
+    nota.innerHTML=`<strong>Recorte aplicado:</strong> TOP 3 ordenado somente por opt-outs de ${meta.nome} em ${dataBrISO(dados.periodo_analise_diaria?.from)} a ${dataBrISO(dados.periodo_analise_diaria?.to)}.<br><em>Envios, impressões, campanhas e CTR continuam representando a pressão operacional total das campanhas Push do dia, porque essas métricas não são segmentadas por plano no relatório de campanhas.</em>`;
+    contextoCriticosAtual={comparacao,diasTop3,dados,mes,publico:meta.chave,publicoLabel:meta.nome,rotuloMes:document.getElementById('sel-mes-criticos')?.selectedOptions?.[0]?.textContent || mes,versoes:dados.versoes_opt_out || []};
     atualizarInsightsFinais(contextoCriticosAtual);
   }catch(error){
+    if(requisicaoAtual!==requisicaoCriticos) return;
     cards.innerHTML='';
-    tabela.innerHTML=`<tbody><tr><td colspan="11" style="padding:20px;color:var(--rosa)">Não foi possível carregar o TOP 3 de opt-outs de Filiados. ${escHTML(error.message)}</td></tr></tbody>`;
+    tabela.innerHTML=`<tbody><tr><td colspan="11" style="padding:20px;color:var(--rosa)">Não foi possível carregar o TOP 3 de opt-outs de ${meta.nome}. ${escHTML(error.message)}</td></tr></tbody>`;
     contextoCriticosAtual=null;
     atualizarInsightsFinais();
   }
