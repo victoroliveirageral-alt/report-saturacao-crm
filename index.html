@@ -399,7 +399,7 @@
     <div class="card">
       <div class="card-label">Total de usuários com o app instalado</div>
       <div class="card-valor" id="snapshot-total">7.353.584</div>
-      <div class="card-detalhe">Todos os perfis com pelo menos um device token</div>
+      <div class="card-detalhe">Perfis com <code>has_token = true</code></div>
       <div class="barra"><div class="barra-in" id="snapshot-bar-in" style="width:82%"></div><div class="barra-out" id="snapshot-bar-out" style="width:18%"></div></div>
       <div style="display:flex;gap:14px;margin-top:6px;font-size:9px;font-weight:800">
         <span style="color:var(--verde)" id="snapshot-leg-in">● Aceitam push 82,00%</span>
@@ -409,13 +409,16 @@
     <div class="card verde">
       <div class="card-label">Usuários que aceitam receber push (Opt-in)</div>
       <div class="card-valor"><span id="snapshot-optin">6.030.264</span> <span class="taxa" id="snapshot-optin-taxa">82,00%</span></div>
-      <div class="card-detalhe">Têm o app instalado e <strong>não bloquearam</strong> as notificações</div>
+      <div class="card-detalhe"><code>has_token = true</code> e <code>MSG-push = true</code></div>
     </div>
     <div class="card rosa">
       <div class="card-label">Usuários que bloquearam o push (Opt-out)</div>
       <div class="card-valor"><span id="snapshot-optout">1.323.320</span> <span class="taxa" id="snapshot-optout-taxa">18,00%</span></div>
-      <div class="card-detalhe">Têm o app instalado mas <strong>desativaram</strong> as notificações</div>
+      <div class="card-detalhe"><code>has_token = true</code> e <code>MSG-push = false</code></div>
     </div>
+  </div>
+  <div class="nota-box info" style="margin-top:-6px;margin-bottom:20px">
+    📌 <strong>Metodologia CleverTap:</strong> Opt-in = perfis com <code>has_token = true</code> e <code>MSG-push = true</code>. Opt-out = perfis com <code>has_token = true</code> e <code>MSG-push = false</code>.
   </div>
 
   <!-- BENCHMARK RETAIL -->
@@ -562,7 +565,7 @@
         ⚠️ <strong>Ponto de saturação:</strong> 1 push/dia é a faixa mais segura. A partir de <strong>3 pushes/dia</strong>, o opt-out começa a acelerar; acima de <strong>5 pushes/dia</strong>, a queda de conversão e o aumento de opt-out ficam bem mais evidentes.
       </div>
       <div class="nota-box info" style="margin-top:10px">
-        📌 <strong>Metodologia:</strong> a faixa diária representa a frequência média de pushes recebidos por usuário em dias com campanha. Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, em janela de 5 dias após recebimento. Opt-out = usuários que desativaram push dentro de 7 dias após a faixa diária atingida.
+        📌 <strong>Metodologia:</strong> a faixa diária representa a frequência média de pushes recebidos por usuário em dias com campanha. Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, em janela de 5 dias após recebimento. Opt-out considera perfis com <code>has_token = true</code> e <code>MSG-push = false</code>.
       </div>
     </div>
   </div>
@@ -836,6 +839,8 @@ function optOutDaFaixa(faixa){return OPT_OUT_FAIXA_FILIADO[faixa] ?? null}
 let recorteAtual=12;
 const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
 const RETAIL_OPT_IN_MEDIO=64.03;
+const TODAS_CONVERSOES_ID='__todas_conversoes__';
+const TODAS_CONVERSOES_LABEL='Todas as conversões';
 const LABELS_CRM=['cdt','copadetodos','local','rd','ug','sonhos','tvtodos','todosviagens','versão app'];
 const EVENTOS_CONVERSAO_PADRAO=['APPCDT-LerNota_TelaResultado_Visualização','APPCDT-Checkout_Sucesso_Visualização'];
 const MESES_API={
@@ -1266,7 +1271,7 @@ function atualizarNotaAumentoRecente(){
   const meses=filiados.map(rotuloMesItemPeriodo).join(', ');
   const taxasFiliados=filiados.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
   const taxasOutros=outros.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
-  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na série real do painel original, Filiados ficaram em ${taxasFiliados}, enquanto Não filiados ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Quando o mês final ainda está aberto, o último ponto é recalculado pela soma diária até ontem (MTD-1). O retrato atual da base vem de <code>/api/reachability-push</code>.</span>`);
+  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na série real do painel original, Filiados ficaram em ${taxasFiliados}, enquanto Não filiados ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Quando o mês final ainda está aberto, o último ponto é recalculado pela soma diária até ontem (MTD-1). O retrato atual da base vem de <code>/api/reachability-push</code> usando <code>has_token = true</code> e <code>MSG-push</code>.</span>`);
   const inicio=rotuloMesItemPeriodo(filiados[0]);
   const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
   setText('insight-sazonalidade',`O aumento recente de opt-out em ${inicio}–${fim} deve ser lido junto do calendário de campanhas. O painel atualiza esse recorte automaticamente quando um novo mês fica disponível na API.`);
@@ -1309,7 +1314,8 @@ async function carregarEventosConversaoFrequencia(renderizarDepois=false){
     if(requisicaoAtual!==requisicaoEventosConversao) return;
     if(!response.ok || !dados.sucesso) throw new Error(dados.erro || 'Dashboard original indisponível.');
     const eventos=montarEventosOficiais(dados.campanhas || []);
-    eventosConversaoMeta=Object.fromEntries(eventos.map(item=>[item.evento,item]));
+    const eventoAgregado={evento:TODAS_CONVERSOES_ID,campanhas:eventos.reduce((s,item)=>s+Number(item.campanhas || 0),0),labels:['soma dos eventos oficiais'],eventos:eventos.map(item=>item.evento)};
+    eventosConversaoMeta=Object.fromEntries([eventoAgregado,...eventos].map(item=>[item.evento,item]));
     if(!eventos.length){
       select.innerHTML='<option value="">Nenhum evento oficial encontrado</option>';
       status.textContent='Nenhuma campanha com evento de conversão oficial nas labels CRM neste mês.';
@@ -1317,8 +1323,11 @@ async function carregarEventosConversaoFrequencia(renderizarDepois=false){
       document.getElementById('freq-resultado').innerHTML='<div style="padding:20px;color:var(--rosa)">Nenhum evento oficial encontrado para o mês selecionado.</div>';
       return;
     }
-    select.innerHTML=eventos.map(item=>`<option value="${escHTML(item.evento)}">${escHTML(item.evento)}</option>`).join('');
-    select.value=eventos.some(item=>item.evento===valorAnterior)?valorAnterior:eventos[0].evento;
+    select.innerHTML=[
+      `<option value="${TODAS_CONVERSOES_ID}">${TODAS_CONVERSOES_LABEL}</option>`,
+      ...eventos.map(item=>`<option value="${escHTML(item.evento)}">${escHTML(item.evento)}</option>`)
+    ].join('');
+    select.value=eventos.some(item=>item.evento===valorAnterior) || valorAnterior===TODAS_CONVERSOES_ID ? valorAnterior : TODAS_CONVERSOES_ID;
     status.textContent=eventos.length===1
       ? '1 evento oficial carregado do campo evento_conversao das campanhas.'
       : `${eventos.length} eventos oficiais carregados do campo evento_conversao das campanhas.`;
@@ -1351,6 +1360,27 @@ async function buscarResumoConversaoEvento(evento,mes){
   if(!response.ok || !dados.sucesso) throw new Error(dados.erro || dados.detalhes || 'Resumo de conversão indisponível.');
   return dados;
 }
+async function buscarResumoTodasConversoes(mes){
+  const meta=eventosConversaoMeta[TODAS_CONVERSOES_ID] || {};
+  const eventos=(meta.eventos || []).filter(Boolean);
+  if(!eventos.length) throw new Error('Nenhum evento oficial disponível para somar.');
+  const tentativas=await Promise.allSettled(eventos.map(evento=>buscarResumoConversaoEvento(evento,mes).then(resumo=>({evento,resumo}))));
+  const resultados=tentativas.filter(item=>item.status==='fulfilled').map(item=>item.value);
+  const falhas=tentativas.filter(item=>item.status==='rejected');
+  if(!resultados.length) throw new Error('Nenhum resumo de conversão respondeu para a soma agregada.');
+  const eventosDisparados=resultados.reduce((s,item)=>s+Number(item.resumo.eventos_disparados || 0),0);
+  const perfisUnicos=resultados.reduce((s,item)=>s+Number(item.resumo.perfis_unicos || 0),0);
+  return {
+    sucesso:true,
+    agregado:true,
+    eventos_disparados:eventosDisparados,
+    perfis_unicos:perfisUnicos,
+    eventos_somados:resultados.length,
+    eventos_total:eventos.length,
+    eventos_ignorados:falhas.length,
+    detalhes:resultados
+  };
+}
 
 function calibrarSerieFrequencia(mes,resumo){
   const base=(FREQ_DADOS[mes] || FREQ_DADOS.jun26).oficial;
@@ -1380,22 +1410,30 @@ async function renderFreq(){
   resultado.innerHTML='<div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px"><div class="spinner" style="margin:0 auto 10px"></div>Consultando resumo real do evento no painel original...</div>';
   let resumo=null;
   try{
-    resumo=await buscarResumoConversaoEvento(ev,mes);
+    resumo=ev===TODAS_CONVERSOES_ID ? await buscarResumoTodasConversoes(mes) : await buscarResumoConversaoEvento(ev,mes);
   }catch(error){
     if(requisicaoAtual!==requisicaoFreq) return;
+    const nomeErro=ev===TODAS_CONVERSOES_ID ? TODAS_CONVERSOES_LABEL : ev;
     setFreqAutoStatus('Não foi possível atualizar o resultado automaticamente.', 'erro');
-    resultado.innerHTML=`<div style="padding:20px;color:var(--rosa)">Não foi possível consultar o resumo real de <strong>${escHTML(ev)}</strong> no painel original. ${escHTML(error.message)}</div>`;
+    resultado.innerHTML=`<div style="padding:20px;color:var(--rosa)">Não foi possível consultar o resumo real de <strong>${escHTML(nomeErro)}</strong> no painel original. ${escHTML(error.message)}</div>`;
     return;
   }
   if(requisicaoAtual!==requisicaoFreq) return;
   const dados=calibrarSerieFrequencia(mes,resumo);
   const meta=eventosConversaoMeta[ev] || {campanhas:0,labels:[]};
   const labelsEvento=(meta.labels || []).length ? meta.labels.join(', ') : 'labels CRM permitidas';
+  const nomeEvento=ev===TODAS_CONVERSOES_ID ? TODAS_CONVERSOES_LABEL : ev;
+  const fonteEvento=ev===TODAS_CONVERSOES_ID
+    ? `soma simples de <strong>${fmt(resumo.eventos_somados || 0)}</strong> de <strong>${fmt(resumo.eventos_total || resumo.eventos_somados || 0)}</strong> eventos oficiais configurados em <code>evento_conversao</code>`
+    : '<strong>campo evento_conversao das campanhas no painel original</strong>';
+  const notaAgregado=ev===TODAS_CONVERSOES_ID
+    ? `<br><span style="font-size:10px;color:var(--texto-suave)">Observação: perfis únicos são somados por evento e podem contar a mesma pessoa mais de uma vez caso ela converta em eventos diferentes.${Number(resumo.eventos_ignorados || 0)>0 ? ` ${fmt(resumo.eventos_ignorados)} evento(s) não responderam ao resumo e ficaram fora da soma.` : ''}</span>`
+    : '';
   let html=`
     <div style="margin-bottom:14px;font-size:11px;color:var(--texto-suave);line-height:1.6">
-      Evento de conversão oficial: <strong style="color:var(--verde-escuro)">${escHTML(ev)}</strong> &nbsp;·&nbsp; Janela de conversão: <strong>5 dias após o recebimento</strong><br>
-      Fonte do evento: <strong>campo evento_conversao das campanhas no painel original</strong> · Campanhas no mês com esse evento: <strong>${fmt(meta.campanhas || 0)}</strong> · Labels observadas: <strong>${escHTML(labelsEvento)}</strong><br>
-      Resumo real do painel original: <strong>${fmt(resumo.eventos_disparados || 0)}</strong> eventos disparados · <strong>${fmt(resumo.perfis_unicos || 0)}</strong> perfis únicos.
+      Evento de conversão oficial: <strong style="color:var(--verde-escuro)">${escHTML(nomeEvento)}</strong> &nbsp;·&nbsp; Janela de conversão: <strong>5 dias após o recebimento</strong><br>
+      Fonte do evento: ${fonteEvento} · Campanhas no mês com esse evento: <strong>${fmt(meta.campanhas || 0)}</strong> · Labels observadas: <strong>${escHTML(labelsEvento)}</strong><br>
+      Resumo real do painel original: <strong>${fmt(resumo.eventos_disparados || 0)}</strong> eventos disparados · <strong>${fmt(resumo.perfis_unicos || 0)}</strong> perfis únicos.${notaAgregado}
     </div>
     <table class="dados-tabela freq-table">
       <thead><tr>
