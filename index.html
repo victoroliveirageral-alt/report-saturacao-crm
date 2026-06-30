@@ -398,28 +398,28 @@
   <div class="grid-3">
     <div class="card">
       <div class="card-label">Total de usuários com o app instalado</div>
-      <div class="card-valor" id="snapshot-total">7.353.584</div>
+      <div class="card-valor" id="snapshot-total">7.361.217</div>
       <div class="card-detalhe">Perfis com <code>has_token = true</code>, independente de plano</div>
-      <div class="barra"><div class="barra-in" id="snapshot-bar-in" style="width:82%"></div><div class="barra-out" id="snapshot-bar-out" style="width:18%"></div></div>
+      <div class="barra"><div class="barra-in" id="snapshot-bar-in" style="width:80.94%"></div><div class="barra-out" id="snapshot-bar-out" style="width:19.06%"></div></div>
       <div style="display:flex;gap:14px;margin-top:6px;font-size:9px;font-weight:800">
-        <span style="color:var(--verde)" id="snapshot-leg-in">● Aceitam push 82,00%</span>
-        <span style="color:var(--rosa)" id="snapshot-leg-out">● Bloquearam 18,00%</span>
+        <span style="color:var(--verde)" id="snapshot-leg-in">● Aceitam push 82,01%</span>
+        <span style="color:var(--rosa)" id="snapshot-leg-out">● Bloquearam 19,32%</span>
       </div>
     </div>
     <div class="card verde">
       <div class="card-label">Usuários que aceitam receber push (Opt-in)</div>
-      <div class="card-valor"><span id="snapshot-optin">6.030.264</span> <span class="taxa" id="snapshot-optin-taxa">82,00%</span></div>
+      <div class="card-valor"><span id="snapshot-optin">6.037.156</span> <span class="taxa" id="snapshot-optin-taxa">82,01%</span></div>
       <div class="card-detalhe"><code>has_token = true</code> e <code>MSG-push = true</code></div>
     </div>
     <div class="card rosa">
       <div class="card-label">Usuários que bloquearam o push (Opt-out)</div>
-      <div class="card-valor"><span id="snapshot-optout">1.323.320</span> <span class="taxa" id="snapshot-optout-taxa">18,00%</span></div>
+      <div class="card-valor"><span id="snapshot-optout">1.422.398</span> <span class="taxa" id="snapshot-optout-taxa">19,32%</span></div>
       <div class="card-detalhe"><code>has_token = true</code> e <code>MSG-push = false</code></div>
     </div>
   </div>
   <div class="nota-box info" style="margin-top:-6px;margin-bottom:20px">
-    📌 <strong>Metodologia CleverTap:</strong> Opt-in = <code>has_token = true</code> + <code>MSG-push = true</code>. Opt-out = <code>has_token = true</code> + <code>MSG-push = false</code>. Filiados adiciona <code>Plan = FILIADO</code>; Outros soma os demais planos e perfis sem <code>Plan</code>. As contagens são segmentos diretos da CleverTap, não complemento.
-    <br><span style="font-size:9px">Consulta lógica: <code>common_profile_properties.reachability</code> para <code>has_token</code> e <code>MSG-push</code>; <code>common_profile_properties.profile_fields.Plan</code> para segmentar Filiados vs. Outros.</span>
+    📌 <strong>Metodologia CleverTap:</strong> Opt-in = <code>has_token = true</code> + <code>MSG-push = true</code>. Opt-out = <code>has_token = true</code> + <code>MSG-push = false</code>. Filiados adiciona <code>plan = filiado</code>; Outros soma <code>plan = freemium</code> + <code>plan = Pro</code>. Perfis sem <code>plan</code> ficam apenas no Total. As contagens são segmentos diretos da CleverTap, não complemento.
+    <br><span style="font-size:9px">Consulta lógica: <code>common_profile_properties.reachability</code> para <code>has_token</code> e <code>MSG-push</code>; <code>common_profile_properties.profile_fields.plan</code> para segmentar Filiados vs. Outros.</span>
   </div>
 
   <!-- BENCHMARK RETAIL -->
@@ -458,7 +458,7 @@
 
   <!-- FILIADO VS OUTROS -->
   <div class="secao-titulo">Filiado vs. Outros — como cada grupo se comporta?</div>
-  <div class="secao-subtitulo">O CRM - Engajamento trabalha exclusivamente com a base <strong>Filiado</strong> (<code>Plan = FILIADO</code>). A base de <strong>Outros</strong> soma os demais planos e perfis sem <code>Plan</code>.</div>
+  <div class="secao-subtitulo">O CRM - Engajamento trabalha exclusivamente com a base <strong>Filiado</strong> (<code>plan = filiado</code>). A base de <strong>Outros</strong> soma <code>plan = freemium</code> + <code>plan = Pro</code>; perfis sem <code>plan</code> aparecem apenas no Total.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -469,26 +469,26 @@
     <div class="conteudo">
       <div class="comp-grid">
         <div class="comp-card filiado">
-          <div class="comp-tag tag-filiado">🟢 FILIADO · Plan = FILIADO</div>
-          <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num verde" id="comp-filiado-base">4.019.137</div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,35M</small></div><div class="comp-num verde" id="comp-filiado-share">54,66%</div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num verde"><span id="comp-filiado-optin">3.273.526</span> <span id="comp-filiado-optin-taxa" style="font-size:13px">(81,45%)</span></div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div><div class="comp-num rosa"><span id="comp-filiado-optout">745.611</span> <span id="comp-filiado-optout-taxa" style="font-size:13px">(18,55%)</span></div></div>
-          <div class="barra" style="margin-top:14px"><div class="barra-in" id="comp-filiado-bar-in" style="width:81.45%"></div><div class="barra-out" id="comp-filiado-bar-out" style="width:18.55%"></div></div>
-          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--verde)" id="comp-filiado-leg-in">● Aceitam 81,45%</span><span style="color:var(--rosa)" id="comp-filiado-leg-out">● Bloquearam 18,55%</span></div>
+          <div class="comp-tag tag-filiado">🟢 FILIADO · plan = filiado</div>
+          <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num verde" id="comp-filiado-base">4.022.990</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,36M</small></div><div class="comp-num verde" id="comp-filiado-share">54,65%</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num verde"><span id="comp-filiado-optin">3.277.323</span> <span id="comp-filiado-optin-taxa" style="font-size:13px">(81,46%)</span></div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div><div class="comp-num rosa"><span id="comp-filiado-optout">841.364</span> <span id="comp-filiado-optout-taxa" style="font-size:13px">(20,91%)</span></div></div>
+          <div class="barra" style="margin-top:14px"><div class="barra-in" id="comp-filiado-bar-in" style="width:79.58%"></div><div class="barra-out" id="comp-filiado-bar-out" style="width:20.42%"></div></div>
+          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--verde)" id="comp-filiado-leg-in">● Aceitam 81,46%</span><span style="color:var(--rosa)" id="comp-filiado-leg-out">● Bloquearam 20,91%</span></div>
         </div>
         <div class="comp-card outros">
-          <div class="comp-tag tag-outros">🔵 OUTROS · Plan diferente de FILIADO ou vazio</div>
-          <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num azul" id="comp-outros-base">3.334.447</div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,35M</small></div><div class="comp-num azul" id="comp-outros-share">45,34%</div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num azul"><span id="comp-outros-optin">2.756.738</span> <span id="comp-outros-optin-taxa" style="font-size:13px">(82,67%)</span></div></div>
-          <div class="comp-linha"><div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div><div class="comp-num rosa"><span id="comp-outros-optout">577.709</span> <span id="comp-outros-optout-taxa" style="font-size:13px">(17,33%)</span></div></div>
-          <div class="barra" style="margin-top:14px"><div class="barra-in" id="comp-outros-bar-in" style="width:82.67%;background:var(--azul)"></div><div class="barra-out" id="comp-outros-bar-out" style="width:17.33%"></div></div>
-          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--azul)" id="comp-outros-leg-in">● Aceitam 82,67%</span><span style="color:var(--rosa)" id="comp-outros-leg-out">● Bloquearam 17,33%</span></div>
+          <div class="comp-tag tag-outros">🔵 OUTROS · plan = freemium + Pro</div>
+          <div class="comp-linha"><div class="comp-linha-label">Base com token<small>base de referência</small></div><div class="comp-num azul" id="comp-outros-base">280.677</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Representa % da base total<small>do total de 7,36M</small></div><div class="comp-num azul" id="comp-outros-share">3,81%</div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Aceitam push (Opt-in)<small>mantêm notificações ativas</small></div><div class="comp-num azul"><span id="comp-outros-optin">230.518</span> <span id="comp-outros-optin-taxa" style="font-size:13px">(82,13%)</span></div></div>
+          <div class="comp-linha"><div class="comp-linha-label">Bloquearam push (Opt-out)<small>desativaram notificações</small></div><div class="comp-num rosa"><span id="comp-outros-optout">52.756</span> <span id="comp-outros-optout-taxa" style="font-size:13px">(18,80%)</span></div></div>
+          <div class="barra" style="margin-top:14px"><div class="barra-in" id="comp-outros-bar-in" style="width:81.37%;background:var(--azul)"></div><div class="barra-out" id="comp-outros-bar-out" style="width:18.63%"></div></div>
+          <div style="display:flex;gap:14px;margin-top:7px;font-size:9px;font-weight:800"><span style="color:var(--azul)" id="comp-outros-leg-in">● Aceitam 82,13%</span><span style="color:var(--rosa)" id="comp-outros-leg-out">● Bloquearam 18,80%</span></div>
         </div>
       </div>
-      <div class="nota-box info" id="nota-comparativo-planos" style="margin-top:14px">💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>+1,22pp maior</strong> que Outros (18,55% vs. 17,33%). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e permite comparar os três recortes sem misturar taxas.</div>
-      <div class="nota-box info" style="margin-top:10px">⚠️ <strong>Metodologia:</strong> em cada recorte, opt-in usa <code>has_token = true</code> + <code>MSG-push = true</code>; opt-out usa <code>has_token = true</code> + <code>MSG-push = false</code>. Filiados adiciona <code>Plan = FILIADO</code>. Outros soma todos os demais valores de <code>Plan</code> e perfis sem <code>Plan</code>. Em perfis com múltiplos dispositivos, os segmentos podem se sobrepor; por isso opt-out não é mais calculado por complemento.</div>
+      <div class="nota-box info" id="nota-comparativo-planos" style="margin-top:14px">💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>+2,11pp maior</strong> que Outros (20,91% vs. 18,80%). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e permite comparar os três recortes sem misturar taxas.</div>
+      <div class="nota-box info" style="margin-top:10px">⚠️ <strong>Metodologia:</strong> em cada recorte, opt-in usa <code>has_token = true</code> + <code>MSG-push = true</code>; opt-out usa <code>has_token = true</code> + <code>MSG-push = false</code>. Filiados adiciona <code>plan = filiado</code>. Outros soma diretamente <code>plan = freemium</code> + <code>plan = Pro</code>. Perfis sem <code>plan</code> ficam apenas no Total. Em perfis com múltiplos dispositivos, os segmentos podem se sobrepor; por isso opt-out não é mais calculado por complemento.</div>
     </div>
   </div>
 
@@ -516,12 +516,12 @@
         </div>
         <div class="plano-bloco">
           <div class="plano-bloco-titulo">Filiados</div>
-          <div class="plano-bloco-sub">Usuários com <code>Plan = FILIADO</code>.</div>
+          <div class="plano-bloco-sub">Usuários com <code>plan = filiado</code>.</div>
           <div class="grafico-outer"><div class="grafico-barras" id="grafico-filiados"></div></div>
         </div>
         <div class="plano-bloco">
           <div class="plano-bloco-titulo">Outros</div>
-          <div class="plano-bloco-sub">Usuários com <code>Plan ≠ FILIADO</code> ou sem Plan preenchido.</div>
+          <div class="plano-bloco-sub">Usuários com <code>plan = freemium</code> ou <code>plan = Pro</code>.</div>
           <div class="grafico-outer"><div class="grafico-barras" id="grafico-nao-filiados"></div></div>
         </div>
       </div>
@@ -558,7 +558,7 @@
         </div>
         <div class="plano-bloco">
           <div class="plano-bloco-titulo">Outros</div>
-          <div class="plano-bloco-sub">Demais planos e perfis sem Plan preenchido.</div>
+          <div class="plano-bloco-sub">Soma direta de <code>freemium</code> e <code>Pro</code>.</div>
           <div class="hist-grid" id="hist-nao-filiados"></div>
         </div>
       </div>
@@ -566,7 +566,7 @@
         ⚠️ <strong>Ponto de saturação:</strong> 1 push/dia é a faixa mais segura. A partir de <strong>3 pushes/dia</strong>, o opt-out começa a acelerar; acima de <strong>5 pushes/dia</strong>, a queda de conversão e o aumento de opt-out ficam bem mais evidentes.
       </div>
       <div class="nota-box info" style="margin-top:10px">
-        📌 <strong>Metodologia:</strong> a faixa diária representa a frequência média de pushes recebidos por usuário em dias com campanha. Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, em janela de 5 dias após recebimento. Opt-out considera perfis com <code>has_token = true</code> e <code>MSG-push = false</code>; Filiados aplica <code>Plan = FILIADO</code> e Outros soma os demais valores de <code>Plan</code> e perfis sem <code>Plan</code>.
+        📌 <strong>Metodologia:</strong> a faixa diária representa a frequência média de pushes recebidos por usuário em dias com campanha. Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, em janela de 5 dias após recebimento. Opt-out considera perfis com <code>has_token = true</code> e <code>MSG-push = false</code>; Filiados aplica <code>plan = filiado</code> e Outros soma <code>plan = freemium</code> + <code>plan = Pro</code>.
       </div>
     </div>
   </div>
@@ -699,7 +699,7 @@
 
 <script>
 // ── DADOS ──────────────────────────────────────────────────────────────
-// Dados mensais segmentados por Plan = FILIADO e Outros.
+// Dados mensais segmentados por plan = filiado e Outros.
 // Fonte: painel original, endpoint /api/push-health-insights.mensal_por_plano.
 // Importante: estes números são movimentos de permissão do mês
 // (Channel Subscribed/Unsubscribed), não snapshot retroativo da base.
@@ -747,8 +747,8 @@ const MESES_TOTAL = [
 ];
 const BASES_GRAFICO = {
   total:{nome:'Total',descricao:'Base total',dados:MESES_TOTAL,corIn:'var(--verde)'},
-  filiados:{nome:'Filiados',descricao:'Apenas base Filiados',dados:MESES_FILIADO,corIn:'var(--verde)'},
-  nao_filiados:{nome:'Outros',descricao:'Usuários com Plan ≠ FILIADO ou sem Plan preenchido',dados:MESES_OUTROS,corIn:'var(--azul)'}
+  filiados:{nome:'Filiados',descricao:'Usuários com plan = filiado',dados:MESES_FILIADO,corIn:'var(--verde)'},
+  nao_filiados:{nome:'Outros',descricao:'Usuários com plan = freemium ou plan = Pro',dados:MESES_OUTROS,corIn:'var(--azul)'}
 };
 // Alias para manter compatibilidade com o diagnóstico principal (Filiado)
 const MESES = MESES_FILIADO;
@@ -860,9 +860,9 @@ let requisicaoFreq=0;
 let mesSelecionadoAtual='2026-06';
 let periodoHistoricoAtual={from:'2025-07-01',to:'2026-06-30'};
 let snapshotAtual={
-  total:{base:7353584,optIn:6030264,optOut:1323320,taxaIn:82.0044,taxaOut:17.9956},
-  filiado:{base:4019137,optIn:3273526,optOut:745611,taxaIn:81.45,taxaOut:18.55,shareBase:54.66},
-  outros:{base:3334447,optIn:2756738,optOut:577709,taxaIn:82.67,taxaOut:17.33,shareBase:45.34},
+  total:{base:7361217,optIn:6037156,optOut:1422398,taxaIn:82.01,taxaOut:19.32},
+  filiado:{base:4022990,optIn:3277323,optOut:841364,taxaIn:81.46,taxaOut:20.91,shareBase:54.65},
+  outros:{base:280677,optIn:230518,optOut:52756,taxaIn:82.13,taxaOut:18.8,shareBase:3.81},
   atualizadoEm:null
 };
 let tentativasReachability=0;
@@ -1131,7 +1131,7 @@ function atualizarSnapshotUI(){
   preencherGrupo('comp-outros',snapshotAtual.outros,'var(--azul)');
   const diff=(snapshotAtual.filiado?.taxaOut || 0)-(snapshotAtual.outros?.taxaOut || 0);
   const direcao=diff>=0?'maior':'menor';
-  setHTML('nota-comparativo-planos',`💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>${fmtPp(Math.abs(diff),2)} ${direcao}</strong> que Outros (${fmtPct(snapshotAtual.filiado.taxaOut,2)} vs. ${fmtPct(snapshotAtual.outros.taxaOut,2)}). O cálculo usa segmentos diretos da CleverTap: <code>has_token = true</code> + <code>MSG-push = true/false</code>; Filiados adiciona <code>Plan = FILIADO</code> e Outros soma os demais planos e perfis sem <code>Plan</code>.`);
+  setHTML('nota-comparativo-planos',`💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>${fmtPp(Math.abs(diff),2)} ${direcao}</strong> que Outros (${fmtPct(snapshotAtual.filiado.taxaOut,2)} vs. ${fmtPct(snapshotAtual.outros.taxaOut,2)}). O cálculo usa segmentos diretos da CleverTap: <code>has_token = true</code> + <code>MSG-push = true/false</code>; Filiados adiciona <code>plan = filiado</code> e Outros soma <code>plan = freemium</code> + <code>plan = Pro</code>. Perfis sem <code>plan</code> ficam apenas no Total.`);
   atualizarTextoFonteDados();
 }
 function aplicarReachability(dados){
@@ -1183,7 +1183,7 @@ async function carregarDadosAtuaisPainel(){
 }
 
 function agendarAtualizacaoReachability(segundos=25){
-  if(timerReachability || tentativasReachability>=3) return;
+  if(timerReachability || tentativasReachability>=36) return;
   const atraso=Math.max(5,Number(segundos)||25)*1000;
   timerReachability=setTimeout(async ()=>{
     timerReachability=null;
