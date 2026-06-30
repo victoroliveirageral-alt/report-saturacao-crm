@@ -350,7 +350,7 @@
   <div class="tt-titulo" id="tt-titulo"></div>
   <div class="tt-linha"><span class="tt-label">Ativaram push</span><span class="tt-val verde" id="tt-in"></span></div>
   <div class="tt-linha"><span class="tt-label">Desativaram push</span><span class="tt-val rosa" id="tt-out"></span></div>
-  <div class="tt-linha"><span class="tt-label">Taxa de opt-out</span><span class="tt-val taxa" id="tt-taxa"></span></div>
+  <div class="tt-linha"><span class="tt-label">Taxa opt-out base</span><span class="tt-val taxa" id="tt-taxa"></span></div>
   <div class="tt-linha"><span class="tt-label">Total movimentações</span><span class="tt-val" id="tt-total"></span></div>
 </div>
 
@@ -494,7 +494,7 @@
 
   <!-- EVOLUÇÃO MENSAL -->
   <div class="secao-titulo">Como a taxa de opt-out variou ao longo do tempo?</div>
-  <div class="secao-subtitulo">Cada barra mostra movimentos de permissão: usuários que <span style="color:var(--verde);font-weight:800">ativaram</span> e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. Os três recortes ficam lado a lado para evitar mistura de taxas. <strong class="dica-interacao">Passe o mouse sobre as barras para ver os detalhes.</strong></div>
+  <div class="secao-subtitulo">Cada barra mostra movimentos de permissão: usuários que ativaram e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. A linha mostra opt-outs do mês sobre a base atual com token do recorte. <strong class="dica-interacao">Passe o mouse sobre as barras para ver os detalhes.</strong></div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -504,7 +504,7 @@
     </div>
     <div class="conteudo">
       <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap;margin-bottom:14px">
-        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Ativaram push</span>
+        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--laranja)"></i> Ativaram push (cor do recorte)</span>
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push</span>
         <span style="display:flex;align-items:center;gap:7px"><i class="legenda-linha"></i> Taxa de opt-out</span>
       </div>
@@ -525,7 +525,7 @@
           <div class="grafico-outer"><div class="grafico-barras" id="grafico-nao-filiados"></div></div>
         </div>
       </div>
-      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Ela mede movimentos do mês; o retrato atual da base vem de <code>/api/reachability-push-v2</code> com contagens diretas de opt-in e opt-out.</span></div>
+      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha mostra opt-outs do mês sobre a base atual com token do recorte; não é mais opt-out dividido por movimentos.</span></div>
     </div>
   </div>
 
@@ -700,9 +700,9 @@
 <script>
 // ── DADOS ──────────────────────────────────────────────────────────────
 // Dados mensais segmentados por plan = filiado e Outros.
-// Fonte: painel original, endpoint /api/push-health-insights.mensal_por_plano.
-// Importante: estes números são movimentos de permissão do mês
-// (Channel Subscribed/Unsubscribed), não snapshot retroativo da base.
+// Fonte: painel original, endpoint /api/push-health-insights-v2.mensal_por_plano.
+// Importante: as barras são movimentos de permissão do mês; a linha usa
+// opt-outs do mês sobre a base atual com token do recorte.
 const MESES_FILIADO = [
   {mes:'JUL 25',optIn:289718,optOut:106720,taxaOut:26.92},
   {mes:'AGO 25',optIn:321116,optOut:103226,taxaOut:24.33},
@@ -746,7 +746,7 @@ const MESES_TOTAL = [
   {mes:'JUN 26',optIn:283632,optOut:115367,taxaOut:28.91}
 ];
 const BASES_GRAFICO = {
-  total:{nome:'Total',descricao:'Base total',dados:MESES_TOTAL,corIn:'var(--verde)'},
+  total:{nome:'Total',descricao:'Base total',dados:MESES_TOTAL,corIn:'var(--laranja)'},
   filiados:{nome:'Filiados',descricao:'Usuários com plan = filiado',dados:MESES_FILIADO,corIn:'var(--verde)'},
   nao_filiados:{nome:'Outros',descricao:'Usuários com plan = freemium ou plan = Pro',dados:MESES_OUTROS,corIn:'var(--azul)'}
 };
@@ -839,6 +839,7 @@ function fmtPp(n,digitos=1){const valor=Number(n);return (valor>0?'+':'')+valor.
 function optOutDaFaixa(faixa){return OPT_OUT_FAIXA_FILIADO[faixa] ?? null}
 let recorteAtual=12;
 const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
+const API_INSIGHTS_PUSH='/api/push-health-insights-v2';
 const RETAIL_OPT_IN_MEDIO=64.03;
 const TODAS_CONVERSOES_ID='__todas_conversoes__';
 const TODAS_CONVERSOES_LABEL='Todas as conversões';
@@ -983,11 +984,11 @@ async function fetchJSON(url){
 async function buscarInsightsMaisRecente(){
   for(const mes of candidatosMesAtual()){
     try{
-      const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/push-health-insights?month=${encodeURIComponent(mes)}`);
+      const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}${API_INSIGHTS_PUSH}?month=${encodeURIComponent(mes)}`);
       if(dados?.sucesso) return aplicarMTDmenos1(dados);
     }catch(error){}
   }
-  return aplicarMTDmenos1(await fetchJSON(`${API_PAINEL_ORIGINAL}/api/push-health-insights`));
+  return aplicarMTDmenos1(await fetchJSON(`${API_PAINEL_ORIGINAL}${API_INSIGHTS_PUSH}`));
 }
 function normalizarMensal(item){
   return {
@@ -996,7 +997,9 @@ function normalizarMensal(item){
     optIn:Number(item.opt_in || 0),
     optOut:Number(item.opt_out || 0),
     taxaIn:Number(item.taxa_opt_in || 0),
-    taxaOut:Number(item.taxa_opt_out || 0)
+    taxaOut:Number(item.taxa_opt_out_base_atual ?? item.taxa_opt_out ?? 0),
+    taxaOutMovimentos:Number(item.taxa_opt_out_movimentos ?? item.taxa_opt_out ?? 0),
+    baseReferenciaAtual:Number(item.base_referencia_atual || 0)
   };
 }
 function aplicarSerieMensal(destino,origem){
@@ -1046,7 +1049,8 @@ function somarDiarioMensal(diario,mesISO){
     opt_out:optOut,
     movimentos,
     taxa_opt_in:pct(optIn,movimentos),
-    taxa_opt_out:pct(optOut,movimentos)
+    taxa_opt_out:pct(optOut,movimentos),
+    taxa_opt_out_movimentos:pct(optOut,movimentos)
   };
 }
 function substituirMensal(arrayMensal,novo){
@@ -1054,13 +1058,51 @@ function substituirMensal(arrayMensal,novo){
   const idx=arrayMensal.findIndex(item=>item.mes===novo.mes);
   if(idx>=0) arrayMensal[idx]={...arrayMensal[idx],...novo};
 }
+function baseSnapshotPorPublico(publico){
+  if(publico==='total') return Number(snapshotAtual.total?.base || 0);
+  if(publico==='filiado') return Number(snapshotAtual.filiado?.base || 0);
+  if(publico==='outros') return Number(snapshotAtual.outros?.base || 0);
+  return 0;
+}
+function aplicarTaxaBaseAtualMensal(item,publico){
+  if(!item) return;
+  const base=baseSnapshotPorPublico(publico);
+  if(!base) return;
+  item.taxa_opt_out_movimentos=Number(item.taxa_opt_out_movimentos ?? item.taxa_opt_out ?? 0);
+  item.base_referencia_atual=base;
+  item.taxa_opt_out_base_atual=pct(item.opt_out,base);
+  item.taxa_opt_out=item.taxa_opt_out_base_atual;
+  item.metodologia_taxa_opt_out='opt_out_mensal_sobre_base_atual_com_token';
+}
+function recalcularTaxasDadosAPI(dados){
+  if(!dados?.sucesso) return dados;
+  [['total',dados.mensal_por_plano?.total || dados.mensal],['filiado',dados.mensal_por_plano?.filiado],['outros',dados.mensal_por_plano?.outros]].forEach(([publico,mensal])=>{
+    (mensal || []).forEach(item=>aplicarTaxaBaseAtualMensal(item,publico));
+  });
+  dados.mensal=dados.mensal_por_plano?.total || dados.mensal;
+  return dados;
+}
+function recalcularSeriesRenderizadasSobreBaseAtual(){
+  [['total',MESES_TOTAL],['filiado',MESES_FILIADO],['outros',MESES_OUTROS]].forEach(([publico,serie])=>{
+    const base=baseSnapshotPorPublico(publico);
+    if(!base) return;
+    serie.forEach(item=>{
+      item.taxaOutMovimentos=Number(item.taxaOutMovimentos ?? item.taxaOut ?? 0);
+      item.baseReferenciaAtual=base;
+      item.taxaOut=pct(item.optOut,base);
+    });
+  });
+}
 function aplicarMTDmenos1(dados){
   const mes=dados?.mes_selecionado;
-  if(!dados?.sucesso || !deveAplicarMTD(mes)) return dados;
+  if(!dados?.sucesso || !deveAplicarMTD(mes)) return recalcularTaxasDadosAPI(dados);
   const periodo=periodoMTDmenos1();
   const total=somarDiarioMensal(dados.diario,mes);
   const filiado=somarDiarioMensal(dados.analise_por_plano?.filiado?.diario || dados.diario_por_plano?.filiado,mes);
   const outros=somarDiarioMensal(dados.analise_por_plano?.outros?.diario || dados.diario_por_plano?.outros,mes);
+  aplicarTaxaBaseAtualMensal(total,'total');
+  aplicarTaxaBaseAtualMensal(filiado,'filiado');
+  aplicarTaxaBaseAtualMensal(outros,'outros');
   substituirMensal(dados.mensal,total);
   substituirMensal(dados.mensal_por_plano?.total,total);
   substituirMensal(dados.mensal_por_plano?.filiado,filiado);
@@ -1070,7 +1112,7 @@ function aplicarMTDmenos1(dados){
   if(dados.analise_por_plano?.total) dados.analise_por_plano.total.diario=filtrarDiarioMTD(dados.analise_por_plano.total.diario || dados.diario,mes);
   if(dados.analise_por_plano?.filiado) dados.analise_por_plano.filiado.diario=filtrarDiarioMTD(dados.analise_por_plano.filiado.diario,mes);
   if(dados.analise_por_plano?.outros) dados.analise_por_plano.outros.diario=filtrarDiarioMTD(dados.analise_por_plano.outros.diario,mes);
-  return dados;
+  return recalcularTaxasDadosAPI(dados);
 }
 function periodoDoRecorte(meses){
   const dados=MESES_TOTAL;
@@ -1148,6 +1190,7 @@ function aplicarReachability(dados){
     outros:{base:Number(outros.base_com_token || 0),optIn:Number(outros.perfis_opt_in || 0),optOut:Number(outros.perfis_opt_out || 0),taxaIn:Number(outros.taxa_opt_in || pct(outros.perfis_opt_in,outros.base_com_token)),taxaOut:Number(outros.taxa_opt_out || pct(outros.perfis_opt_out,outros.base_com_token)),shareBase:Number(outros.share_base || 0)},
     atualizadoEm:dados.atualizado_em || null
   };
+  recalcularSeriesRenderizadasSobreBaseAtual();
   tentativasReachability=0;
   if(timerReachability){
     clearTimeout(timerReachability);
@@ -1162,6 +1205,7 @@ function aplicarInsights(dados){
   aplicarSerieMensal(MESES_TOTAL,mensalPlano.total || dados.mensal);
   aplicarSerieMensal(MESES_FILIADO,mensalPlano.filiado);
   aplicarSerieMensal(MESES_OUTROS,mensalPlano.outros);
+  recalcularSeriesRenderizadasSobreBaseAtual();
   mesSelecionadoAtual=dados.mes_selecionado || MESES_TOTAL[MESES_TOTAL.length-1]?.iso || mesSelecionadoAtual;
   periodoHistoricoAtual=dados.periodo_historico || periodoHistoricoAtual;
   atualizarMESESAPI(mensalPlano.total || dados.mensal,dados.periodo_analise_diaria);
@@ -1218,7 +1262,7 @@ function periodoAtualTexto(){
 // ── GRÁFICO ─────────────────────────────────────────────────────────
 function renderLinhaOptOut(wrap,dados){
   if(!wrap || !dados.length) return;
-  const maxTaxa=45; // escala fixa para comparar Total, Filiados e Outros sem distorção visual
+  const maxTaxa=maxTaxaLinhaOptOut();
   const pontos=dados.map((d,i)=>{
     const x=dados.length===1 ? 50 : ((i+.5)/dados.length)*100;
     const y=100-(Math.min(d.taxaOut,maxTaxa)/maxTaxa)*100;
@@ -1232,10 +1276,16 @@ function renderLinhaOptOut(wrap,dados){
     </svg>
     ${pontos.map(p=>`
       <span class="optout-ponto" style="left:${p.x}%;top:${p.y}%"></span>
-      <span class="optout-label" style="left:${p.x}%;top:${p.y}%">${fmtPct(p.d.taxaOut,0)}</span>
+      <span class="optout-label" style="left:${p.x}%;top:${p.y}%">${fmtPct(p.d.taxaOut,1)}</span>
     `).join('')}
   `;
   wrap.appendChild(camada);
+}
+
+function maxTaxaLinhaOptOut(){
+  const series=[MESES_TOTAL,MESES_FILIADO,MESES_OUTROS].flatMap(serie=>serie.slice(Math.max(0,serie.length-recorteAtual)));
+  const max=Math.max(0,...series.map(item=>Number(item.taxaOut || 0)));
+  return Math.max(5,Math.ceil((max*1.25)/5)*5);
 }
 
 function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
@@ -1258,8 +1308,9 @@ function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
       document.getElementById('tt-titulo').textContent=`${d.mes} · ${tituloBase}`;
       document.getElementById('tt-in').textContent=fmt(d.optIn);
       document.getElementById('tt-out').textContent=fmt(d.optOut);
-      document.getElementById('tt-taxa').textContent=fmtPct(d.taxaOut);
       document.getElementById('tt-total').textContent=fmt(d.optIn+d.optOut);
+      const taxaMov=d.taxaOutMovimentos!=null ? ` · movimentos: ${fmtPct(d.taxaOutMovimentos)}` : '';
+      document.getElementById('tt-taxa').textContent=`${fmtPct(d.taxaOut)}${taxaMov}`;
       tt.style.display='block';
       posicionarTooltip(e);
     });
@@ -1293,7 +1344,7 @@ function atualizarDiagnostico(){
   const mediaFiliados=filiados.reduce((s,d)=>s+d.taxaOut,0)/filiados.length;
   const mediaOutros=outros.reduce((s,d)=>s+d.taxaOut,0)/outros.length;
   const diff=mediaFiliados-mediaOutros;
-  document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>${fmtPct(snapshotAtual.filiado.taxaOut,2)}</strong> de opt-out e Outros com <strong>${fmtPct(snapshotAtual.outros.taxaOut,2)}</strong>. Nos movimentos de permissão do recorte de ${recorteAtual} meses, porém, a taxa média mensal de opt-out dos Filiados é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Outros — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede ativações/desativações ocorridas no mês; os cards medem o estado atual da base.`;
+  document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>${fmtPct(snapshotAtual.filiado.taxaOut,2)}</strong> de opt-out e Outros com <strong>${fmtPct(snapshotAtual.outros.taxaOut,2)}</strong>. Na evolução mensal do recorte de ${recorteAtual} meses, a incidência média de opt-out dos Filiados sobre a base atual é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Outros — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede volumes de ativações/desativações no mês; os cards medem o estado atual da base.`;
   atualizarNotaAumentoRecente();
 }
 function atualizarNotaAumentoRecente(){
@@ -1303,7 +1354,7 @@ function atualizarNotaAumentoRecente(){
   const meses=filiados.map(rotuloMesItemPeriodo).join(', ');
   const taxasFiliados=filiados.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
   const taxasOutros=outros.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
-  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na série real do painel original, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Quando o mês final ainda está aberto, o último ponto é recalculado pela soma diária até ontem (MTD-1). O retrato atual da base vem de <code>/api/reachability-push-v2</code>: opt-in = <code>has_token = true</code> + <code>MSG-push = true</code>; opt-out = <code>has_token = true</code> + <code>MSG-push = false</code>, sem cálculo por complemento.</span>`);
+  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na linha recalculada sobre base atual, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha usa opt-outs do mês sobre a base atual com token do recorte, com MTD-1 até ontem quando o mês está aberto.</span>`);
   const inicio=rotuloMesItemPeriodo(filiados[0]);
   const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
   setText('insight-sazonalidade',`O aumento recente de opt-out em ${inicio}–${fim} deve ser lido junto do calendário de campanhas. O painel atualiza esse recorte automaticamente quando um novo mês fica disponível na API.`);
@@ -1562,7 +1613,7 @@ async function renderCriticos(){
   tabela.innerHTML='';
   nota.innerHTML='';
   try{
-    const response=await fetch(`${API_PAINEL_ORIGINAL}/api/push-health-insights?month=${encodeURIComponent(mes)}`,{cache:'no-store'});
+    const response=await fetch(`${API_PAINEL_ORIGINAL}${API_INSIGHTS_PUSH}?month=${encodeURIComponent(mes)}`,{cache:'no-store'});
     const dados=aplicarMTDmenos1(await response.json());
     if(!response.ok || !dados.sucesso) throw new Error(dados.erro || dados.detalhes || 'Dados indisponíveis.');
     const analise=dados.analise_por_plano?.filiado || {};
@@ -1648,7 +1699,7 @@ function renderHistDataset(id,dados,corBase='var(--verde-escuro)'){
     </div>`).join('');
 }
 function renderHistogramasPlanos(){
-  renderHistDataset('hist-total',HIST_TOTAL,'var(--texto)');
+  renderHistDataset('hist-total',HIST_TOTAL,'var(--laranja)');
   renderHistDataset('hist-filiado',HIST_FILIADO,'var(--verde-escuro)');
   renderHistDataset('hist-nao-filiados',HIST_OUTROS,'var(--azul)');
 }
@@ -1668,6 +1719,7 @@ async function inicializarPainel(){
     atualizarPeriodoUI();
     atualizarSnapshotUI();
   }
+  recalcularSeriesRenderizadasSobreBaseAtual();
   renderGraficosPlanos();
   renderCriticos();
   atualizarDiagnostico();
