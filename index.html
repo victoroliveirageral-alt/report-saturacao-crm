@@ -418,7 +418,7 @@
     </div>
   </div>
   <div class="nota-box info" style="margin-top:-6px;margin-bottom:20px">
-    📌 <strong>Metodologia CleverTap:</strong> Opt-in = <code>has_token = true</code> + <code>MSG-push = true</code>. Opt-out = <code>has_token = true</code> + <code>MSG-push = false</code>. Filiados adiciona <code>Plan = FILIADO</code>; Outros soma os demais planos e perfis sem <code>Plan</code>.
+    📌 <strong>Metodologia CleverTap:</strong> Opt-in = <code>has_token = true</code> + <code>MSG-push = true</code>. Opt-out = <code>has_token = true</code> + <code>MSG-push = false</code>. Filiados adiciona <code>Plan = FILIADO</code>; Outros soma os demais planos e perfis sem <code>Plan</code>. As contagens são segmentos diretos da CleverTap, não complemento.
     <br><span style="font-size:9px">Consulta lógica: <code>common_profile_properties.reachability</code> para <code>has_token</code> e <code>MSG-push</code>; <code>common_profile_properties.profile_fields.Plan</code> para segmentar Filiados vs. Outros.</span>
   </div>
 
@@ -488,7 +488,7 @@
         </div>
       </div>
       <div class="nota-box info" id="nota-comparativo-planos" style="margin-top:14px">💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>+1,22pp maior</strong> que Outros (18,55% vs. 17,33%). Já na evolução mensal, o gráfico mede movimentos de permissão do mês e permite comparar os três recortes sem misturar taxas.</div>
-      <div class="nota-box info" style="margin-top:10px">⚠️ <strong>Metodologia:</strong> em cada recorte, opt-in usa <code>has_token = true</code> + <code>MSG-push = true</code>; opt-out usa <code>has_token = true</code> + <code>MSG-push = false</code>. Filiados adiciona <code>Plan = FILIADO</code>. Outros soma todos os demais valores de <code>Plan</code> e perfis sem <code>Plan</code>.</div>
+      <div class="nota-box info" style="margin-top:10px">⚠️ <strong>Metodologia:</strong> em cada recorte, opt-in usa <code>has_token = true</code> + <code>MSG-push = true</code>; opt-out usa <code>has_token = true</code> + <code>MSG-push = false</code>. Filiados adiciona <code>Plan = FILIADO</code>. Outros soma todos os demais valores de <code>Plan</code> e perfis sem <code>Plan</code>. Em perfis com múltiplos dispositivos, os segmentos podem se sobrepor; por isso opt-out não é mais calculado por complemento.</div>
     </div>
   </div>
 
@@ -525,7 +525,7 @@
           <div class="grafico-outer"><div class="grafico-barras" id="grafico-nao-filiados"></div></div>
         </div>
       </div>
-      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Ela mede movimentos do mês; o retrato atual da base vem de <code>/api/reachability-push</code>.</span></div>
+      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Ela mede movimentos do mês; o retrato atual da base vem de <code>/api/reachability-push-v2</code> com contagens diretas de opt-in e opt-out.</span></div>
     </div>
   </div>
 
@@ -901,6 +901,12 @@ function setWidth(id,valor){
   const el=document.getElementById(id);
   if(el) el.style.width=Math.max(0,Math.min(100,Number(valor)||0))+'%';
 }
+function setOptWidths(idIn,idOut,taxaIn,taxaOut){
+  const soma=(Number(taxaIn)||0)+(Number(taxaOut)||0);
+  const fator=soma>100 ? 100/soma : 1;
+  setWidth(idIn,(Number(taxaIn)||0)*fator);
+  setWidth(idOut,(Number(taxaOut)||0)*fator);
+}
 const NOMES_MES_CURTO=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const NOMES_MES_LONGO=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 function partesMesISO(mesISO){
@@ -1103,8 +1109,7 @@ function preencherGrupo(prefixo,dados,cor='var(--verde)'){
   setText(`${prefixo}-optin-taxa`,`(${fmtPct(dados.taxaIn,2)})`);
   setText(`${prefixo}-optout`,fmt(dados.optOut));
   setText(`${prefixo}-optout-taxa`,`(${fmtPct(dados.taxaOut,2)})`);
-  setWidth(`${prefixo}-bar-in`,dados.taxaIn);
-  setWidth(`${prefixo}-bar-out`,dados.taxaOut);
+  setOptWidths(`${prefixo}-bar-in`,`${prefixo}-bar-out`,dados.taxaIn,dados.taxaOut);
   const barIn=document.getElementById(`${prefixo}-bar-in`);
   if(barIn) barIn.style.background=cor;
   setText(`${prefixo}-leg-in`,`● Aceitam ${fmtPct(dados.taxaIn,2)}`);
@@ -1117,8 +1122,7 @@ function atualizarSnapshotUI(){
   setText('snapshot-optout',fmt(total.optOut));
   setText('snapshot-optin-taxa',fmtPct(total.taxaIn,2));
   setText('snapshot-optout-taxa',fmtPct(total.taxaOut,2));
-  setWidth('snapshot-bar-in',total.taxaIn);
-  setWidth('snapshot-bar-out',total.taxaOut);
+  setOptWidths('snapshot-bar-in','snapshot-bar-out',total.taxaIn,total.taxaOut);
   setText('snapshot-leg-in',`● Aceitam push ${fmtPct(total.taxaIn,2)}`);
   setText('snapshot-leg-out',`● Bloquearam ${fmtPct(total.taxaOut,2)}`);
   setText('benchmark-ctd-optin',fmtPct(total.taxaIn,2));
@@ -1127,7 +1131,7 @@ function atualizarSnapshotUI(){
   preencherGrupo('comp-outros',snapshotAtual.outros,'var(--azul)');
   const diff=(snapshotAtual.filiado?.taxaOut || 0)-(snapshotAtual.outros?.taxaOut || 0);
   const direcao=diff>=0?'maior':'menor';
-  setHTML('nota-comparativo-planos',`💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>${fmtPp(Math.abs(diff),2)} ${direcao}</strong> que Outros (${fmtPct(snapshotAtual.filiado.taxaOut,2)} vs. ${fmtPct(snapshotAtual.outros.taxaOut,2)}). O cálculo usa <code>has_token = true</code> + <code>MSG-push = true/false</code>; Filiados adiciona <code>Plan = FILIADO</code> e Outros soma os demais planos e perfis sem <code>Plan</code>.`);
+  setHTML('nota-comparativo-planos',`💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>${fmtPp(Math.abs(diff),2)} ${direcao}</strong> que Outros (${fmtPct(snapshotAtual.filiado.taxaOut,2)} vs. ${fmtPct(snapshotAtual.outros.taxaOut,2)}). O cálculo usa segmentos diretos da CleverTap: <code>has_token = true</code> + <code>MSG-push = true/false</code>; Filiados adiciona <code>Plan = FILIADO</code> e Outros soma os demais planos e perfis sem <code>Plan</code>.`);
   atualizarTextoFonteDados();
 }
 function aplicarReachability(dados){
@@ -1167,7 +1171,7 @@ function aplicarInsights(dados){
 async function carregarDadosAtuaisPainel(){
   const [insights,reachability]=await Promise.allSettled([
     buscarInsightsMaisRecente(),
-    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`)
+    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push-v2`)
   ]);
   if(insights.status==='fulfilled') aplicarInsights(insights.value);
   if(reachability.status==='fulfilled'){
@@ -1185,7 +1189,7 @@ function agendarAtualizacaoReachability(segundos=25){
     timerReachability=null;
     tentativasReachability+=1;
     try{
-      const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`);
+      const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push-v2`);
       const aplicado=aplicarReachability(dados);
       if(!aplicado && dados?.processando) agendarAtualizacaoReachability(dados.aguarde_segundos || 25);
     }catch(error){
@@ -1299,7 +1303,7 @@ function atualizarNotaAumentoRecente(){
   const meses=filiados.map(rotuloMesItemPeriodo).join(', ');
   const taxasFiliados=filiados.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
   const taxasOutros=outros.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
-  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na série real do painel original, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Quando o mês final ainda está aberto, o último ponto é recalculado pela soma diária até ontem (MTD-1). O retrato atual da base vem de <code>/api/reachability-push</code>: opt-in = <code>has_token = true</code> + <code>MSG-push = true</code>; opt-out = <code>has_token = true</code> + <code>MSG-push = false</code>.</span>`);
+  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na série real do painel original, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Quando o mês final ainda está aberto, o último ponto é recalculado pela soma diária até ontem (MTD-1). O retrato atual da base vem de <code>/api/reachability-push-v2</code>: opt-in = <code>has_token = true</code> + <code>MSG-push = true</code>; opt-out = <code>has_token = true</code> + <code>MSG-push = false</code>, sem cálculo por complemento.</span>`);
   const inicio=rotuloMesItemPeriodo(filiados[0]);
   const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
   setText('insight-sazonalidade',`O aumento recente de opt-out em ${inicio}–${fim} deve ser lido junto do calendário de campanhas. O painel atualiza esse recorte automaticamente quando um novo mês fica disponível na API.`);
