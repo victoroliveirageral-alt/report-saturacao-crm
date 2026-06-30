@@ -935,8 +935,21 @@ function mesISOAtual(){
   const hoje=new Date();
   return `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}`;
 }
+function isoLocal(data){
+  return `${data.getFullYear()}-${String(data.getMonth()+1).padStart(2,'0')}-${String(data.getDate()).padStart(2,'0')}`;
+}
+function dataReferenciaMTD(){
+  const hoje=new Date();
+  const ontem=new Date(hoje.getFullYear(),hoje.getMonth(),hoje.getDate()-1);
+  return isoLocal(ontem);
+}
+function periodoMTDmenos1(){
+  const to=dataReferenciaMTD();
+  const mes=to.slice(0,7);
+  return {month:mes,from:`${mes}-01`,to};
+}
 function candidatosMesAtual(){
-  const atual=mesISOAtual();
+  const atual=periodoMTDmenos1().month || mesISOAtual();
   return Array.from({length:14},(_,i)=>somarMesISO(atual,-i));
 }
 function dataHoraBr(iso){
@@ -957,10 +970,10 @@ async function buscarInsightsMaisRecente(){
   for(const mes of candidatosMesAtual()){
     try{
       const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/push-health-insights?month=${encodeURIComponent(mes)}`);
-      if(dados?.sucesso) return dados;
+      if(dados?.sucesso) return aplicarMTDmenos1(dados);
     }catch(error){}
   }
-  return fetchJSON(`${API_PAINEL_ORIGINAL}/api/push-health-insights`);
+  return aplicarMTDmenos1(await fetchJSON(`${API_PAINEL_ORIGINAL}/api/push-health-insights`));
 }
 function normalizarMensal(item){
   return {
@@ -984,6 +997,9 @@ function atualizarMESESAPI(mensal,periodoAnalise){
   if(periodoAnalise?.from && periodoAnalise?.to){
     MESES_API[chaveMesISO(periodoAnalise.from.slice(0,7))]={from:periodoAnalise.from,to:periodoAnalise.to};
   }
+  const mtd=periodoMTDmenos1();
+  const key=chaveMesISO(mtd.month);
+  if(MESES_API[key]) MESES_API[key]={from:mtd.from,to:mtd.to};
 }
 function atualizarSelectMeses(mensal,selecionadoISO){
   const meses=[...(mensal || [])].map(item=>item.mes).filter(Boolean).reverse();
@@ -995,6 +1011,53 @@ function atualizarSelectMeses(mensal,selecionadoISO){
     if([...select.options].some(option=>option.value===selecionado)) select.value=selecionado;
   });
 }
+function deveAplicarMTD(mesISO){
+  return String(mesISO || '').slice(0,7)===periodoMTDmenos1().month;
+}
+function filtrarDiarioMTD(diario,mesISO){
+  const linhas=Array.isArray(diario)?diario:[];
+  if(!deveAplicarMTD(mesISO)) return linhas;
+  const periodo=periodoMTDmenos1();
+  return linhas.filter(d=>d.data>=periodo.from && d.data<=periodo.to);
+}
+function somarDiarioMensal(diario,mesISO){
+  const linhas=filtrarDiarioMTD(diario,mesISO);
+  if(!linhas.length) return null;
+  const optIn=linhas.reduce((s,d)=>s+Number(d.opt_in || 0),0);
+  const optOut=linhas.reduce((s,d)=>s+Number(d.opt_out || 0),0);
+  const movimentos=optIn+optOut;
+  return {
+    mes:mesISO,
+    opt_in:optIn,
+    opt_out:optOut,
+    movimentos,
+    taxa_opt_in:pct(optIn,movimentos),
+    taxa_opt_out:pct(optOut,movimentos)
+  };
+}
+function substituirMensal(arrayMensal,novo){
+  if(!novo || !Array.isArray(arrayMensal)) return;
+  const idx=arrayMensal.findIndex(item=>item.mes===novo.mes);
+  if(idx>=0) arrayMensal[idx]={...arrayMensal[idx],...novo};
+}
+function aplicarMTDmenos1(dados){
+  const mes=dados?.mes_selecionado;
+  if(!dados?.sucesso || !deveAplicarMTD(mes)) return dados;
+  const periodo=periodoMTDmenos1();
+  const total=somarDiarioMensal(dados.diario,mes);
+  const filiado=somarDiarioMensal(dados.analise_por_plano?.filiado?.diario || dados.diario_por_plano?.filiado,mes);
+  const outros=somarDiarioMensal(dados.analise_por_plano?.outros?.diario || dados.diario_por_plano?.outros,mes);
+  substituirMensal(dados.mensal,total);
+  substituirMensal(dados.mensal_por_plano?.total,total);
+  substituirMensal(dados.mensal_por_plano?.filiado,filiado);
+  substituirMensal(dados.mensal_por_plano?.outros,outros);
+  dados.periodo_analise_diaria={from:periodo.from,to:periodo.to};
+  dados.diario=filtrarDiarioMTD(dados.diario,mes);
+  if(dados.analise_por_plano?.total) dados.analise_por_plano.total.diario=filtrarDiarioMTD(dados.analise_por_plano.total.diario || dados.diario,mes);
+  if(dados.analise_por_plano?.filiado) dados.analise_por_plano.filiado.diario=filtrarDiarioMTD(dados.analise_por_plano.filiado.diario,mes);
+  if(dados.analise_por_plano?.outros) dados.analise_por_plano.outros.diario=filtrarDiarioMTD(dados.analise_por_plano.outros.diario,mes);
+  return dados;
+}
 function periodoDoRecorte(meses){
   const dados=MESES_TOTAL;
   const fim=dados[dados.length-1];
@@ -1002,10 +1065,13 @@ function periodoDoRecorte(meses){
   if(!inicio || !fim) return {badge:'Período em atualização',footer:'Período em atualização',texto:'período em atualização'};
   const ini=rotuloMesItemPeriodo(inicio);
   const end=rotuloMesItemPeriodo(fim);
+  const mtd=periodoMTDmenos1();
+  const fimEhMTD=(fim.iso || '').slice(0,7)===mtd.month;
+  const sufixoMTD=fimEhMTD ? ` · MTD-1 até ${dataBrISO(mtd.to)}` : '';
   return {
-    badge:`${ini} – ${end} · ${meses} meses`,
-    footer:`Período: ${ini} a ${end}`,
-    texto:`${ini} a ${end} (${meses} meses)`
+    badge:`${ini} – ${end} · ${meses} meses${sufixoMTD}`,
+    footer:`Período: ${ini} a ${end}${sufixoMTD}`,
+    texto:`${ini} a ${end} (${meses} meses${sufixoMTD})`
   };
 }
 function atualizarPeriodoUI(){
@@ -1015,9 +1081,11 @@ function atualizarPeriodoUI(){
 }
 function atualizarTextoFonteDados(){
   const snapshotTexto=snapshotAtual.atualizadoEm ? `Snapshot atualizado em ${dataHoraBr(snapshotAtual.atualizadoEm)}` : 'Snapshot atualizado pela API';
-  setText('hero-tag',`📅 Painel V2 · Dados extraídos via API oficial CleverTap · ${snapshotTexto}`);
+  const mtd=periodoMTDmenos1();
+  const mtdTexto=`MTD-1 até ${dataBrISO(mtd.to)}`;
+  setText('hero-tag',`📅 Painel V2 · Dados extraídos via API oficial CleverTap · ${mtdTexto}`);
   setText('snapshot-subtitulo',`Quantos usuários têm device token e se aceitam receber notificações. ${snapshotTexto}.`);
-  setText('footer-gerado',snapshotTexto);
+  setText('footer-gerado',`${snapshotTexto} · ${mtdTexto}`);
 }
 function preencherGrupo(prefixo,dados,cor='var(--verde)'){
   if(!dados) return;
@@ -1135,12 +1203,12 @@ function renderLinhaOptOut(wrap,dados){
 
 function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
   const dados=dadosOrigem.slice(Math.max(0,dadosOrigem.length-recorteAtual));
-  const maxTotal=Math.max(...dados.map(d=>d.optIn+d.optOut));
-  const alturaMax=130;
   const wrap=document.getElementById(wrapId);
   if(!wrap) return;
   wrap.innerHTML='';
   if(!dados.length) return;
+  const maxTotal=Math.max(...dados.map(d=>d.optIn+d.optOut));
+  const alturaMax=130;
   const tt=document.getElementById('tt');
   dados.forEach(d=>{
     const hIn=Math.max(4,Math.round((d.optIn/maxTotal)*alturaMax));
@@ -1198,7 +1266,7 @@ function atualizarNotaAumentoRecente(){
   const meses=filiados.map(rotuloMesItemPeriodo).join(', ');
   const taxasFiliados=filiados.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
   const taxasOutros=outros.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
-  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na série real do painel original, Filiados ficaram em ${taxasFiliados}, enquanto Não filiados ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Ela mede movimentos do mês; o retrato atual da base vem de <code>/api/reachability-push</code>.</span>`);
+  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na série real do painel original, Filiados ficaram em ${taxasFiliados}, enquanto Não filiados ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> a evolução mensal usa os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> consolidados por plano no endpoint <code>/api/push-health-insights</code>. Quando o mês final ainda está aberto, o último ponto é recalculado pela soma diária até ontem (MTD-1). O retrato atual da base vem de <code>/api/reachability-push</code>.</span>`);
   const inicio=rotuloMesItemPeriodo(filiados[0]);
   const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
   setText('insight-sazonalidade',`O aumento recente de opt-out em ${inicio}–${fim} deve ser lido junto do calendário de campanhas. O painel atualiza esse recorte automaticamente quando um novo mês fica disponível na API.`);
@@ -1386,6 +1454,34 @@ function leituraDiaCritico(dia){
   const classe=normalizado.includes('mais campanhas')?'alta':normalizado.includes('volume')?'media':'normal';
   return {texto,classe};
 }
+function mediaCampo(dias,campo){
+  const valores=(dias || []).map(d=>Number(d[campo] || 0)).filter(v=>Number.isFinite(v));
+  return valores.length ? valores.reduce((s,v)=>s+v,0)/valores.length : 0;
+}
+function leituraVariacaoPercentual(valor){
+  if(valor>=20) return 'muito acima';
+  if(valor>=8) return 'acima';
+  if(valor<=-20) return 'muito abaixo';
+  if(valor<=-8) return 'abaixo';
+  return 'próxima da média';
+}
+function calcularComparacaoDiasCriticos(dias,diasTop3){
+  const topSet=new Set((diasTop3 || []).map(d=>d.data));
+  const referencia=(dias || []).filter(d=>!topSet.has(d.data));
+  const campos=['taxa_opt_out_movimentos','envios','campanhas','ctr','taxa_impressao'];
+  return campos.reduce((acc,campo)=>{
+    const mediaCriticos=mediaCampo(diasTop3,campo);
+    const mediaReferencia=mediaCampo(referencia,campo);
+    const variacao=mediaReferencia ? ((mediaCriticos-mediaReferencia)/mediaReferencia)*100 : 0;
+    acc[campo]={
+      media_dias_criticos:mediaCriticos,
+      media_dias_referencia:mediaReferencia,
+      variacao_percentual:variacao,
+      leitura:leituraVariacaoPercentual(variacao)
+    };
+    return acc;
+  },{});
+}
 async function renderCriticos(){
   const sel=document.getElementById('sel-mes-criticos').value;
   const mes=mesApiCriticos(sel);
@@ -1397,18 +1493,19 @@ async function renderCriticos(){
   nota.innerHTML='';
   try{
     const response=await fetch(`${API_PAINEL_ORIGINAL}/api/push-health-insights?month=${encodeURIComponent(mes)}`,{cache:'no-store'});
-    const dados=await response.json();
+    const dados=aplicarMTDmenos1(await response.json());
     if(!response.ok || !dados.sucesso) throw new Error(dados.erro || dados.detalhes || 'Dados indisponíveis.');
     const analise=dados.analise_por_plano?.filiado || {};
-    const comparacao=analise.comparacao_dias_criticos || {};
-    const diasTop3=(analise.maiores_dias_opt_out || dados.diario_por_plano?.filiado || [])
+    const diasBase=(analise.diario || dados.diario_por_plano?.filiado || []);
+    const diasTop3=diasBase
       .slice()
       .sort((a,b)=>Number(b.opt_out||0)-Number(a.opt_out||0))
       .slice(0,3);
     if(!diasTop3.length) throw new Error('Nenhum opt-out de Filiados encontrado no mês selecionado.');
+    const comparacao=deveAplicarMTD(mes) ? calcularComparacaoDiasCriticos(diasBase,diasTop3) : (analise.comparacao_dias_criticos || {});
     const obterComp=campo=>comparacao[campo] || {};
     const campos=[
-      {label:'Nº de campanhas disparadas',sublabel:'Campanhas enviadas nestes dias vs. a média dos outros dias do mês',info:obterComp('campanhas'),tipo:Number(obterComp('campanhas').variacao_percentual||0)>20?'rosa':'verde'},
+      {label:'Nº de campanhas disparadas',sublabel:'Campanhas enviadas nestes dias vs. a média dos outros dias do recorte',info:obterComp('campanhas'),tipo:Number(obterComp('campanhas').variacao_percentual||0)>20?'rosa':'verde'},
       {label:'Volume total de envios',sublabel:'Pressão operacional total das campanhas Push nestes dias vs. os demais dias',info:obterComp('envios'),tipo:'verde'},
       {label:'CTR — taxa de clique',sublabel:'CTR das campanhas Push nestes dias vs. a média dos demais dias',info:obterComp('ctr'),tipo:'azul'},
       {label:'Taxa de impressão',sublabel:'Impressões sobre envios nestes dias vs. a média dos demais dias',info:obterComp('taxa_impressao'),tipo:'verde'}
@@ -1418,7 +1515,7 @@ async function renderCriticos(){
       return `<div class="mc ${Math.abs(val)>20&&c.tipo==='rosa'?'rosa':c.tipo==='azul'?'azul':'verde'}">
         <div class="mc-label">${c.label}<small>${c.sublabel}</small></div>
         <div class="mc-valor" style="color:${c.tipo==='rosa'?'var(--rosa)':c.tipo==='azul'?'var(--azul)':'var(--verde-escuro)'}">${fmtDelta(val)}</div>
-        <div class="mc-detalhe">${escHTML(c.info.leitura || 'próxima da média')} em relação aos demais dias do mês</div>
+        <div class="mc-detalhe">${escHTML(c.info.leitura || 'próxima da média')} em relação aos demais dias do recorte</div>
       </div>`;
     }).join('');
     tabela.innerHTML=`
