@@ -124,6 +124,8 @@
     th{padding:8px 10px;text-align:left;color:var(--texto-suave);font-size:9px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;border-bottom:2px solid var(--borda)}
     td{padding:9px 10px;border-bottom:1px solid #f0f5f3;vertical-align:middle}
     tr:last-child td{border-bottom:none}
+    .rank-col{width:64px;min-width:64px;white-space:nowrap}
+    .rank-cell{white-space:nowrap;font-weight:900;color:var(--verde-escuro)}
     .pill{display:inline-flex;padding:3px 9px;border-radius:999px;font-size:9px;font-weight:800}
     .pill-alta{background:rgba(251,42,91,.12);color:var(--rosa)}
     .pill-media{background:rgba(242,139,34,.12);color:var(--laranja)}
@@ -270,6 +272,7 @@
       table{font-size:11px}
       th{font-size:8px;padding:6px 7px}
       td{padding:7px 7px;font-size:11px}
+      .rank-col{width:58px;min-width:58px}
 
       /* Gráfico evolução */
       .grafico-outer{overflow:visible;padding:0}
@@ -661,33 +664,30 @@
   <div class="insight-grid">
     <div class="insight-box verde">
       <div class="insight-icone">✅</div>
-      <div class="insight-titulo">A maioria dos Filiados confia na comunicação</div>
-      <div class="insight-desc">81,48% dos Filiados mantêm o push ativo. De cada 10 usuários, mais de 8 escolheram continuar recebendo notificações. A média de opt-out mensal dos últimos 12 meses é 24,7%, dentro do esperado para apps de benefícios no Brasil.</div>
+      <div class="insight-titulo" id="insight-confianca-titulo">A maioria dos Filiados confia na comunicação</div>
+      <div class="insight-desc" id="insight-confianca">Carregando leitura atual da base Filiada.</div>
     </div>
     <div class="insight-box rosa">
       <div class="insight-icone">⚠️</div>
-      <div class="insight-titulo">Muitas campanhas no mesmo dia é o principal risco</div>
-      <div class="insight-desc">Nos dias com mais opt-out, o número de campanhas disparadas foi +36,3% acima da média — mas o volume total de envios ficou praticamente igual (-3,9%). O usuário não tolera várias notificações em um único dia.</div>
+      <div class="insight-titulo" id="insight-risco-titulo">Muitas campanhas no mesmo dia é o principal risco</div>
+      <div class="insight-desc" id="insight-risco">Carregando leitura dos dias com mais opt-out.</div>
     </div>
     <div class="insight-box amarelo">
       <div class="insight-icone">📊</div>
-      <div class="insight-titulo">A Copa do Mundo explica o aumento recente</div>
+      <div class="insight-titulo" id="insight-sazonalidade-titulo">Leitura recente muda com o período</div>
       <div class="insight-desc" id="insight-sazonalidade">Os meses mais recentes devem ser lidos como sazonalidade de campanha, não como tendência isolada. O painel atualiza o recorte assim que um novo mês fica disponível na API.</div>
     </div>
     <div class="insight-box azul">
       <div class="insight-icone">🔍</div>
-      <div class="insight-titulo">Quem fica, engaja mais</div>
-      <div class="insight-desc">Nos dias com mais opt-out, o CTR ficou +31,2% acima da média. O opt-out está filtrando naturalmente usuários menos receptivos — deixando uma base mais engajada e propensa a converter.</div>
+      <div class="insight-titulo" id="insight-engajamento-titulo">Quem fica, engaja mais</div>
+      <div class="insight-desc" id="insight-engajamento">Carregando leitura de CTR e qualidade de engajamento.</div>
     </div>
   </div>
 
   <!-- RECOMENDAÇÕES -->
   <div class="secao-titulo" style="margin-top:28px">O que o time de CRM - Engajamento recomenda?</div>
-  <div class="rec-lista">
-    <div class="rec-item"><div class="rec-num">1</div><div><div class="rec-corpo-titulo">Limitar a 1 push por usuário por dia</div><div class="rec-corpo-desc">O principal fator de opt-out não é o volume total — é quantas mensagens o usuário recebe no mesmo dia. O limite de frequência já configurado na CleverTap é a principal proteção contra saturação.</div></div></div>
-    <div class="rec-item"><div class="rec-num">2</div><div><div class="rec-corpo-titulo">Investigar as versões 4.43 e 4.44 com o time de Produto</div><div class="rec-corpo-desc">Essas versões concentram o maior volume de opt-outs. Pode haver mudança de comportamento nativo do app (prompt de permissão do SO) independente da comunicação.</div></div></div>
-    <div class="rec-item"><div class="rec-num">3</div><div><div class="rec-corpo-titulo">Manter a estratégia de segmentação do Bolão da Copa</div><div class="rec-corpo-desc">A régua de 4 campanhas por faixa de ranking (Top 10, 100, 500 e 2.000) com limite de 1 disparo por dia é exatamente o tipo de comunicação relevante e controlada que protege o opt-in.</div></div></div>
-    <div class="rec-item"><div class="rec-num">4</div><div><div class="rec-corpo-titulo">Revisar campanhas com CTR abaixo de 0,18%</div><div class="rec-corpo-desc">Campanhas com muitos envios e poucos cliques indicam que a mensagem ou segmento não estão alinhados. São candidatas a A/B test de copy ou revisão de segmentação.</div></div></div>
+  <div class="rec-lista" id="lista-recomendacoes">
+    <div class="rec-item"><div class="rec-num">1</div><div><div class="rec-corpo-titulo">Carregando recomendação</div><div class="rec-corpo-desc">As recomendações serão atualizadas automaticamente com os dados mais recentes da API.</div></div></div>
   </div>
 
   <div class="footer">
@@ -868,6 +868,7 @@ let snapshotAtual={
 };
 let tentativasReachability=0;
 let timerReachability=null;
+let contextoCriticosAtual=null;
 
 function escHTML(valor){
   return String(valor ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -975,6 +976,10 @@ function dataHoraBr(iso){
 }
 function pct(parte,total){
   return total ? (Number(parte)/Number(total))*100 : 0;
+}
+function numeroSeguro(valor,padrao=0){
+  const numero=Number(valor);
+  return Number.isFinite(numero) ? numero : padrao;
 }
 async function fetchJSON(url){
   const response=await fetch(url,{cache:'no-store'});
@@ -1175,6 +1180,7 @@ function atualizarSnapshotUI(){
   const direcao=diff>=0?'maior':'menor';
   setHTML('nota-comparativo-planos',`💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>${fmtPp(Math.abs(diff),2)} ${direcao}</strong> que Outros (${fmtPct(snapshotAtual.filiado.taxaOut,2)} vs. ${fmtPct(snapshotAtual.outros.taxaOut,2)}). O cálculo usa segmentos diretos da CleverTap: <code>has_token = true</code> + <code>MSG-push = true/false</code>; Filiados adiciona <code>plan = filiado</code> e Outros soma <code>plan = freemium</code> + <code>plan = Pro</code>. Perfis sem <code>plan</code> ficam apenas no Total.`);
   atualizarTextoFonteDados();
+  atualizarInsightsFinais();
 }
 function aplicarReachability(dados){
   if(!dados?.sucesso || dados.processando || dados.base_com_token == null) return false;
@@ -1346,6 +1352,7 @@ function atualizarDiagnostico(){
   const diff=mediaFiliados-mediaOutros;
   document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>${fmtPct(snapshotAtual.filiado.taxaOut,2)}</strong> de opt-out e Outros com <strong>${fmtPct(snapshotAtual.outros.taxaOut,2)}</strong>. Na evolução mensal do recorte de ${recorteAtual} meses, a incidência média de opt-out dos Filiados sobre a base atual é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Outros — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede volumes de ativações/desativações no mês; os cards medem o estado atual da base.`;
   atualizarNotaAumentoRecente();
+  atualizarInsightsFinais();
 }
 function atualizarNotaAumentoRecente(){
   const filiados=MESES_FILIADO.slice(-3);
@@ -1358,6 +1365,107 @@ function atualizarNotaAumentoRecente(){
   const inicio=rotuloMesItemPeriodo(filiados[0]);
   const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
   setText('insight-sazonalidade',`O aumento recente de opt-out em ${inicio}–${fim} deve ser lido junto do calendário de campanhas. O painel atualiza esse recorte automaticamente quando um novo mês fica disponível na API.`);
+}
+
+function mediaSerie(serie,campo='taxaOut'){
+  const valores=(serie || []).map(item=>numeroSeguro(item?.[campo],NaN)).filter(Number.isFinite);
+  return valores.length ? valores.reduce((s,v)=>s+v,0)/valores.length : 0;
+}
+function campoComparacaoCriticos(contexto,campo){
+  return contexto?.comparacao?.[campo] || {};
+}
+function variacaoComparacaoCriticos(contexto,campo){
+  const info=campoComparacaoCriticos(contexto,campo);
+  return numeroSeguro(info.variacao_percentual ?? info.val,0);
+}
+function leituraComparacaoCriticos(contexto,campo){
+  return campoComparacaoCriticos(contexto,campo).leitura || 'próxima da média';
+}
+function mesContextoCriticos(contexto){
+  if(contexto?.rotuloMes) return contexto.rotuloMes;
+  const sel=document.getElementById('sel-mes-criticos');
+  return sel?.selectedOptions?.[0]?.textContent || contexto?.mes || 'mês selecionado';
+}
+function versoesPrincipais(contexto){
+  const origem=contexto?.dados?.versoes_opt_out || contexto?.versoes || [];
+  if(Array.isArray(origem)){
+    return origem.slice(0,3).map(item=>{
+      const valor=String(item?.valor || item?.nome || item?.label || '').trim();
+      const total=numeroSeguro(item?.contagem ?? item?.opt_out ?? item?.total,0);
+      return valor ? (total ? `${valor} (${fmt(total)})` : valor) : '';
+    }).filter(Boolean);
+  }
+  return String(origem || '').split('·').map(item=>item.trim()).filter(Boolean).slice(0,3);
+}
+function renderizarRecomendacoes(itens){
+  const el=document.getElementById('lista-recomendacoes');
+  if(!el) return;
+  const lista=itens.length ? itens : [{
+    titulo:'Aguardando dados atuais',
+    desc:'As recomendações serão atualizadas automaticamente quando o snapshot e o TOP 3 terminarem de carregar.'
+  }];
+  el.innerHTML=lista.map((item,i)=>`
+    <div class="rec-item">
+      <div class="rec-num">${i+1}</div>
+      <div>
+        <div class="rec-corpo-titulo">${escHTML(item.titulo)}</div>
+        <div class="rec-corpo-desc">${escHTML(item.desc)}</div>
+      </div>
+    </div>
+  `).join('');
+}
+function atualizarInsightsFinais(contexto=contextoCriticosAtual){
+  const ultimos3=MESES_FILIADO.slice(-3);
+  const anteriores3=MESES_FILIADO.slice(-6,-3);
+  const media12=mediaSerie(MESES_FILIADO);
+  const media3=mediaSerie(ultimos3);
+  const mediaAnterior3=mediaSerie(anteriores3);
+  const variacaoRecente=mediaAnterior3 ? ((media3-mediaAnterior3)/mediaAnterior3)*100 : 0;
+  const mesesRecentes=ultimos3.map(rotuloMesItemPeriodo).join(', ');
+  const campanhas=variacaoComparacaoCriticos(contexto,'campanhas');
+  const envios=variacaoComparacaoCriticos(contexto,'envios');
+  const ctr=variacaoComparacaoCriticos(contexto,'ctr');
+  const impressao=variacaoComparacaoCriticos(contexto,'taxa_impressao');
+  const optoutFiliado=numeroSeguro(snapshotAtual.filiado?.taxaOut,0);
+  const optoutOutros=numeroSeguro(snapshotAtual.outros?.taxaOut,0);
+  const diffPlanos=optoutFiliado-optoutOutros;
+  const mesCritico=mesContextoCriticos(contexto);
+  const versoes=versoesPrincipais(contexto);
+
+  setText('insight-confianca-titulo',snapshotAtual.filiado?.taxaIn >= 80 ? 'A maioria dos Filiados mantém push ativo' : 'A base Filiada pede atenção de opt-in');
+  setHTML('insight-confianca',`No snapshot atual, <strong>${fmtPct(snapshotAtual.filiado?.taxaIn || 0,2)}</strong> dos Filiados aceitam push e <strong>${fmtPct(optoutFiliado,2)}</strong> estão em opt-out. Na série mensal, a incidência média de opt-out dos Filiados é <strong>${fmtPct(media12,2)}</strong>; nos últimos 3 meses, <strong>${fmtPct(media3,2)}</strong>.`);
+
+  setText('insight-risco-titulo',!contexto ? 'Carregando risco por campanha' : campanhas>=20 ? 'Concentração de campanhas é o principal risco' : 'Risco atual está mais distribuído');
+  setHTML('insight-risco',contexto
+    ? `No TOP 3 de ${escHTML(mesCritico)}, campanhas ficaram <strong>${fmtDelta(campanhas)}</strong> vs. demais dias (${escHTML(leituraComparacaoCriticos(contexto,'campanhas'))}) e envios ficaram <strong>${fmtDelta(envios)}</strong>. A leitura evita misturar volume geral com plano: o TOP 3 é ordenado por opt-outs de Filiados.`
+    : 'Carregando o TOP 3 do mês mais recente para atualizar a leitura de risco por campanha.');
+
+  setText('insight-sazonalidade-titulo',variacaoRecente>10 ? 'Aumento recente merece leitura de calendário' : variacaoRecente<-10 ? 'Recorte recente melhorou' : 'Recorte recente está estável');
+  setHTML('insight-sazonalidade',`Nos últimos 3 meses disponíveis (${escHTML(mesesRecentes)}), a média mensal de opt-out dos Filiados foi <strong>${fmtPct(media3,2)}</strong>${anteriores3.length ? `, ${fmtDelta(variacaoRecente)} vs. os 3 meses anteriores` : ''}. Essa leitura muda automaticamente quando a API adiciona um novo mês ou quando o mês atual avança em MTD-1.`);
+
+  setText('insight-engajamento-titulo',!contexto ? 'Carregando engajamento dos dias críticos' : ctr>20 ? 'Há clique, mas a repetição precisa de freio' : 'Engajamento deve guiar a pressão de push');
+  setHTML('insight-engajamento',contexto
+    ? `Nos dias críticos, o CTR ficou <strong>${fmtDelta(ctr)}</strong> vs. demais dias e a taxa de impressão ficou <strong>${fmtDelta(impressao)}</strong>. ${ctr>0 ? 'Há sinal de interesse, então o ajuste recomendado é reduzir colisão e repetição, não cortar campanhas relevantes.' : 'O ganho de clique não compensou o opt-out; priorize revisão de público, copy e horário.'}`
+    : 'Carregando CTR e impressão dos dias críticos para atualizar a recomendação de engajamento.');
+
+  const recomendacoes=[];
+  if(contexto){
+    recomendacoes.push(campanhas>=20
+      ? {titulo:'Espaçar campanhas nos dias de maior concentração',desc:`No TOP 3 de ${mesCritico}, a quantidade de campanhas ficou ${fmtDelta(campanhas)} em relação aos demais dias. Use limite operacional de 1 push/dia por usuário e distribua campanhas concorrentes em janelas diferentes.`}
+      : {titulo:'Manter limite de frequência e monitorar picos reais',desc:`No TOP 3 de ${mesCritico}, a concentração de campanhas ficou ${fmtDelta(campanhas)}. O limite de 1 push/dia segue como proteção, mas o alerta deve focar em dias com desvio real de opt-out.`});
+  }else{
+    recomendacoes.push({titulo:'Aguardar TOP 3 do mês selecionado',desc:'Assim que a API retornar os dias críticos, esta recomendação passa a refletir campanhas, envios, CTR e versões do mês selecionado.'});
+  }
+  recomendacoes.push(variacaoRecente>10
+    ? {titulo:'Tratar o aumento recente como prioridade semanal',desc:`A média dos últimos 3 meses (${mesesRecentes}) ficou ${fmtDelta(variacaoRecente)} acima dos 3 meses anteriores. Acompanhe opt-out por calendário de campanha, não só por volume mensal agregado.`}
+    : {titulo:'Manter acompanhamento mensal com MTD-1',desc:`A média dos últimos 3 meses (${mesesRecentes}) ficou ${fmtDelta(variacaoRecente)} vs. os 3 meses anteriores. Continue usando MTD-1 para não comparar mês aberto com mês fechado.`});
+  recomendacoes.push(versoes.length
+    ? {titulo:'Investigar versões de app com maior concentração',desc:`No mês selecionado, ${versoes.join(', ')} aparecem entre as maiores concentrações de opt-out. Cruze com release, prompt de permissão e comportamento nativo do app.`}
+    : {titulo:'Manter leitura por versão quando houver concentração',desc:'Quando a API não indicar versões concentradas, preserve o monitoramento mensal para separar efeito de campanha de efeito de produto.'});
+  recomendacoes.push(Math.abs(diffPlanos)>=1
+    ? {titulo:'Decidir por plano, não pelo total agregado',desc:`No snapshot atual, Filiados estão em ${fmtPct(optoutFiliado,2)} de opt-out e Outros em ${fmtPct(optoutOutros,2)} (${fmtPp(diffPlanos,2)}). Use Total só como visão executiva; ação operacional deve separar Filiados e Outros.`}
+    : {titulo:'Não misturar taxas por plano nas decisões',desc:`Filiados estão em ${fmtPct(optoutFiliado,2)} de opt-out e Outros em ${fmtPct(optoutOutros,2)}. Mesmo quando próximos, mantenha as leituras separadas para evitar data make-up.`});
+  renderizarRecomendacoes(recomendacoes);
 }
 
 // ── FREQUÊNCIA VS CONVERSÃO ──────────────────────────────────────────
@@ -1641,7 +1749,7 @@ async function renderCriticos(){
     }).join('');
     tabela.innerHTML=`
       <thead><tr>
-        <th>Rank</th>
+        <th class="rank-col">Rank</th>
         <th>Data</th>
         <th>Filiados que desativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-out)</span></th>
         <th>Filiados que ativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-in)</span></th>
@@ -1656,7 +1764,7 @@ async function renderCriticos(){
       <tbody>${diasTop3.map((dia,i)=>{
         const leitura=leituraDiaCritico(dia);
         return `<tr>
-          <td><strong>TOP ${i+1}</strong></td>
+          <td class="rank-cell">TOP ${i+1}</td>
           <td><strong>${dataBrISO(dia.data)}</strong></td>
           <td style="color:var(--rosa);font-weight:800">${fmt(dia.opt_out)}</td>
           <td>${fmt(dia.opt_in)}</td>
@@ -1670,9 +1778,13 @@ async function renderCriticos(){
         </tr>`;
       }).join('')}</tbody>`;
     nota.innerHTML=`<strong>Recorte aplicado:</strong> TOP 3 ordenado somente por opt-outs de usuários Filiados em ${dataBrISO(dados.periodo_analise_diaria?.from)} a ${dataBrISO(dados.periodo_analise_diaria?.to)}.<br><em>Envios, impressões, campanhas e CTR continuam representando a pressão operacional total das campanhas Push do dia, porque essas métricas não são segmentadas por plano no relatório de campanhas.</em>`;
+    contextoCriticosAtual={comparacao,diasTop3,dados,mes,rotuloMes:document.getElementById('sel-mes-criticos')?.selectedOptions?.[0]?.textContent || mes,versoes:dados.versoes_opt_out || []};
+    atualizarInsightsFinais(contextoCriticosAtual);
   }catch(error){
     cards.innerHTML='';
     tabela.innerHTML=`<tbody><tr><td colspan="11" style="padding:20px;color:var(--rosa)">Não foi possível carregar o TOP 3 de opt-outs de Filiados. ${escHTML(error.message)}</td></tr></tbody>`;
+    contextoCriticosAtual=null;
+    atualizarInsightsFinais();
   }
 }
 
