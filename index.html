@@ -598,12 +598,12 @@
 
   <!-- DIAS CRÍTICOS -->
   <div class="secao-titulo">Quando os opt-outs acontecem mais? E por quê?</div>
-  <div class="secao-subtitulo">Identificamos os dias com maior volume de opt-out e analisamos o que estava acontecendo com as campanhas nesses mesmos dias.</div>
+  <div class="secao-subtitulo">Identificamos os dias com maior volume de opt-out entre usuários Filiados e analisamos o que estava acontecendo com as campanhas nesses mesmos dias.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
-        <div class="painel-titulo">TOP 3 dias com mais opt-out no mês selecionado</div>
-        <div class="painel-subtitulo">Os percentuais mostram quanto cada métrica estava acima ou abaixo da média dos outros dias do mês.</div>
+        <div class="painel-titulo">TOP 3 dias com mais opt-out de Filiados no mês selecionado</div>
+        <div class="painel-subtitulo">Os percentuais usam apenas opt-ins e opt-outs de Filiados; envios, impressões, campanhas e CTR seguem como pressão operacional total do dia.</div>
       </div>
       <div>
         <label for="sel-mes-criticos" style="display:block;font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Selecionar mês</label>
@@ -1211,48 +1211,90 @@ async function renderFreq(){
 }
 
 // ── DIAS CRÍTICOS ────────────────────────────────────────────────────
-function renderCriticos(){
+function mesApiCriticos(chave){
+  return (MESES_API[chave]?.from || MESES_API.jun26.from).slice(0,7);
+}
+function dataBrISO(valor){
+  const [ano,mes,dia]=String(valor || '').split('-');
+  return ano&&mes&&dia?`${dia}/${mes}/${ano}`:'—';
+}
+function leituraDiaCritico(dia){
+  const sinais=Array.isArray(dia.sinais)?dia.sinais.filter(Boolean):[];
+  const texto=sinais.length?sinais.join(' · '):'sem desvio forte';
+  const normalizado=normalizarTexto(texto);
+  const classe=normalizado.includes('mais campanhas')?'alta':normalizado.includes('volume')?'media':'normal';
+  return {texto,classe};
+}
+async function renderCriticos(){
   const sel=document.getElementById('sel-mes-criticos').value;
-  const d=CRITICOS[sel];if(!d)return;
-  const diasTop3=d.dias.slice().sort((a,b)=>b.optOut-a.optOut).slice(0,3);
-  const campos=[
-    {label:'Nº de campanhas disparadas',sublabel:'Quantas campanhas diferentes foram enviadas nestes dias vs. a média dos outros dias do mês',val:d.comparacao.campanhas.val,leitura:d.comparacao.campanhas.leitura,tipo:d.comparacao.campanhas.val>20?'rosa':'verde',icone:'📣'},
-    {label:'Volume total de envios',sublabel:'Total de pushes enviados (todos os usuários somados) nestes dias vs. a média dos outros dias',val:d.comparacao.envios.val,leitura:d.comparacao.envios.leitura,tipo:'verde',icone:'📤'},
-    {label:'CTR — taxa de clique',sublabel:'% de usuários que clicaram na notificação nestes dias vs. a média dos outros dias',val:d.comparacao.ctr.val,leitura:d.comparacao.ctr.leitura,tipo:'azul',icone:'👆'},
-    {label:'Taxa de impressão',sublabel:'% de notificações que foram visualizadas pelo usuário nestes dias vs. a média dos outros dias',val:d.comparacao.impressao.val,leitura:d.comparacao.impressao.leitura,tipo:'verde',icone:'👁️'}
-  ];
-  document.getElementById('cards-criticos').innerHTML=campos.map(c=>`
-    <div class="mc ${Math.abs(c.val)>20&&c.tipo==='rosa'?'rosa':c.tipo==='azul'?'azul':'verde'}">
-      <div class="mc-label">${c.icone} ${c.label}<small>${c.sublabel}</small></div>
-      <div class="mc-valor" style="color:${c.tipo==='rosa'?'var(--rosa)':c.tipo==='azul'?'var(--azul)':'var(--verde-escuro)'}">${fmtDelta(c.val)}</div>
-      <div class="mc-detalhe">${c.leitura} em relação aos demais dias do mês</div>
-    </div>`).join('');
-  document.getElementById('tabela-criticos').innerHTML=`
-    <thead><tr>
-      <th>Rank</th>
-      <th>Data</th>
-      <th>Desativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-out)</span></th>
-      <th>Ativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-in)</span></th>
-      <th>Campanhas<br><span style="font-weight:600;text-transform:none;letter-spacing:0">disparadas</span></th>
-      <th>Total de envios</th>
-      <th>Impressões</th>
-      <th>CTR</th>
-      <th>Opt-outs por<br><span style="font-weight:600;text-transform:none;letter-spacing:0">1M enviados</span></th>
-      <th>Sinal identificado</th>
-    </tr></thead>
-    <tbody>${diasTop3.map((dia,i)=>`<tr>
-      <td><strong>TOP ${i+1}</strong></td>
-      <td><strong>${dia.data}</strong></td>
-      <td style="color:var(--rosa);font-weight:800">${fmt(dia.optOut)}</td>
-      <td>${fmt(dia.optIn)}</td>
-      <td>${fmt(dia.campanhas)}</td>
-      <td>${fmt(dia.envios)}</td>
-      <td>${fmt(dia.impressoes)}</td>
-      <td>${dia.ctr}</td>
-      <td>${dia.porMilhao.toLocaleString('pt-BR',{maximumFractionDigits:1})}</td>
-      <td><span class="pill pill-${dia.leitura}">${dia.texto}</span></td>
-    </tr>`).join('')}</tbody>`;
-  document.getElementById('nota-versoes').innerHTML=`🔧 <strong>Versões do app com mais opt-outs em ${d.periodo}:</strong> ${d.versoes}<br><em>Mudanças de versão, reinstalações e alterações nativas do SO também podem gerar opt-out independente das campanhas.</em>`;
+  const mes=mesApiCriticos(sel);
+  const cards=document.getElementById('cards-criticos');
+  const tabela=document.getElementById('tabela-criticos');
+  const nota=document.getElementById('nota-versoes');
+  cards.innerHTML='<div class="estado"><div class="spinner"></div>Carregando TOP 3 de opt-outs de Filiados...</div>';
+  tabela.innerHTML='';
+  nota.innerHTML='';
+  try{
+    const response=await fetch(`${API_PAINEL_ORIGINAL}/api/push-health-insights?month=${encodeURIComponent(mes)}`,{cache:'no-store'});
+    const dados=await response.json();
+    if(!response.ok || !dados.sucesso) throw new Error(dados.erro || dados.detalhes || 'Dados indisponíveis.');
+    const analise=dados.analise_por_plano?.filiado || {};
+    const comparacao=analise.comparacao_dias_criticos || {};
+    const diasTop3=(analise.maiores_dias_opt_out || dados.diario_por_plano?.filiado || [])
+      .slice()
+      .sort((a,b)=>Number(b.opt_out||0)-Number(a.opt_out||0))
+      .slice(0,3);
+    if(!diasTop3.length) throw new Error('Nenhum opt-out de Filiados encontrado no mês selecionado.');
+    const obterComp=campo=>comparacao[campo] || {};
+    const campos=[
+      {label:'Nº de campanhas disparadas',sublabel:'Campanhas enviadas nestes dias vs. a média dos outros dias do mês',info:obterComp('campanhas'),tipo:Number(obterComp('campanhas').variacao_percentual||0)>20?'rosa':'verde'},
+      {label:'Volume total de envios',sublabel:'Pressão operacional total das campanhas Push nestes dias vs. os demais dias',info:obterComp('envios'),tipo:'verde'},
+      {label:'CTR — taxa de clique',sublabel:'CTR das campanhas Push nestes dias vs. a média dos demais dias',info:obterComp('ctr'),tipo:'azul'},
+      {label:'Taxa de impressão',sublabel:'Impressões sobre envios nestes dias vs. a média dos demais dias',info:obterComp('taxa_impressao'),tipo:'verde'}
+    ];
+    cards.innerHTML=campos.map(c=>{
+      const val=Number(c.info.variacao_percentual || 0);
+      return `<div class="mc ${Math.abs(val)>20&&c.tipo==='rosa'?'rosa':c.tipo==='azul'?'azul':'verde'}">
+        <div class="mc-label">${c.label}<small>${c.sublabel}</small></div>
+        <div class="mc-valor" style="color:${c.tipo==='rosa'?'var(--rosa)':c.tipo==='azul'?'var(--azul)':'var(--verde-escuro)'}">${fmtDelta(val)}</div>
+        <div class="mc-detalhe">${escHTML(c.info.leitura || 'próxima da média')} em relação aos demais dias do mês</div>
+      </div>`;
+    }).join('');
+    tabela.innerHTML=`
+      <thead><tr>
+        <th>Rank</th>
+        <th>Data</th>
+        <th>Filiados que desativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-out)</span></th>
+        <th>Filiados que ativaram push<br><span style="font-weight:600;text-transform:none;letter-spacing:0">(opt-in)</span></th>
+        <th>Taxa opt-out<br><span style="font-weight:600;text-transform:none;letter-spacing:0">Filiados</span></th>
+        <th>Campanhas<br><span style="font-weight:600;text-transform:none;letter-spacing:0">disparadas</span></th>
+        <th>Total de envios</th>
+        <th>Impressões</th>
+        <th>CTR</th>
+        <th>Opt-outs Filiados por<br><span style="font-weight:600;text-transform:none;letter-spacing:0">1M enviados</span></th>
+        <th>Sinal identificado</th>
+      </tr></thead>
+      <tbody>${diasTop3.map((dia,i)=>{
+        const leitura=leituraDiaCritico(dia);
+        return `<tr>
+          <td><strong>TOP ${i+1}</strong></td>
+          <td><strong>${dataBrISO(dia.data)}</strong></td>
+          <td style="color:var(--rosa);font-weight:800">${fmt(dia.opt_out)}</td>
+          <td>${fmt(dia.opt_in)}</td>
+          <td>${fmtPct(dia.taxa_opt_out_movimentos,2)}</td>
+          <td>${fmt(dia.campanhas)}</td>
+          <td>${fmt(dia.envios)}</td>
+          <td>${fmt(dia.impressoes)}</td>
+          <td>${fmtPct(dia.ctr,3)}</td>
+          <td>${Number(dia.opt_out_por_milhao_envios||0).toLocaleString('pt-BR',{maximumFractionDigits:1})}</td>
+          <td><span class="pill pill-${leitura.classe}">${escHTML(leitura.texto)}</span></td>
+        </tr>`;
+      }).join('')}</tbody>`;
+    nota.innerHTML=`<strong>Recorte aplicado:</strong> TOP 3 ordenado somente por opt-outs de usuários Filiados em ${dataBrISO(dados.periodo_analise_diaria?.from)} a ${dataBrISO(dados.periodo_analise_diaria?.to)}.<br><em>Envios, impressões, campanhas e CTR continuam representando a pressão operacional total das campanhas Push do dia, porque essas métricas não são segmentadas por plano no relatório de campanhas.</em>`;
+  }catch(error){
+    cards.innerHTML='';
+    tabela.innerHTML=`<tbody><tr><td colspan="11" style="padding:20px;color:var(--rosa)">Não foi possível carregar o TOP 3 de opt-outs de Filiados. ${escHTML(error.message)}</td></tr></tbody>`;
+  }
 }
 
 // ── HISTOGRAMA FILIADO ───────────────────────────────────────────────
