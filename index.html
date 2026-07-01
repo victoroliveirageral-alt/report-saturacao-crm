@@ -109,8 +109,8 @@
     .compras-ponto{position:absolute;width:7px;height:7px;border-radius:50%;border:2px solid white;transform:translate(-50%,-50%);cursor:pointer}
     .compras-hover-col{position:absolute;top:0;bottom:0;cursor:pointer}
     .compras-eixo-label{position:absolute;bottom:0;transform:translateX(-50%);font-size:8px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;white-space:nowrap}
-    .compras-tooltip{position:absolute;z-index:6;padding:10px 12px;border-radius:12px;background:var(--texto);color:white;font-size:10px;line-height:1.7;box-shadow:0 10px 24px rgba(0,0,0,.22);pointer-events:none;transform:translate(-50%,calc(-100% - 12px));white-space:nowrap}
-    .compras-tooltip::after{content:'';position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);width:10px;height:10px;background:var(--texto);border-radius:2px;rotate:45deg}
+    .compras-tooltip{position:absolute;z-index:6;padding:10px 12px;border-radius:12px;background:var(--texto);color:white;font-size:10px;line-height:1.7;box-shadow:0 10px 24px rgba(0,0,0,.22);pointer-events:none;white-space:nowrap}
+    .compras-tooltip-seta{position:absolute;width:10px;height:10px;background:var(--texto);border-radius:2px;rotate:45deg}
     .compras-tooltip b{display:block;font-size:10.5px;margin-bottom:5px;color:white}
     .compras-tooltip span{display:flex;align-items:center;gap:6px;white-space:nowrap}
     .compras-tooltip i{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none}
@@ -2343,10 +2343,50 @@ function renderGraficoComprasCashback() {
         <span><i style="background:var(--azul)"></i>2 compras: <strong style="margin-left:auto">${fmt(d.x2)}</strong></span>
         <span><i style="background:var(--laranja)"></i>3 compras: <strong style="margin-left:auto">${fmt(d.x3)}</strong></span>
         <span><i style="background:var(--verde-escuro)"></i>4+ compras: <strong style="margin-left:auto">${fmt(d.x4mais)}</strong></span>
+        <div class="compras-tooltip-seta" id="compras-tooltip-seta"></div>
       `;
-      tooltip.style.left = x + '%';
-      tooltip.style.top = Math.min(...series.map(s => pontosPorSerie.find(p => p.chave === s.chave).pontos[i].y)) + '%';
       tooltip.style.display = 'block';
+
+      // ---------------------------------------------------------------------------
+      // BLOCO: posicionamento com clamp de borda (evita corte pelo overflow:hidden
+      // do .painel — ver bug reportado com screenshot em 2026-07). Calcula tudo em
+      // pixels reais do container, mede o tooltip já renderizado (offsetWidth/Height)
+      // e só então decide onde colocar a caixa. A seta é um elemento à parte, e seu
+      // "left" é calculado separadamente pra sempre apontar pro ponto exato — mesmo
+      // quando a caixa precisa deslocar pra não estourar a borda.
+      // ---------------------------------------------------------------------------
+      const wrapRect = wrap.getBoundingClientRect();
+      const pontoPxX = (x / 100) * wrapRect.width;
+      const pontoPxYTopo = (Math.min(...series.map(s => pontosPorSerie.find(p => p.chave === s.chave).pontos[i].y)) / 100) * wrapRect.height;
+      const margem = 6;
+
+      const larguraTip = tooltip.offsetWidth;
+      const alturaTip = tooltip.offsetHeight;
+
+      // Horizontal: centraliza no ponto, mas empurra pra dentro se estourar a borda.
+      let left = pontoPxX - larguraTip / 2;
+      left = Math.max(margem, Math.min(left, wrapRect.width - larguraTip - margem));
+
+      // Vertical: tenta acima do ponto; se não couber (perto do topo do card),
+      // desenha abaixo do ponto em vez de cima.
+      const cabeEmCima = pontoPxYTopo - alturaTip - 14 >= 0;
+      const top = cabeEmCima ? (pontoPxYTopo - alturaTip - 14) : (pontoPxYTopo + 14);
+
+      tooltip.style.left = left + 'px';
+      tooltip.style.top = top + 'px';
+
+      // A seta acompanha o ponto de verdade (pontoPxX), não o centro da caixa —
+      // por isso é calculada em relação à posição final da caixa (left).
+      const seta = document.getElementById('compras-tooltip-seta');
+      const setaLeft = Math.max(10, Math.min(pontoPxX - left, larguraTip - 10));
+      seta.style.left = (setaLeft - 5) + 'px';
+      if (cabeEmCima) {
+        seta.style.bottom = '-5px';
+        seta.style.top = '';
+      } else {
+        seta.style.top = '-5px';
+        seta.style.bottom = '';
+      }
     };
     colHover.addEventListener('mouseenter', mostrarTooltip);
     colHover.addEventListener('mousemove', mostrarTooltip);
