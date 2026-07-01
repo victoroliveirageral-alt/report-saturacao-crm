@@ -112,7 +112,7 @@
     .freq-evolucao{padding:16px;border:1px solid var(--borda);border-radius:16px;background:#fbfdfc}
     .freq-line-chart{position:relative;min-height:270px;border:1px solid rgba(0,169,136,.18);border-radius:18px;background:linear-gradient(180deg,#fff 0%,#f7fbfa 100%);padding:42px 16px 42px;overflow:hidden}
     .freq-line-chart.carregando{display:flex;align-items:center;justify-content:center;color:var(--texto-suave);font-size:12px;font-weight:800}
-    .freq-line-svg{display:block;width:100%;height:190px;overflow:visible}
+    .freq-line-svg{display:block;width:100%;height:auto;min-height:160px;overflow:visible}
     .freq-grid-line{stroke:#e6efec;stroke-width:.55;vector-effect:non-scaling-stroke}
     .freq-line-path{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 4px 8px rgba(0,169,136,.14))}
     .freq-line-area-fill{fill:rgba(0,169,136,.05)}
@@ -323,8 +323,8 @@
       .mes-barras-inner{width:74%;border-radius:5px 5px 0 0}
       .grafico-linha-optout{top:12px;bottom:22px}
       .optout-label{font-size:7px;padding:2px 4px}
-      .freq-line-chart{min-height:250px;padding:54px 10px 42px}
-      .freq-line-svg{height:154px}
+      .freq-line-chart{min-height:230px;padding:48px 8px 38px}
+      .freq-line-svg{min-height:130px;height:auto}
       .freq-legenda{left:10px;right:10px;top:10px;gap:8px;font-size:9px}
       .freq-axis{left:10px;right:10px}
       .freq-axis-label-html{font-size:8px}
@@ -420,7 +420,7 @@
 <main>
   <div class="hero">
     <h1>Estamos comunicando de forma saudável?</h1>
-    <p>Este relatório apresenta o estudo de saturação da base Push dos usuários Filiados, cruzando volume de envios, evolução de opt-out e comportamento comparativo com a base Não Filiada. O objetivo é demonstrar que o time de CRM - Engajamento opera com critério, frequência controlada e foco em resultado.</p>
+    <p>Este relatório apresenta o estudo de saturação da base Push dos usuários Filiados, cruzando volume de envios, evolução de opt-out e comportamento comparativo com a base não filiada.</p>
     <div class="hero-tag" id="hero-tag">📅 Painel V2 · Dados extraídos via API oficial CleverTap · Atualizando dados...</div>
   </div>
 
@@ -581,6 +581,33 @@
     </div>
   </div>
 
+  <!-- BASE MOM -->
+  <div class="secao-titulo">A base Push cresceu ou diminuiu ao longo do tempo?</div>
+  <div class="secao-subtitulo">Evolução estimada da base com device token mês a mês. Permite entender se as análises de opt-out estão sendo feitas sobre uma base crescente, estável ou em retração.</div>
+  <div class="painel">
+    <div class="painel-topo">
+      <div>
+        <div class="painel-titulo">Evolução da base com token (MoM)</div>
+        <div class="painel-subtitulo">Base total (Filiados + Outros) com pelo menos um device token ativo. Barras empilhadas: <span style="color:var(--verde);font-weight:800">opt-in</span> e <span style="color:var(--rosa);font-weight:800">opt-out</span> como proporção da base.</div>
+      </div>
+      <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap">
+        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Opt-in</span>
+        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Opt-out</span>
+        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--laranja)"></i> Base total</span>
+      </div>
+    </div>
+    <div class="conteudo">
+      <div class="grafico-outer">
+        <div class="grafico-barras" id="grafico-base-mom" style="min-width:340px;height:180px"></div>
+      </div>
+      <div id="grafico-base-mom-linha" style="margin-top:14px;overflow-x:auto"></div>
+      <div class="nota-box info" style="margin-top:12px">
+        📌 <strong>Metodologia:</strong> A base mensal é estimada somando cumulativamente os opt-ins e subtraindo os opt-outs mês a mês, partindo do snapshot atual de <strong>7.361.217</strong> usuários com token (junho/2026). Isso permite entender a tendência de crescimento da base alcançável via Push.<br>
+        ⚠️ <strong>Limitação:</strong> A CleverTap não expõe o total da base com token em datas passadas via API — este cálculo é uma estimativa retroativa baseada nos movimentos mensais. O valor atual (jun/26) é o único dado preciso.
+      </div>
+    </div>
+  </div>
+
   <!-- EVOLUÇÃO FREQUÊNCIA -->
   <div class="secao-titulo">Como a frequência de envio evoluiu?</div>
   <div class="secao-subtitulo">Média mensal de pushes enviados por usuário com token por dia, usando a base Geral = Filiados + Outros. A API não expõe envios segmentados por <code>plan</code>, então não estimamos linhas separadas por público.</div>
@@ -643,33 +670,6 @@
     </div>
   </div>
 
-
-  <!-- BASE MOM -->
-  <div class="secao-titulo">A base Push cresceu ou diminuiu ao longo do tempo?</div>
-  <div class="secao-subtitulo">Evolução estimada da base com device token mês a mês. Permite entender se as análises de opt-out estão sendo feitas sobre uma base crescente, estável ou em retração.</div>
-  <div class="painel">
-    <div class="painel-topo">
-      <div>
-        <div class="painel-titulo">Evolução da base com token (MoM)</div>
-        <div class="painel-subtitulo">Base total (Filiados + Outros) com pelo menos um device token ativo. Barras empilhadas: <span style="color:var(--verde);font-weight:800">opt-in</span> e <span style="color:var(--rosa);font-weight:800">opt-out</span> como proporção da base.</div>
-      </div>
-      <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap">
-        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Opt-in</span>
-        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Opt-out</span>
-        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--laranja)"></i> Base total</span>
-      </div>
-    </div>
-    <div class="conteudo">
-      <div class="grafico-outer">
-        <div class="grafico-barras" id="grafico-base-mom" style="min-width:340px;height:180px"></div>
-      </div>
-      <div id="grafico-base-mom-linha" style="margin-top:14px;overflow-x:auto"></div>
-      <div class="nota-box info" style="margin-top:12px">
-        📌 <strong>Metodologia:</strong> A base mensal é estimada somando cumulativamente os opt-ins e subtraindo os opt-outs mês a mês, partindo do snapshot atual de <strong>7.361.217</strong> usuários com token (junho/2026). Isso permite entender a tendência de crescimento da base alcançável via Push.<br>
-        ⚠️ <strong>Limitação:</strong> A CleverTap não expõe o total da base com token em datas passadas via API — este cálculo é uma estimativa retroativa baseada nos movimentos mensais. O valor atual (jun/26) é o único dado preciso.
-      </div>
-    </div>
-  </div>
 
   <!-- FREQUÊNCIA POR PLAN — TABELA DETALHADA -->
   <div class="secao-titulo">Detalhamento: frequência diária por plan × opt-out</div>
@@ -1622,21 +1622,36 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   el.className='freq-line-chart';
   el.innerHTML=`
     <div class="freq-legenda">${legenda}</div>
-    <svg class="freq-line-svg" viewBox="0 0 1000 220" preserveAspectRatio="none" role="img" aria-label="Evolução da frequência de envio">
+    <svg class="freq-line-svg" viewBox="0 0 1000 220" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Evolução da frequência de envio">
       <line class="freq-grid-line" x1="45" x2="955" y1="${topo}" y2="${topo}"></line>
       <line class="freq-grid-line" x1="45" x2="955" y1="${(topo+baseY)/2}" y2="${(topo+baseY)/2}"></line>
       <line class="freq-grid-line" x1="45" x2="955" y1="${baseY}" y2="${baseY}"></line>
       ${seriesComCoordenadas.map((serie,serieIndex)=>`
         <path class="freq-line-path" style="stroke:${serie.cor}" d="${caminhoLinhaSuave(serie.pontos)}"></path>
-        ${serie.pontos.map((ponto,pontoIndex)=>{
-          const mostrarLabel=deveMostrarLabelFrequencia(serie.pontos,pontoIndex);
-          const labelY=ponto.y>50 ? ponto.y-10 : ponto.y+18;
-          const labelText=mostrarLabel && ponto.frequencia>0 ? `<text x="${ponto.x}" y="${labelY}" text-anchor="middle" style="font-size:11px;font-weight:800;fill:${serie.cor};font-family:Arial">${fmtFreq(ponto.frequencia)}</text>` : '';
-          return `${labelText}<circle class="freq-point" data-freq-serie="${serieIndex}" data-freq-index="${pontoIndex}" tabindex="0" style="fill:${serie.cor}" cx="${ponto.x}" cy="${ponto.y}" r="4.5"></circle>`;
-        }).join('')}
+        ${serie.pontos.map((ponto,pontoIndex)=>`
+          <circle class="freq-point" data-freq-serie="${serieIndex}" data-freq-index="${pontoIndex}" tabindex="0" style="fill:${serie.cor}" cx="${ponto.x}" cy="${ponto.y}" r="4.5"></circle>
+        `).join('')}
       `).join('')}
     </svg>
     <div class="freq-axis">${axis}</div>
+    ${seriesComCoordenadas.map(serie=>{
+      // Labels HTML: apenas primeiro, último e pico — sem deformação mobile
+      const pontoValidos=serie.pontos.filter(p=>p.frequencia>0 && !p.pendente && !p.erro);
+      if(!pontoValidos.length) return '';
+      const indPico=serie.pontos.reduce((iMax,p,i,arr)=>p.frequencia>arr[iMax].frequencia?i:iMax,0);
+      const indicesDestaque=new Set([0,serie.pontos.length-1,indPico]);
+      return serie.pontos.map((ponto,pontoIndex)=>{
+        if(!indicesDestaque.has(pontoIndex) || !ponto.frequencia || ponto.pendente) return '';
+        const xPct=mesesBase.length===1?50:((esquerda+(pontoIndex/(mesesBase.length-1))*largura)/1000)*100;
+        // Posição vertical: acima do ponto se há espaço, senão abaixo
+        const yRelPct=(ponto.y/220)*100;
+        const acima=yRelPct>25;
+        const topStyle=acima
+          ? \`calc(\${yRelPct}% - 26px)\`
+          : \`calc(\${yRelPct}% + 12px)\`;
+        return \`<span style="position:absolute;left:\${xPct}%;top:\${topStyle};transform:translateX(-50%);font-size:9px;font-weight:800;color:\${serie.cor};white-space:nowrap;pointer-events:none;background:rgba(255,255,255,.85);border-radius:4px;padding:1px 4px;">\${fmtFreq(ponto.frequencia)}</span>\`;
+      }).join('');
+    }).join('')}
   `;
   seriesComCoordenadas.forEach((serie,serieIndex)=>{
     serie.pontos.forEach((ponto,pontoIndex)=>{
