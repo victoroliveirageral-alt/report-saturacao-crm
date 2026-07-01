@@ -693,11 +693,6 @@
       </div>
     </div>
     <div class="conteudo">
-      <div class="hist-legenda" style="margin-bottom:14px">
-        <span><i style="background:var(--verde-escuro)"></i> % de usuários na faixa</span>
-        <span><i style="background:var(--verde)"></i> Taxa de conversão</span>
-        <span><i style="background:var(--rosa)"></i> Taxa de opt-out</span>
-      </div>
       <div class="plano-grid">
         <div class="plano-bloco">
           <div class="plano-bloco-titulo">Total</div>
@@ -998,6 +993,10 @@ function optOutDaFaixa(faixa,publico='filiado'){
   return curvas[publico]?.[faixa] ?? null;
 }
 let recorteAtual=12;
+let ttAberto=false;
+let ttAlvo=null;
+let histTtAberto=false;
+let histTtAlvo=null;
 const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
 const API_INSIGHTS_PUSH='/api/push-health-insights-v2';
 const RETAIL_OPT_IN_MEDIO=64.03;
@@ -1584,6 +1583,18 @@ function fecharTooltipFrequencia(){
   const tt=document.getElementById('freq-tt');
   if(tt) tt.style.display='none';
 }
+function mostrarTooltipHistograma(e,item,datasetLabel,corBase){
+  const tt=document.getElementById('freq-tt');
+  if(!tt) return;
+  tt.innerHTML=`
+    <div class="freq-tt-titulo">${escHTML(item.faixa)} · ${escHTML(datasetLabel)}</div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">% de usuários na faixa</span><span class="freq-tt-val" style="color:${corBase}">${item.pct}%</span></div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">Taxa de conversão</span><span class="freq-tt-val" style="color:var(--verde-escuro)">${item.conv}%</span></div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">Taxa de opt-out</span><span class="freq-tt-val" style="color:var(--rosa)">${item.optOut}%</span></div>
+  `;
+  tt.style.display='block';
+  posicionarTooltipEl(tt,e);
+}
 
 // ── DIAGNÓSTICO ──────────────────────────────────────────────────────
 // Evolução de frequência de envio
@@ -2142,37 +2153,55 @@ async function renderCriticos(){
 }
 
 // ── HISTOGRAMAS POR PLANO ────────────────────────────────────────────
-function renderHistDataset(id,dados,corBase='var(--verde-escuro)'){
+function renderHistDataset(id,dados,corBase='var(--verde-escuro)',datasetLabel='Total'){
   const el=document.getElementById(id);
   if(!el) return;
   const maxPct=Math.max(...dados.map(h=>h.pct));
   const maxConv=Math.max(...dados.map(h=>h.conv));
   const maxOptOut=Math.max(...dados.map(h=>h.optOut));
-  el.innerHTML=dados.map(h=>`
-    <div class="hist-card" style="border-color:rgba(0,169,136,.2);background:#fff">
+  el.innerHTML='';
+  dados.forEach(h=>{
+    const card=document.createElement('div');
+    card.className='hist-card';
+    card.style.cssText='border-color:rgba(0,169,136,.2);background:#fff;cursor:pointer';
+    card.innerHTML=`
       <div class="hist-faixa" style="color:${corBase}">${h.faixa}</div>
       <div class="hist-barra-wrap">
-        <div class="hist-barra" style="background:${corBase};height:${Math.round((h.pct/maxPct)*54)+3}px" title="% usuários: ${h.pct}%"></div>
-        <div class="hist-barra conv-cor" style="height:${Math.round((h.conv/maxConv)*54)+3}px" title="Taxa conv: ${h.conv}%"></div>
-        <div class="hist-barra optout-cor" style="height:${Math.round((h.optOut/maxOptOut)*54)+3}px" title="Opt-out: ${h.optOut}%"></div>
-      </div>
-      <div class="hist-info">
-        <strong>${h.pct}%</strong> dos usuários<br>
-        Conv: <strong style="color:var(--verde-escuro)">${h.conv}%</strong><br>
-        Opt-out: <strong style="color:var(--rosa)">${h.optOut}%</strong>
-      </div>
-    </div>`).join('');
+        <div class="hist-barra" style="background:${corBase};height:${Math.round((h.pct/maxPct)*54)+3}px"></div>
+        <div class="hist-barra conv-cor" style="height:${Math.round((h.conv/maxConv)*54)+3}px"></div>
+        <div class="hist-barra optout-cor" style="height:${Math.round((h.optOut/maxOptOut)*54)+3}px"></div>
+      </div>`;
+    const mostrar=evento=>mostrarTooltipHistograma(evento,h,datasetLabel,corBase);
+    card.addEventListener('mouseenter',mostrar);
+    card.addEventListener('mousemove',mostrar);
+    card.addEventListener('mouseleave',fecharTooltipFrequencia);
+    card.addEventListener('touchend',function(evento){
+      evento.preventDefault();
+      evento.stopPropagation();
+      if(histTtAlvo===card && histTtAberto){
+        fecharTooltipFrequencia();
+        histTtAberto=false; histTtAlvo=null;
+      } else {
+        const rect=card.getBoundingClientRect();
+        mostrarTooltipHistograma({clientX:rect.left+rect.width/2,clientY:rect.top},h,datasetLabel,corBase);
+        histTtAberto=true; histTtAlvo=card;
+      }
+    },{passive:false});
+    el.appendChild(card);
+  });
 }
 function renderHistogramasPlanos(){
-  renderHistDataset('hist-total',HIST_TOTAL,'var(--laranja)');
-  renderHistDataset('hist-filiado',HIST_FILIADO,'var(--verde-escuro)');
-  renderHistDataset('hist-nao-filiados',HIST_OUTROS,'var(--azul)');
+  renderHistDataset('hist-total',HIST_TOTAL,'var(--laranja)','Total');
+  renderHistDataset('hist-filiado',HIST_FILIADO,'var(--verde-escuro)','Filiados');
+  renderHistDataset('hist-nao-filiados',HIST_OUTROS,'var(--azul)','Outros');
 }
 
 // ── FECHAR TOOLTIP AO CLICAR/SCROLL ─────────────────────────────────
 function fecharTooltip(){
   document.getElementById('tt').style.display='none';
   fecharTooltipFrequencia();
+  ttAberto=false; ttAlvo=null;
+  histTtAberto=false; histTtAlvo=null;
 }
 document.addEventListener('click', fecharTooltip);
 document.addEventListener('scroll', fecharTooltip, true);
