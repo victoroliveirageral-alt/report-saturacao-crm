@@ -391,6 +391,7 @@
       td{padding:6px 5px}
     }
 
+    @keyframes pulsar{from{opacity:.3}to{opacity:1}}
   </style>
 </head>
 <body>
@@ -422,6 +423,9 @@
     <h1>Estamos comunicando de forma saudável?</h1>
     <p>Este relatório apresenta o estudo de saturação da base Push dos usuários Filiados, cruzando volume de envios, evolução de opt-out e comportamento comparativo com a base não filiada.</p>
     <div class="hero-tag" id="hero-tag">📅 Painel V2 · Dados extraídos via API oficial CleverTap · Atualizando dados...</div>
+    <div id="indicador-atualizando" style="display:none;align-items:center;gap:6px;margin-top:12px;padding:5px 12px;border-radius:999px;background:rgba(255,255,255,.15);color:white;font-size:10px;font-weight:800;width:fit-content">
+      <span style="width:7px;height:7px;border-radius:50%;background:white;display:inline-block;animation:pulsar .8s ease-in-out infinite alternate"></span> atualizando dados…
+    </div>
   </div>
 
   <!-- FILTRO PERÍODO -->
@@ -755,6 +759,11 @@
   <!-- INSIGHTS -->
   <div class="secao-titulo">O que os dados nos dizem?</div>
   <div class="insight-grid">
+    <div class="insight-box amarelo" style="grid-column:1/-1">
+      <div class="insight-icone">📈</div>
+      <div class="insight-titulo">Base crescente + frequência elevada = acelerador de opt-out</div>
+      <div class="insight-desc">A evolução da base Push mostra crescimento consistente ao longo de 12 meses. No mesmo período, os meses com maior frequência de envio (ABR–JUN/26, Copa do Mundo) coincidem com os maiores picos de opt-out (35% → 29%). <strong>O dado crítico: a base cresceu, mas o opt-out acelerou proporcionalmente mais.</strong> Em meses com frequência controlada (JUL–MAR), a taxa se manteve abaixo de 28% mesmo com a base em expansão — reforçando que o limite de 1 push/dia por usuário é o principal protetor da base alcançável.</div>
+    </div>
     <div class="insight-box verde">
       <div class="insight-icone">✅</div>
       <div class="insight-titulo" id="insight-confianca-titulo">A maioria dos Filiados confia na comunicação</div>
@@ -1109,10 +1118,23 @@ function numeroSeguro(valor,padrao=0){
   const numero=Number(valor);
   return Number.isFinite(numero) ? numero : padrao;
 }
+const _sessionCache = new Map();
 async function fetchJSON(url){
-  const response=await fetch(url,{cache:'no-store'});
-  if(!response.ok) throw new Error(`HTTP ${response.status}`);
-  return response.json();
+  const cacheavel = /reachability|push-health-insights/.test(url);
+  if(cacheavel && _sessionCache.has(url)){
+    const {ts, data} = _sessionCache.get(url);
+    if(Date.now() - ts < 5*60*1000) return data;
+  }
+  mostrarIndicadorAtualizacao(true);
+  try{
+    const response = await fetch(url, {cache:'no-store'});
+    if(!response.ok) throw new Error(`HTTP ${response.status}`);
+    const json = await response.json();
+    if(cacheavel) _sessionCache.set(url, {ts:Date.now(), data:json});
+    return json;
+  } finally {
+    setTimeout(()=>mostrarIndicadorAtualizacao(false), 300);
+  }
 }
 async function buscarInsightsMaisRecente(){
   for(const mes of candidatosMesAtual()){
@@ -1295,6 +1317,10 @@ function preencherGrupo(prefixo,dados,cor='var(--verde)'){
   if(barIn) barIn.style.background=cor;
   setText(`${prefixo}-leg-in`,`● Aceitam ${fmtPct(dados.taxaIn,2)}`);
   setText(`${prefixo}-leg-out`,`● Bloquearam ${fmtPct(dados.taxaOut,2)}`);
+}
+function mostrarIndicadorAtualizacao(ativo){
+  const el = document.getElementById('indicador-atualizando');
+  if(el) el.style.display = ativo ? 'inline-flex' : 'none';
 }
 function atualizarSnapshotUI(){
   const total=snapshotAtual.total;
@@ -2208,23 +2234,45 @@ function renderGraficoBaseMoM() {
 
 // ── INIT ─────────────────────────────────────────────────────────────
 async function inicializarPainel(){
-  renderFreq();
-  try{
-    await carregarDadosAtuaisPainel();
-  }catch(error){
-    console.warn('Não foi possível atualizar os dados dinâmicos do painel.',error);
-    atualizarPeriodoUI();
-    atualizarSnapshotUI();
-  }
+  // FASE 1 — render imediato com dados estáticos (zero espera)
+  atualizarPeriodoUI();
+  atualizarSnapshotUI();
   recalcularSeriesRenderizadasSobreBaseAtual();
   renderGraficosPlanos();
-  atualizarGraficoFrequenciaEnvio();
   renderCriticos();
   atualizarDiagnostico();
   renderHistogramasPlanos();
   renderFreq();
-
   renderGraficoBaseMoM();
+  renderizarGraficoFrequenciaEnvio(mesesDoRecorteAtual());
+
+  // FASE 2 — todos os fetches em paralelo, cada um atualiza ao chegar
+  await Promise.allSettled([
+    buscarInsightsMaisRecente()
+      .then(dados => {
+        aplicarInsights(dados);
+        recalcularSeriesRenderizadasSobreBaseAtual();
+        renderGraficosPlanos();
+        atualizarDiagnostico();
+        renderGraficoBaseMoM();
+      })
+      .catch(e => console.warn('insights:', e)),
+
+    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push-v2`)
+      .then(dados => {
+        const aplicado = aplicarReachability(dados);
+        if(!aplicado && dados?.processando) agendarAtualizacaoReachability(dados.aguarde_segundos);
+        atualizarSnapshotUI();
+        atualizarTextoFonteDados();
+      })
+      .catch(e => console.warn('reachability:', e)),
+
+    atualizarGraficoFrequenciaEnvio()
+      .catch(e => console.warn('frequencia:', e))
+  ]);
+
+  atualizarPeriodoUI();
+  atualizarTextoFonteDados();
 }
 inicializarPainel();
 </script>
