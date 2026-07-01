@@ -135,8 +135,8 @@
     .tt{display:none;position:fixed;background:var(--verde-escuro);color:white;border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.7;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.22);width:max-content;min-width:180px;max-width:min(260px,calc(100vw - 24px));transition:opacity .1s;overflow-wrap:anywhere}
     .tt-titulo{font-weight:800;font-size:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:5px;margin-bottom:5px}
     .tt-linha{display:flex;justify-content:space-between;gap:16px}
-    .tt-label{color:rgba(255,255,255,.7)}
-    .tt-val{font-weight:800}
+    .tt-label{color:rgba(255,255,255,.7);flex-shrink:0}
+    .tt-val{font-weight:800;text-align:right}
     .tt-val.verde{color:var(--verde-claro)}
     .tt-val.rosa{color:#ff8fa8}
     .tt-val.taxa{color:#ffd97d}
@@ -451,7 +451,8 @@
   <div class="tt-titulo" id="tt-titulo"></div>
   <div class="tt-linha"><span class="tt-label">Ativaram push</span><span class="tt-val verde" id="tt-in"></span></div>
   <div class="tt-linha"><span class="tt-label">Desativaram push</span><span class="tt-val rosa" id="tt-out"></span></div>
-  <div class="tt-linha"><span class="tt-label">Taxa opt-out base</span><span class="tt-val taxa" id="tt-taxa"></span></div>
+  <div class="tt-linha"><span class="tt-label">Taxa opt-out (base)</span><span class="tt-val taxa" id="tt-taxa"></span></div>
+  <div class="tt-linha" id="tt-linha-mov" style="display:none"><span class="tt-label">Taxa opt-out (movimentos)</span><span class="tt-val taxa" id="tt-taxa-mov"></span></div>
   <div class="tt-linha"><span class="tt-label">Total movimentações</span><span class="tt-val" id="tt-total"></span></div>
 </div>
 
@@ -997,6 +998,8 @@ let ttAberto=false;
 let ttAlvo=null;
 let histTtAberto=false;
 let histTtAlvo=null;
+let freqTtAberto=false;
+let freqTtAlvo=null;
 const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
 const API_INSIGHTS_PUSH='/api/push-health-insights-v2';
 const RETAIL_OPT_IN_MEDIO=64.03;
@@ -1526,8 +1529,14 @@ function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
       document.getElementById('tt-in').textContent=fmt(d.optIn);
       document.getElementById('tt-out').textContent=fmt(d.optOut);
       document.getElementById('tt-total').textContent=fmt(d.optIn+d.optOut);
-      const taxaMov=d.taxaOutMovimentos!=null ? ` · movimentos: ${fmtPct(d.taxaOutMovimentos)}` : '';
-      document.getElementById('tt-taxa').textContent=`${fmtPct(d.taxaOut)}${taxaMov}`;
+      document.getElementById('tt-taxa').textContent=fmtPct(d.taxaOut);
+      const linhaMov=document.getElementById('tt-linha-mov');
+      if(d.taxaOutMovimentos!=null){
+        document.getElementById('tt-taxa-mov').textContent=fmtPct(d.taxaOutMovimentos);
+        linhaMov.style.display='flex';
+      } else {
+        linhaMov.style.display='none';
+      }
       tt.style.display='block';
       posicionarTooltip(e);
     });
@@ -1573,7 +1582,7 @@ function mostrarTooltipFrequencia(e,ponto,serie,anterior){
     <div class="freq-tt-linha"><span class="freq-tt-label">Frequência</span><span class="freq-tt-val">${fmtFreq(ponto.frequencia)} push/dia</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">MoM</span><span class="freq-tt-val${momClasse}">${escHTML(mom.texto)}</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">Envios Push</span><span class="freq-tt-val">${fmt(ponto.envios || 0)}</span></div>
-    <div class="freq-tt-linha"><span class="freq-tt-label">Base usada</span><span class="freq-tt-val">${fmt(ponto.base || 0)}</span></div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">Base estimada do mês</span><span class="freq-tt-val">${fmt(ponto.base || 0)}</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">Dias</span><span class="freq-tt-val">${fmt(ponto.dias || 0)}</span></div>
   `;
   tt.style.display='block';
@@ -1648,18 +1657,29 @@ function deveMostrarLabelFrequencia(pontos,indice){
   }
   return true;
 }
+function baseMoMPorMesIso(){
+  const mapa={};
+  calcularBaseMoM().forEach(item=>{
+    const iso=isoMesGraficoItem(item);
+    if(iso) mapa[iso]=item.base;
+  });
+  return mapa;
+}
 function serieFrequenciaRenderizada(meses){
   const mesesBase=meses.map(mes=>{
     const item=cacheFrequenciaEnvioMensal[mes] || {mes,envios:0,dias:0,pendente:true};
     return {...item,rotulo:rotuloMesGrafico(mes)};
   });
+  // Cada mês usa sua PRÓPRIA base estimada (Filiados+Outros daquele mês),
+  // não a base do snapshot atual. Mesma metodologia do gráfico "Base MoM".
+  const basesPorMes=baseMoMPorMesIso();
+  const baseFallback=baseFrequenciaEnvio('geral_plan') || 0;
   const series=SERIES_FREQUENCIA_ENVIO.map(config=>{
-    const base=baseFrequenciaEnvio(config.key) || 0;
     return {
       ...config,
-      base,
       pontos:mesesBase.map(item=>{
         const dias=Math.max(0,Number(item.dias || 0));
+        const base=basesPorMes[item.mes] || baseFallback;
         const frequencia=base && dias ? Number(item.envios || 0)/base/dias : 0;
         return {...item,frequencia,base};
       })
@@ -1751,16 +1771,24 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
       node.addEventListener('mouseleave',fecharTooltipFrequencia);
       node.addEventListener('focus',abrir);
       node.addEventListener('blur',fecharTooltipFrequencia);
-      node.addEventListener('touchstart',event=>{
+      node.addEventListener('touchend',event=>{
+        event.preventDefault();
         event.stopPropagation();
-        abrir(event.touches?.[0] || event);
-      },{passive:true});
+        if(freqTtAlvo===node && freqTtAberto){
+          fecharTooltipFrequencia();
+          freqTtAberto=false; freqTtAlvo=null;
+        } else {
+          const rect=node.getBoundingClientRect();
+          abrir({clientX:rect.left+rect.width/2,clientY:rect.top});
+          freqTtAberto=true; freqTtAlvo=node;
+        }
+      },{passive:false});
     });
   });
   const carregados=mesesBase.filter(item=>!item.pendente && !item.erro).length;
   const falhas=mesesBase.filter(item=>item.erro).length;
   const complemento=falhas ? ` ${falhas} mês(es) sem retorno da API ficaram como 0.` : '';
-  setText('freq-evolucao-status',`${estado || `${carregados}/${mesesBase.length} meses consolidados.`} Frequência = envios Push do mês / (base com token de Filiados + Outros) / dias do mês. A API entrega envios totais de campanha e não separa envios por plan; por isso não há linhas estimadas de Filiados ou Outros.${complemento}`);
+  setText('freq-evolucao-status',`${estado || `${carregados}/${mesesBase.length} meses consolidados.`} Frequência = envios Push do mês / (base estimada daquele mês, Filiados + Outros) / dias do mês. A base de cada mês é estimada retroativamente a partir do snapshot atual — não é a mesma base fixa para todos os meses. A API entrega envios totais de campanha e não separa envios por plan; por isso não há linhas estimadas de Filiados ou Outros.${complemento}`);
 }
 function periodoMesParaFrequencia(mes,fromRecorte,toRecorte){
   const inicioMes=`${mes}-01`;
@@ -2202,6 +2230,7 @@ function fecharTooltip(){
   fecharTooltipFrequencia();
   ttAberto=false; ttAlvo=null;
   histTtAberto=false; histTtAlvo=null;
+  freqTtAberto=false; freqTtAlvo=null;
 }
 document.addEventListener('click', fecharTooltip);
 document.addEventListener('scroll', fecharTooltip, true);
@@ -2211,7 +2240,7 @@ document.addEventListener('touchstart', fecharTooltip);
 // ── BASE MOM ─────────────────────────────────────────────────────────
 // Estima a base com token mês a mês retroativamente a partir do snapshot atual
 function calcularBaseMoM() {
-  const baseAtual = 7361217; // snapshot jun/26
+  const baseAtual = Number(snapshotAtual.total?.base) || 7361217; // usa o snapshot ao vivo quando disponível
   const series = [...MESES_TOTAL].reverse();
   let baseAcum = baseAtual;
   const resultado = [];
@@ -2264,6 +2293,7 @@ function renderGraficoBaseMoM() {
       document.getElementById('tt-out').textContent = fmt(d.optOut);
       document.getElementById('tt-taxa').textContent = fmtPct(d.taxaOut);
       document.getElementById('tt-total').textContent = fmt(d.base);
+      document.getElementById('tt-linha-mov').style.display = 'none';
       tt.style.display = 'block';
       posicionarTooltip(e);
     });
@@ -2279,6 +2309,7 @@ function renderGraficoBaseMoM() {
         document.getElementById('tt-out').textContent = fmt(d.optOut);
         document.getElementById('tt-taxa').textContent = fmtPct(d.taxaOut);
         document.getElementById('tt-total').textContent = fmt(d.base);
+        document.getElementById('tt-linha-mov').style.display = 'none';
         posicionarTooltip({clientX: rect.left + rect.width/2, clientY: rect.top});
         tt.style.display = 'block';
         ttAberto = true; ttAlvo = col;
@@ -2344,6 +2375,7 @@ async function inicializarPainel(){
         renderGraficosPlanos();
         atualizarDiagnostico();
         renderGraficoBaseMoM();
+        renderizarGraficoFrequenciaEnvio(mesesDoRecorteAtual());
       })
       .catch(e => console.warn('insights:', e)),
 
