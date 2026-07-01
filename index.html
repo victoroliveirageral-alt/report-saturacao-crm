@@ -124,6 +124,13 @@
     .freq-axis-label-html{position:absolute;top:0;transform:translateX(-50%);font-size:9px;font-weight:900;color:var(--texto-suave);white-space:nowrap}
     .freq-last-label{position:absolute;transform:translate(-50%,-50%);padding:3px 6px;border-radius:999px;background:white;border:1px solid currentColor;font-size:9px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.06);white-space:nowrap;pointer-events:none}
     .freq-evolucao-status{margin-top:10px;color:var(--texto-suave);font-size:10px;line-height:1.5}
+    .freq-tt{display:none;position:fixed;z-index:1000;pointer-events:none;width:max-content;min-width:220px;max-width:min(300px,calc(100vw - 24px));padding:12px 14px;border-radius:12px;background:#fff;color:var(--texto);border:1px solid rgba(0,169,136,.2);box-shadow:0 8px 28px rgba(0,0,0,.18);font-size:11px;line-height:1.55}
+    .freq-tt-titulo{font-size:12px;font-weight:900;color:var(--verde-escuro);padding-bottom:6px;margin-bottom:7px;border-bottom:1px solid var(--borda)}
+    .freq-tt-linha{display:flex;justify-content:space-between;gap:14px}
+    .freq-tt-label{color:var(--texto-suave)}
+    .freq-tt-val{font-weight:900;text-align:right}
+    .freq-tt-val.pos{color:var(--verde-escuro)}
+    .freq-tt-val.neg{color:var(--rosa)}
     /* Tooltip — posicionado com JS para não cortar */
     .tt{display:none;position:fixed;background:var(--verde-escuro);color:white;border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.7;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.22);width:max-content;min-width:180px;max-width:min(260px,calc(100vw - 24px));transition:opacity .1s;overflow-wrap:anywhere}
     .tt-titulo{font-weight:800;font-size:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:5px;margin-bottom:5px}
@@ -322,6 +329,8 @@
       .freq-axis{left:10px;right:10px}
       .freq-axis-label-html{font-size:8px}
       .freq-last-label{font-size:8px;padding:2px 5px}
+      .freq-tt{font-size:10px;min-width:0;width:calc(100vw - 24px);max-width:calc(100vw - 24px)}
+      .freq-tt-titulo{font-size:11px}
 
       /* Controles frequência — 1 coluna no mobile */
       .freq-controles{grid-template-columns:1fr!important;gap:10px;padding:12px}
@@ -394,6 +403,8 @@
   <div class="tt-linha"><span class="tt-label">Taxa opt-out base</span><span class="tt-val taxa" id="tt-taxa"></span></div>
   <div class="tt-linha"><span class="tt-label">Total movimentações</span><span class="tt-val" id="tt-total"></span></div>
 </div>
+
+<div class="freq-tt" id="freq-tt"></div>
 
 <header>
   <div>
@@ -1412,21 +1423,46 @@ function renderGraficosPlanos(){
   renderGraficoDataset({dadosOrigem:BASES_GRAFICO.filiados.dados,wrapId:'grafico-filiados',tituloBase:BASES_GRAFICO.filiados.nome,corIn:BASES_GRAFICO.filiados.corIn});
   renderGraficoDataset({dadosOrigem:BASES_GRAFICO.nao_filiados.dados,wrapId:'grafico-nao-filiados',tituloBase:BASES_GRAFICO.nao_filiados.nome,corIn:BASES_GRAFICO.nao_filiados.corIn});
 }
-function posicionarTooltip(e){
-  const tt=document.getElementById('tt');
+function posicionarTooltipEl(tt,e){
   const vw=window.innerWidth, vh=window.innerHeight;
   const margem=12;
   const rect=tt.getBoundingClientRect();
   const tw=Math.min(rect.width || 220,vw-(margem*2));
   const th=rect.height || 120;
-  let x=e.clientX+14;
-  let y=e.clientY-th-10;
-  if(x+tw>vw-margem) x=e.clientX-tw-14;
+  const alvo=e?.currentTarget?.getBoundingClientRect?.();
+  const clientX=Number.isFinite(e?.clientX) ? e.clientX : (alvo ? alvo.left+(alvo.width/2) : vw/2);
+  const clientY=Number.isFinite(e?.clientY) ? e.clientY : (alvo ? alvo.top+(alvo.height/2) : vh/2);
+  let x=clientX+14;
+  let y=clientY-th-10;
+  if(x+tw>vw-margem) x=clientX-tw-14;
   if(x<margem) x=margem;
-  if(y<margem) y=e.clientY+20;
+  if(y<margem) y=clientY+20;
   if(y+th>vh-margem) y=Math.max(margem,vh-th-margem);
   tt.style.left=x+'px';
   tt.style.top=y+'px';
+}
+function posicionarTooltip(e){
+  posicionarTooltipEl(document.getElementById('tt'),e);
+}
+function mostrarTooltipFrequencia(e,ponto,serie,anterior){
+  const tt=document.getElementById('freq-tt');
+  if(!tt) return;
+  const mom=formatarMoMFrequencia(ponto,anterior);
+  const momClasse=mom.classe ? ` ${mom.classe}` : '';
+  tt.innerHTML=`
+    <div class="freq-tt-titulo">${escHTML(ponto.rotulo)} · ${escHTML(serie.label)}</div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">Frequência</span><span class="freq-tt-val">${fmtFreq(ponto.frequencia)} push/dia</span></div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">MoM</span><span class="freq-tt-val${momClasse}">${escHTML(mom.texto)}</span></div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">Envios Push</span><span class="freq-tt-val">${fmt(ponto.envios || 0)}</span></div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">Base usada</span><span class="freq-tt-val">${fmt(ponto.base || 0)}</span></div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">Dias</span><span class="freq-tt-val">${fmt(ponto.dias || 0)}</span></div>
+  `;
+  tt.style.display='block';
+  posicionarTooltipEl(tt,e);
+}
+function fecharTooltipFrequencia(){
+  const tt=document.getElementById('freq-tt');
+  if(tt) tt.style.display='none';
 }
 
 // ── DIAGNÓSTICO ──────────────────────────────────────────────────────
@@ -1445,6 +1481,21 @@ function mesesDoRecorteAtual(){
 }
 function fmtFreq(valor){
   return Number(valor || 0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtFreqDelta(valor){
+  const numero=Number(valor || 0);
+  const sinal=numero>0?'+':'';
+  return `${sinal}${fmtFreq(numero)}`;
+}
+function formatarMoMFrequencia(atual,anterior){
+  if(!anterior) return {texto:'sem mês anterior',classe:''};
+  const diff=Number(atual.frequencia || 0)-Number(anterior.frequencia || 0);
+  if(!Number(anterior.frequencia || 0)){
+    return {texto:`${fmtFreqDelta(diff)} vs ${anterior.rotulo} · sem base %`,classe:diff>=0?'pos':'neg'};
+  }
+  const pctMom=(diff/Number(anterior.frequencia))*100;
+  const sinalPct=pctMom>0?'+':'';
+  return {texto:`${fmtFreqDelta(diff)} (${sinalPct}${fmtPct(pctMom,1)}) vs ${anterior.rotulo}`,classe:diff>=0?'pos':'neg'};
 }
 function caminhoLinhaSuave(pontos){
   if(!pontos.length) return '';
@@ -1531,13 +1582,30 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
       <line class="freq-grid-line" x1="45" x2="955" y1="${topo}" y2="${topo}"></line>
       <line class="freq-grid-line" x1="45" x2="955" y1="${(topo+baseY)/2}" y2="${(topo+baseY)/2}"></line>
       <line class="freq-grid-line" x1="45" x2="955" y1="${baseY}" y2="${baseY}"></line>
-      ${seriesComCoordenadas.map(serie=>`
+      ${seriesComCoordenadas.map((serie,serieIndex)=>`
         <path class="freq-line-path" style="stroke:${serie.cor}" d="${caminhoLinhaSuave(serie.pontos)}"></path>
-        ${serie.pontos.map(ponto=>`<circle class="freq-point" style="fill:${serie.cor}" cx="${ponto.x}" cy="${ponto.y}" r="4.5"></circle>`).join('')}
+        ${serie.pontos.map((ponto,pontoIndex)=>`<circle class="freq-point" data-freq-serie="${serieIndex}" data-freq-index="${pontoIndex}" tabindex="0" style="fill:${serie.cor}" cx="${ponto.x}" cy="${ponto.y}" r="4.5"></circle>`).join('')}
       `).join('')}
     </svg>
     <div class="freq-axis">${axis}</div>
   `;
+  seriesComCoordenadas.forEach((serie,serieIndex)=>{
+    serie.pontos.forEach((ponto,pontoIndex)=>{
+      const node=el.querySelector(`[data-freq-serie="${serieIndex}"][data-freq-index="${pontoIndex}"]`);
+      if(!node) return;
+      const anterior=[...serie.pontos.slice(0,pontoIndex)].reverse().find(item=>!item.pendente && !item.erro);
+      const abrir=event=>mostrarTooltipFrequencia(event,ponto,serie,anterior);
+      node.addEventListener('mouseenter',abrir);
+      node.addEventListener('mousemove',abrir);
+      node.addEventListener('mouseleave',fecharTooltipFrequencia);
+      node.addEventListener('focus',abrir);
+      node.addEventListener('blur',fecharTooltipFrequencia);
+      node.addEventListener('touchstart',event=>{
+        event.stopPropagation();
+        abrir(event.touches?.[0] || event);
+      },{passive:true});
+    });
+  });
   const carregados=mesesBase.filter(item=>!item.pendente && !item.erro).length;
   const falhas=mesesBase.filter(item=>item.erro).length;
   const complemento=falhas ? ` ${falhas} mês(es) sem retorno da API ficaram como 0.` : '';
@@ -1962,7 +2030,10 @@ function renderHistogramasPlanos(){
 }
 
 // ── FECHAR TOOLTIP AO CLICAR/SCROLL ─────────────────────────────────
-function fecharTooltip(){document.getElementById('tt').style.display='none';}
+function fecharTooltip(){
+  document.getElementById('tt').style.display='none';
+  fecharTooltipFrequencia();
+}
 document.addEventListener('click', fecharTooltip);
 document.addEventListener('scroll', fecharTooltip, true);
 document.addEventListener('touchstart', fecharTooltip);
