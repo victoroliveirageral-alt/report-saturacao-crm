@@ -1741,26 +1741,6 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
       `).join('')}
     </svg>
     <div class="freq-axis">${axis}</div>
-    ${seriesComCoordenadas.map(serie=>{
-      // Labels HTML em TODOS os pontos válidos (consistência visual —
-      // ou mostra em todos, ou não mostra em nenhum). Alterna acima/abaixo
-      // por índice pra reduzir colisão entre labels vizinhos.
-      const pontoValidos=serie.pontos.filter(p=>p.frequencia>0 && !p.pendente && !p.erro);
-      if(!pontoValidos.length) return '';
-      const fonteLabel=mesesBase.length>9?8:mesesBase.length>6?8.5:9;
-      return serie.pontos.map((ponto,pontoIndex)=>{
-        if(!ponto.frequencia || ponto.pendente) return '';
-        const xPct=mesesBase.length===1?50:((esquerda+(pontoIndex/(mesesBase.length-1))*largura)/1000)*100;
-        const yRelPct=(ponto.y/220)*100;
-        const pertoDoTopo=yRelPct<=12;
-        const pertoDaBase=yRelPct>=88;
-        const acima=pertoDoTopo?false:pertoDaBase?true:(pontoIndex%2===0);
-        const topStyle=acima
-          ? `calc(${yRelPct}% - 24px)`
-          : `calc(${yRelPct}% + 11px)`;
-        return `<span style="position:absolute;left:${xPct}%;top:${topStyle};transform:translateX(-50%);font-size:${fonteLabel}px;font-weight:800;color:${serie.cor};white-space:nowrap;pointer-events:none;background:rgba(255,255,255,.85);border-radius:4px;padding:1px 4px;z-index:2;">${fmtFreq(ponto.frequencia)}</span>`;
-      }).join('');
-    }).join('')}
   `;
   seriesComCoordenadas.forEach((serie,serieIndex)=>{
     serie.pontos.forEach((ponto,pontoIndex)=>{
