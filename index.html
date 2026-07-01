@@ -99,6 +99,10 @@
     .mes-barras-inner{width:80%;display:flex;flex-direction:column;border-radius:6px 6px 0 0;overflow:hidden;transition:opacity .15s}
     .mes-bar-in{width:100%;background:var(--verde);min-height:4px}
     .mes-bar-out{width:100%;background:var(--rosa);min-height:3px}
+    .compra-bar-1x{width:100%;background:var(--verde);min-height:3px}
+    .compra-bar-2x{width:100%;background:var(--azul);min-height:3px}
+    .compra-bar-3x{width:100%;background:var(--laranja);min-height:3px}
+    .compra-bar-4x{width:100%;background:var(--verde-escuro);min-height:3px}
     .mes-eixo-label{font-size:8px;color:var(--texto-suave);font-weight:800;text-align:center;margin-top:5px;text-transform:uppercase}
     .mes-eixo-label span{display:inline}
     .mes-eixo-label span+span::before{content:' '}
@@ -683,6 +687,37 @@
     </div>
   </div>
 
+  <!-- =================================================================================
+       SEÇÃO NOVA 2026-07: Frequência de compras (geração de cashback) por usuário único
+       -------------------------------------------------------------------------------
+       Fonte: CSV enviado manualmente pelo usuário (não vem de nenhuma API do painel).
+       Dados 100% reais, sem estimativa — ver constante COMPRAS_CASHBACK_MENSAL no JS.
+       Compra = evento de geração de cashback. Faixas: quantos usuários únicos geraram
+       cashback 1x, 2x, 3x ou 4x+ no mês.
+  ================================================================================= -->
+  <div class="secao-titulo">Como a frequência de compras (cashback) evoluiu?</div>
+  <div class="secao-subtitulo">Usuários únicos que geraram cashback no mês, por quantidade de compras (1x, 2x, 3x, 4x+). Dado enviado manualmente via planilha — não vem da API da CleverTap.</div>
+  <div class="painel">
+    <div class="painel-topo">
+      <div>
+        <div class="painel-titulo">Evolução de compradores únicos por frequência</div>
+        <div class="painel-subtitulo">Barras empilhadas: quantidade de usuários únicos em cada faixa de recorrência de compra no mês.</div>
+      </div>
+    </div>
+    <div class="conteudo">
+      <div class="mes-barras" id="grafico-compras-cashback" style="display:flex;align-items:flex-end;gap:4px;min-height:170px;padding:10px 4px 0"></div>
+      <div style="display:flex;gap:14px;margin-top:10px;font-size:9px;font-weight:800;flex-wrap:wrap">
+        <span style="color:var(--verde)">● 1 compra</span>
+        <span style="color:var(--azul)">● 2 compras</span>
+        <span style="color:var(--laranja)">● 3 compras</span>
+        <span style="color:var(--verde-escuro)">● 4+ compras</span>
+      </div>
+      <div class="nota-box info" style="margin-top:12px">
+        📌 <strong>Fonte:</strong> planilha enviada manualmente em 01/07/2026, cobrindo Jan/2025 a Jun/2026. Compra = geração de cashback. Não há atualização automática — para atualizar, é preciso enviar uma nova planilha nesse mesmo formato.
+      </div>
+    </div>
+  </div>
+
   <!-- HISTOGRAMA PLANOS -->
   <div class="secao-titulo">Frequência diária de recebimento vs. Conversão e Opt-out ⚠️ dado indisponível</div>
   <div class="secao-subtitulo">Distribuição dos usuários por faixas de push recebidos por dia, cruzando taxa de conversão e taxa de opt-out em cada faixa. Requer exportação de evento bruto do CleverTap; sem endpoint direto disponível hoje — seção temporariamente sem dado, ver nota abaixo.</div>
@@ -898,6 +933,36 @@ const BASES_GRAFICO = {
   filiados:{nome:'Filiados',descricao:'Usuários com plan = filiado',dados:MESES_FILIADO,corIn:'var(--verde)'},
   nao_filiados:{nome:'Outros',descricao:'Usuários com plan = freemium ou plan = Pro',dados:MESES_OUTROS,corIn:'var(--azul)'}
 };
+
+// =====================================================================================
+// DADOS 2026-07: Frequência de compras (geração de cashback) por usuário único.
+// -------------------------------------------------------------------------------------
+// Fonte: planilha CSV enviada manualmente pelo usuário em 01/07/2026 (não vem de
+// nenhuma API). 100% dado real, sem estimativa. "Compra" = evento de geração de
+// cashback. x1/x2/x3/x4mais = contagem de usuários únicos que compraram exatamente
+// 1, 2, 3 ou 4+ vezes naquele mês. Para atualizar: substituir este array inteiro
+// por uma nova planilha no mesmo formato (mes;1X;2X;3X;4X+).
+// =====================================================================================
+const COMPRAS_CASHBACK_MENSAL = [
+  {mes:'2025-01',x1:1254415,x2:351964,x3:134766,x4mais:65961},
+  {mes:'2025-02',x1:1180085,x2:279301,x3:91172,x4mais:37455},
+  {mes:'2025-03',x1:1377797,x2:422122,x3:169885,x4mais:86176},
+  {mes:'2025-04',x1:1327683,x2:374322,x3:140624,x4mais:65217},
+  {mes:'2025-05',x1:1434403,x2:401797,x3:156608,x4mais:72399},
+  {mes:'2025-06',x1:1451948,x2:400532,x3:153215,x4mais:70242},
+  {mes:'2025-07',x1:1528320,x2:448913,x3:176089,x4mais:81525},
+  {mes:'2025-08',x1:1571041,x2:475554,x3:190660,x4mais:88947},
+  {mes:'2025-09',x1:1631174,x2:522686,x3:212610,x4mais:99500},
+  {mes:'2025-10',x1:1747777,x2:599675,x3:249992,x4mais:118087},
+  {mes:'2025-11',x1:1886333,x2:652335,x3:277274,x4mais:131916},
+  {mes:'2025-12',x1:1885169,x2:632145,x3:261480,x4mais:122400},
+  {mes:'2026-01',x1:1858024,x2:620472,x3:256000,x4mais:118869},
+  {mes:'2026-02',x1:1740695,x2:557534,x3:221191,x4mais:99519},
+  {mes:'2026-03',x1:1900691,x2:647702,x3:273020,x4mais:128445},
+  {mes:'2026-04',x1:1877754,x2:629393,x3:258148,x4mais:118805},
+  {mes:'2026-05',x1:1983415,x2:688338,x3:293171,x4mais:139722},
+  {mes:'2026-06',x1:1723612,x2:542260,x3:220388,x4mais:103918}
+];
 // Alias para manter compatibilidade com o diagnóstico principal (Filiado)
 const MESES = MESES_FILIADO;
 
@@ -1374,6 +1439,7 @@ function setRecorte(meses,btn){
   btn.setAttribute('aria-pressed','true');
   atualizarPeriodoUI();
   renderGraficosPlanos();
+  renderGraficoComprasCashback();
   atualizarGraficoFrequenciaEnvio();
   atualizarDiagnostico();
 }
@@ -2171,6 +2237,51 @@ function renderGraficoBaseMoM() {
   }
 }
 
+// =====================================================================================
+// NOVO 2026-07: render do gráfico de frequência de compras (cashback) por usuário único.
+// -------------------------------------------------------------------------------------
+// Mesmo padrão visual dos outros gráficos de barras empilhadas (mes-grupo), mas com
+// 4 segmentos em vez de 2. Usa tooltip nativo (atributo title) em vez do tooltip
+// compartilhado (#tt), porque o tooltip compartilhado só tem campos fixos para 2
+// valores (in/out) e mudar sua estrutura arriscaria quebrar os outros 2 gráficos
+// que já dependem dele.
+// =====================================================================================
+function renderGraficoComprasCashback() {
+  const wrap = document.getElementById('grafico-compras-cashback');
+  if (!wrap) return;
+  const dados = COMPRAS_CASHBACK_MENSAL.slice(Math.max(0, COMPRAS_CASHBACK_MENSAL.length - recorteAtual));
+  const totais = dados.map(d => d.x1 + d.x2 + d.x3 + d.x4mais);
+  const maxTotal = Math.max(...totais);
+  const alturaMax = 140;
+  wrap.innerHTML = '';
+
+  dados.forEach((d, i) => {
+    const total = totais[i];
+    const hTotal = Math.max(6, Math.round((total / maxTotal) * alturaMax));
+    const h1 = Math.round(hTotal * (d.x1 / total));
+    const h2 = Math.round(hTotal * (d.x2 / total));
+    const h3 = Math.round(hTotal * (d.x3 / total));
+    const h4 = Math.max(1, hTotal - h1 - h2 - h3); // resto vai pro 4x+ pra fechar a soma certinha
+
+    const rotulo = rotuloMesGrafico(d.mes);
+    const tituloTooltip = `${rotulo} · Compradores únicos: ${fmt(total)}\n1x: ${fmt(d.x1)} · 2x: ${fmt(d.x2)} · 3x: ${fmt(d.x3)} · 4x+: ${fmt(d.x4mais)}`;
+
+    const col = document.createElement('div');
+    col.className = 'mes-grupo';
+    col.title = tituloTooltip;
+    col.innerHTML = `
+      <div style="font-size:6.5px;font-weight:800;color:var(--verde-escuro);margin-bottom:2px;white-space:nowrap">${(total/1e6).toFixed(2)}M</div>
+      <div class="mes-barras-inner" style="width:85%">
+        <div class="compra-bar-4x" style="height:${h4}px"></div>
+        <div class="compra-bar-3x" style="height:${h3}px"></div>
+        <div class="compra-bar-2x" style="height:${h2}px"></div>
+        <div class="compra-bar-1x" style="height:${h1}px"></div>
+      </div>
+      <div class="mes-eixo-label">${rotulo}</div>`;
+    wrap.appendChild(col);
+  });
+}
+
 // ── INIT ─────────────────────────────────────────────────────────────
 async function inicializarPainel(){
   // FASE 1 — render imediato com dados estáticos (zero espera)
@@ -2178,6 +2289,7 @@ async function inicializarPainel(){
   atualizarSnapshotUI();
   recalcularSeriesRenderizadasSobreBaseAtual();
   renderGraficosPlanos();
+  renderGraficoComprasCashback();
   renderCriticos();
   atualizarDiagnostico();
   renderHistogramasPlanos();
