@@ -1723,9 +1723,9 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
         const yRelPct=(ponto.y/220)*100;
         const acima=yRelPct>25;
         const topStyle=acima
-          ? \`calc(\${yRelPct}% - 26px)\`
-          : \`calc(\${yRelPct}% + 12px)\`;
-        return \`<span style="position:absolute;left:\${xPct}%;top:\${topStyle};transform:translateX(-50%);font-size:9px;font-weight:800;color:\${serie.cor};white-space:nowrap;pointer-events:none;background:rgba(255,255,255,.85);border-radius:4px;padding:1px 4px;">\${fmtFreq(ponto.frequencia)}</span>\`;
+          ? `calc(${yRelPct}% - 26px)`
+          : `calc(${yRelPct}% + 12px)`;
+        return `<span style="position:absolute;left:${xPct}%;top:${topStyle};transform:translateX(-50%);font-size:9px;font-weight:800;color:${serie.cor};white-space:nowrap;pointer-events:none;background:rgba(255,255,255,.85);border-radius:4px;padding:1px 4px;">${fmtFreq(ponto.frequencia)}</span>`;
       }).join('');
     }).join('')}
   `;
