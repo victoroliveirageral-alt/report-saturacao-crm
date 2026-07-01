@@ -99,10 +99,21 @@
     .mes-barras-inner{width:80%;display:flex;flex-direction:column;border-radius:6px 6px 0 0;overflow:hidden;transition:opacity .15s}
     .mes-bar-in{width:100%;background:var(--verde);min-height:4px}
     .mes-bar-out{width:100%;background:var(--rosa);min-height:3px}
-    .compra-bar-1x{width:100%;background:var(--verde);min-height:3px}
-    .compra-bar-2x{width:100%;background:var(--azul);min-height:3px}
-    .compra-bar-3x{width:100%;background:var(--laranja);min-height:3px}
-    .compra-bar-4x{width:100%;background:var(--verde-escuro);min-height:3px}
+    /* Gráfico de linha de frequência de compras (4 séries sobrepostas) */
+    .compras-linha-chart svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+    .compras-linha-chart polyline{fill:none;stroke-width:2.4;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+    .compras-linha-1x{stroke:var(--verde);filter:drop-shadow(0 1px 2px rgba(0,169,136,.25))}
+    .compras-linha-2x{stroke:var(--azul);filter:drop-shadow(0 1px 2px rgba(5,169,196,.25))}
+    .compras-linha-3x{stroke:var(--laranja);filter:drop-shadow(0 1px 2px rgba(242,139,34,.25))}
+    .compras-linha-4x{stroke:var(--verde-escuro);filter:drop-shadow(0 1px 2px rgba(0,125,85,.25))}
+    .compras-ponto{position:absolute;width:7px;height:7px;border-radius:50%;border:2px solid white;transform:translate(-50%,-50%);cursor:pointer}
+    .compras-hover-col{position:absolute;top:0;bottom:0;cursor:pointer}
+    .compras-eixo-label{position:absolute;bottom:0;transform:translateX(-50%);font-size:8px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;white-space:nowrap}
+    .compras-tooltip{position:absolute;z-index:6;padding:10px 12px;border-radius:12px;background:var(--texto);color:white;font-size:10px;line-height:1.7;box-shadow:0 10px 24px rgba(0,0,0,.22);pointer-events:none;transform:translate(-50%,calc(-100% - 12px));white-space:nowrap}
+    .compras-tooltip::after{content:'';position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);width:10px;height:10px;background:var(--texto);border-radius:2px;rotate:45deg}
+    .compras-tooltip b{display:block;font-size:10.5px;margin-bottom:5px;color:white}
+    .compras-tooltip span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+    .compras-tooltip i{display:inline-block;width:7px;height:7px;border-radius:50%;flex:none}
     .mes-eixo-label{font-size:8px;color:var(--texto-suave);font-weight:800;text-align:center;margin-top:5px;text-transform:uppercase}
     .mes-eixo-label span{display:inline}
     .mes-eixo-label span+span::before{content:' '}
@@ -705,7 +716,9 @@
       </div>
     </div>
     <div class="conteudo">
-      <div class="mes-barras" id="grafico-compras-cashback" style="display:flex;align-items:flex-end;gap:4px;min-height:170px;padding:10px 4px 0"></div>
+      <div class="compras-linha-chart" id="grafico-compras-cashback" style="position:relative;height:200px;padding:10px 4px 24px">
+        <div class="compras-tooltip" id="compras-tooltip" style="display:none"></div>
+      </div>
       <div style="display:flex;gap:14px;margin-top:10px;font-size:9px;font-weight:800;flex-wrap:wrap">
         <span style="color:var(--verde)">● 1 compra</span>
         <span style="color:var(--azul)">● 2 compras</span>
@@ -2240,45 +2253,100 @@ function renderGraficoBaseMoM() {
 // =====================================================================================
 // NOVO 2026-07: render do gráfico de frequência de compras (cashback) por usuário único.
 // -------------------------------------------------------------------------------------
-// Mesmo padrão visual dos outros gráficos de barras empilhadas (mes-grupo), mas com
-// 4 segmentos em vez de 2. Usa tooltip nativo (atributo title) em vez do tooltip
-// compartilhado (#tt), porque o tooltip compartilhado só tem campos fixos para 2
-// valores (in/out) e mudar sua estrutura arriscaria quebrar os outros 2 gráficos
-// que já dependem dele.
+// Gráfico de linha com 4 séries sobrepostas (1x/2x/3x/4x+), escala compartilhada
+// (mesmo eixo Y para as 4), cantos arredondados via stroke-linecap/linejoin round.
+// Tooltip é um card próprio (#compras-tooltip), não o tooltip global #tt — o #tt só
+// tem campos fixos pra 2 valores (in/out) e mudar sua estrutura arriscaria quebrar
+// os outros 2 gráficos que já dependem dele.
 // =====================================================================================
 function renderGraficoComprasCashback() {
   const wrap = document.getElementById('grafico-compras-cashback');
   if (!wrap) return;
   const dados = COMPRAS_CASHBACK_MENSAL.slice(Math.max(0, COMPRAS_CASHBACK_MENSAL.length - recorteAtual));
-  const totais = dados.map(d => d.x1 + d.x2 + d.x3 + d.x4mais);
-  const maxTotal = Math.max(...totais);
-  const alturaMax = 140;
-  wrap.innerHTML = '';
+  if (!dados.length) return;
 
+  const series = [
+    {chave:'x1', classe:'compras-linha-1x', cor:'var(--verde)', nome:'1 compra'},
+    {chave:'x2', classe:'compras-linha-2x', cor:'var(--azul)', nome:'2 compras'},
+    {chave:'x3', classe:'compras-linha-3x', cor:'var(--laranja)', nome:'3 compras'},
+    {chave:'x4mais', classe:'compras-linha-4x', cor:'var(--verde-escuro)', nome:'4+ compras'}
+  ];
+
+  // Escala compartilhada entre as 4 séries: preserva a comparação real de magnitude
+  // (ex: "1 compra" tem muito mais gente que "4+ compras", e isso deve aparecer).
+  const maxValor = Math.max(...dados.flatMap(d => series.map(s => d[s.chave])));
+  const margemTopo = 12; // % do topo reservado pra não cortar pontos/tooltip
+
+  const pontosPorSerie = series.map(s => ({
+    ...s,
+    pontos: dados.map((d, i) => {
+      const x = dados.length === 1 ? 50 : (i / (dados.length - 1)) * 100;
+      const y = margemTopo + (1 - d[s.chave] / maxValor) * (100 - margemTopo - 14);
+      return {x, y, valor: d[s.chave], mes: d.mes};
+    })
+  }));
+
+  const tooltip = document.getElementById('compras-tooltip');
+  wrap.querySelectorAll('svg, .compras-ponto, .compras-hover-col, .compras-eixo-label').forEach(el => el.remove());
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.setAttribute('aria-hidden', 'true');
+  pontosPorSerie.forEach(s => {
+    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    polyline.setAttribute('points', s.pontos.map(p => `${p.x},${p.y}`).join(' '));
+    polyline.setAttribute('class', s.classe);
+    svg.appendChild(polyline);
+  });
+  wrap.appendChild(svg);
+
+  // Pontos (círculos) de cada série, coloridos por série.
+  pontosPorSerie.forEach(s => {
+    s.pontos.forEach(p => {
+      const ponto = document.createElement('div');
+      ponto.className = 'compras-ponto';
+      ponto.style.left = p.x + '%';
+      ponto.style.top = p.y + '%';
+      ponto.style.background = s.cor;
+      wrap.appendChild(ponto);
+    });
+  });
+
+  // Colunas de hover invisíveis (uma por mês) + rótulo do eixo X.
   dados.forEach((d, i) => {
-    const total = totais[i];
-    const hTotal = Math.max(6, Math.round((total / maxTotal) * alturaMax));
-    const h1 = Math.round(hTotal * (d.x1 / total));
-    const h2 = Math.round(hTotal * (d.x2 / total));
-    const h3 = Math.round(hTotal * (d.x3 / total));
-    const h4 = Math.max(1, hTotal - h1 - h2 - h3); // resto vai pro 4x+ pra fechar a soma certinha
+    const x = dados.length === 1 ? 50 : (i / (dados.length - 1)) * 100;
+    const largura = 100 / dados.length;
 
-    const rotulo = rotuloMesGrafico(d.mes);
-    const tituloTooltip = `${rotulo} · Compradores únicos: ${fmt(total)}\n1x: ${fmt(d.x1)} · 2x: ${fmt(d.x2)} · 3x: ${fmt(d.x3)} · 4x+: ${fmt(d.x4mais)}`;
+    const rotulo = document.createElement('div');
+    rotulo.className = 'compras-eixo-label';
+    rotulo.style.left = x + '%';
+    rotulo.textContent = rotuloMesGrafico(d.mes);
+    wrap.appendChild(rotulo);
 
-    const col = document.createElement('div');
-    col.className = 'mes-grupo';
-    col.title = tituloTooltip;
-    col.innerHTML = `
-      <div style="font-size:6.5px;font-weight:800;color:var(--verde-escuro);margin-bottom:2px;white-space:nowrap">${(total/1e6).toFixed(2)}M</div>
-      <div class="mes-barras-inner" style="width:85%">
-        <div class="compra-bar-4x" style="height:${h4}px"></div>
-        <div class="compra-bar-3x" style="height:${h3}px"></div>
-        <div class="compra-bar-2x" style="height:${h2}px"></div>
-        <div class="compra-bar-1x" style="height:${h1}px"></div>
-      </div>
-      <div class="mes-eixo-label">${rotulo}</div>`;
-    wrap.appendChild(col);
+    const colHover = document.createElement('div');
+    colHover.className = 'compras-hover-col';
+    colHover.style.left = `calc(${x}% - ${largura/2}%)`;
+    colHover.style.width = largura + '%';
+
+    const mostrarTooltip = evento => {
+      const total = d.x1 + d.x2 + d.x3 + d.x4mais;
+      tooltip.innerHTML = `
+        <b>${rotuloMesGrafico(d.mes)} · ${fmt(total)} compradores</b>
+        <span><i style="background:var(--verde)"></i>1 compra: <strong style="margin-left:auto">${fmt(d.x1)}</strong></span>
+        <span><i style="background:var(--azul)"></i>2 compras: <strong style="margin-left:auto">${fmt(d.x2)}</strong></span>
+        <span><i style="background:var(--laranja)"></i>3 compras: <strong style="margin-left:auto">${fmt(d.x3)}</strong></span>
+        <span><i style="background:var(--verde-escuro)"></i>4+ compras: <strong style="margin-left:auto">${fmt(d.x4mais)}</strong></span>
+      `;
+      tooltip.style.left = x + '%';
+      tooltip.style.top = Math.min(...series.map(s => pontosPorSerie.find(p => p.chave === s.chave).pontos[i].y)) + '%';
+      tooltip.style.display = 'block';
+    };
+    colHover.addEventListener('mouseenter', mostrarTooltip);
+    colHover.addEventListener('mousemove', mostrarTooltip);
+    colHover.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    colHover.addEventListener('touchstart', evento => { evento.preventDefault(); mostrarTooltip(evento); }, {passive:false});
+    wrap.appendChild(colHover);
   });
 }
 
