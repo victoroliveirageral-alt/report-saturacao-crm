@@ -393,8 +393,58 @@
 
     @keyframes pulsar{from{opacity:.3}to{opacity:1}}
   </style>
+  <link rel="preconnect" href="https://relatorio-campanhas-clevertap.onrender.com" crossorigin>
+  <link rel="dns-prefetch" href="https://relatorio-campanhas-clevertap.onrender.com">
 </head>
 <body>
+
+<script>
+// ── WARM-UP DO BACKEND ──────────────────────────────────────────────
+// Dispara imediatamente ao carregar a página, antes do painel inicializar.
+// Objetivo: acordar o backend do Render enquanto o usuário lê o hero,
+// para que quando o painel pedir dados reais, o backend já esteja ativo.
+(function(){
+  const BACKEND = 'https://relatorio-campanhas-clevertap.onrender.com';
+  const ENDPOINT_PING = BACKEND + '/api/reachability-push-v2';
+  const t0 = Date.now();
+  let avisoColdStart = null;
+
+  // Aviso de cold start — aparece só se demorar mais de 4s
+  const timerAviso = setTimeout(function(){
+    const banner = document.getElementById('banner-cold-start');
+    if(banner) {
+      banner.style.display = 'flex';
+      avisoColdStart = banner;
+    }
+  }, 4000);
+
+  // Ping com retry — tenta acordar o backend
+  function ping(tentativa) {
+    fetch(ENDPOINT_PING, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(function(r) {
+      clearTimeout(timerAviso);
+      const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+      if(avisoColdStart) avisoColdStart.style.display = 'none';
+      // Sinaliza que backend está pronto para o painel principal
+      window._backendPronto = true;
+      console.log('[warm-up] backend pronto em ' + elapsed + 's (tentativa ' + tentativa + ')');
+    })
+    .catch(function() {
+      // Retry com backoff: 3s, 6s, 10s
+      const delays = [3000, 6000, 10000];
+      if(tentativa <= delays.length) {
+        setTimeout(function(){ ping(tentativa + 1); }, delays[tentativa - 1]);
+      }
+    });
+  }
+
+  ping(1);
+})();
+</script>
 
 <!-- Tooltip global (posicionado via JS) -->
 <div class="tt" id="tt">
@@ -2247,6 +2297,16 @@ async function inicializarPainel(){
   renderizarGraficoFrequenciaEnvio(mesesDoRecorteAtual());
 
   // FASE 2 — todos os fetches em paralelo, cada um atualiza ao chegar
+  // Se o warm-up ainda não completou, aguarda até 8s para o backend acordar
+  if(!window._backendPronto) {
+    await new Promise(function(resolve){
+      let tries = 0;
+      const check = setInterval(function(){
+        tries++;
+        if(window._backendPronto || tries >= 16) { clearInterval(check); resolve(); }
+      }, 500);
+    });
+  }
   await Promise.allSettled([
     buscarInsightsMaisRecente()
       .then(dados => {
@@ -2276,5 +2336,13 @@ async function inicializarPainel(){
 }
 inicializarPainel();
 </script>
+
+<!-- Banner cold start — aparece só se backend demorar >4s -->
+<div id="banner-cold-start" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:9999;align-items:center;gap:10px;padding:12px 20px;border-radius:14px;background:#253632;color:white;font-size:12px;font-weight:700;box-shadow:0 4px 24px rgba(0,0,0,.25);max-width:90vw;white-space:nowrap">
+  <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#A6FF00;animation:pulsar .8s ease-in-out infinite alternate;flex-shrink:0"></span>
+  Backend acordando — dados reais chegam em instantes…
+  <button onclick="document.getElementById('banner-cold-start').style.display='none'" style="background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;font-size:16px;line-height:1;padding:0 0 0 6px">×</button>
+</div>
+
 </body>
 </html>
