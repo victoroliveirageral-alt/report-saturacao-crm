@@ -2283,10 +2283,19 @@ function renderGraficoComprasCashback() {
   const maxValor = Math.max(...dados.flatMap(d => series.map(s => d[s.chave])));
   const margemTopo = 12; // % do topo reservado pra não cortar pontos/tooltip
 
+  // -------------------------------------------------------------------------------
+  // BLOCO: posição X por "coluna", não borda-a-borda. Cada mês ocupa uma fatia de
+  // largura igual (100/n%) e o ponto fica no CENTRO da fatia — é a mesma lógica que
+  // os gráficos de barra (.mes-grupo) já usam. Sem isso, o primeiro e o último ponto
+  // ficavam grudados nas bordas (x=0% e x=100%), sem o respiro que dá a sensação de
+  // "tabulado" que o resto do painel tem. Ajuste pedido em 2026-07 após feedback.
+  // -------------------------------------------------------------------------------
+  const posicaoXColuna = i => (dados.length === 1 ? 50 : ((i + 0.5) / dados.length) * 100);
+
   const pontosPorSerie = series.map(s => ({
     ...s,
     pontos: dados.map((d, i) => {
-      const x = dados.length === 1 ? 50 : (i / (dados.length - 1)) * 100;
+      const x = posicaoXColuna(i);
       const y = margemTopo + (1 - d[s.chave] / maxValor) * (100 - margemTopo - 14);
       return {x, y, valor: d[s.chave], mes: d.mes};
     })
@@ -2321,7 +2330,7 @@ function renderGraficoComprasCashback() {
 
   // Colunas de hover invisíveis (uma por mês) + rótulo do eixo X.
   dados.forEach((d, i) => {
-    const x = dados.length === 1 ? 50 : (i / (dados.length - 1)) * 100;
+    const x = posicaoXColuna(i);
     const largura = 100 / dados.length;
 
     const rotulo = document.createElement('div');
@@ -2332,7 +2341,7 @@ function renderGraficoComprasCashback() {
 
     const colHover = document.createElement('div');
     colHover.className = 'compras-hover-col';
-    colHover.style.left = `calc(${x}% - ${largura/2}%)`;
+    colHover.style.left = (i * largura) + '%'; // fatia exata do mês, sem offset
     colHover.style.width = largura + '%';
 
     const mostrarTooltip = evento => {
