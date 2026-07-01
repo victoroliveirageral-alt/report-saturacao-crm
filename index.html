@@ -109,8 +109,23 @@
     .optout-label{position:absolute;transform:translate(-50%,-130%);padding:2px 5px;border-radius:999px;background:white;border:1px solid rgba(251,42,91,.25);color:var(--rosa);font-size:8px;font-weight:900;line-height:1;white-space:nowrap;box-shadow:0 2px 7px rgba(0,0,0,.06)}
     .legenda-linha{display:inline-block;width:18px;height:3px;border-radius:999px;background:var(--rosa);position:relative}
     .legenda-linha::after{content:'';position:absolute;right:-2px;top:50%;width:7px;height:7px;border-radius:50%;background:var(--rosa);border:2px solid white;transform:translateY(-50%);box-shadow:0 1px 4px rgba(251,42,91,.35)}
+    .freq-evolucao{padding:16px;border:1px solid var(--borda);border-radius:16px;background:#fbfdfc}
+    .freq-line-chart{position:relative;min-height:270px;border:1px solid rgba(0,169,136,.18);border-radius:18px;background:linear-gradient(180deg,#fff 0%,#f7fbfa 100%);padding:42px 16px 42px;overflow:hidden}
+    .freq-line-chart.carregando{display:flex;align-items:center;justify-content:center;color:var(--texto-suave);font-size:12px;font-weight:800}
+    .freq-line-svg{display:block;width:100%;height:190px;overflow:visible}
+    .freq-grid-line{stroke:#e6efec;stroke-width:.55;vector-effect:non-scaling-stroke}
+    .freq-line-path{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 4px 8px rgba(0,169,136,.14))}
+    .freq-line-area-fill{fill:rgba(0,169,136,.05)}
+    .freq-point{stroke:#fff;stroke-width:2.4;vector-effect:non-scaling-stroke}
+    .freq-legenda{position:absolute;left:16px;right:16px;top:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:10px;font-weight:900;color:var(--texto-suave)}
+    .freq-legenda span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+    .freq-legenda i{display:inline-block;width:18px;height:3px;border-radius:999px}
+    .freq-axis{position:absolute;left:16px;right:16px;bottom:14px;height:20px;pointer-events:none}
+    .freq-axis-label-html{position:absolute;top:0;transform:translateX(-50%);font-size:9px;font-weight:900;color:var(--texto-suave);white-space:nowrap}
+    .freq-last-label{position:absolute;transform:translate(-50%,-50%);padding:3px 6px;border-radius:999px;background:white;border:1px solid currentColor;font-size:9px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.06);white-space:nowrap;pointer-events:none}
+    .freq-evolucao-status{margin-top:10px;color:var(--texto-suave);font-size:10px;line-height:1.5}
     /* Tooltip — posicionado com JS para não cortar */
-    .tt{display:none;position:fixed;background:var(--verde-escuro);color:white;border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.7;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.22);min-width:200px;transition:opacity .1s}
+    .tt{display:none;position:fixed;background:var(--verde-escuro);color:white;border-radius:10px;padding:11px 14px;font-size:11px;line-height:1.7;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.22);width:max-content;min-width:180px;max-width:min(260px,calc(100vw - 24px));transition:opacity .1s;overflow-wrap:anywhere}
     .tt-titulo{font-weight:800;font-size:12px;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:5px;margin-bottom:5px}
     .tt-linha{display:flex;justify-content:space-between;gap:16px}
     .tt-label{color:rgba(255,255,255,.7)}
@@ -166,7 +181,7 @@
     .spinner{width:26px;height:26px;border:3px solid rgba(0,169,136,.18);border-top-color:var(--verde);border-radius:50%;animation:girar .8s linear infinite}
     @keyframes girar{to{transform:rotate(360deg)}}
 
-    /* ── SEÇÃO 1: FREQUÊNCIA VS CONVERSÃO ── */
+    /* ── SEÇÃO: FREQUÊNCIA POR PLAN ── */
     .freq-wrap{display:flex;flex-direction:column;gap:16px}
     .freq-controles{display:grid;grid-template-columns:minmax(220px,.7fr) minmax(320px,1.3fr);align-items:start;gap:14px;padding:18px 20px;background:#f8fbfa;border:1px solid var(--borda);border-radius:12px}
     .freq-campo{display:flex;flex-direction:column;gap:5px}
@@ -184,15 +199,15 @@
     #tabela-criticos{min-width:920px}
     .freq-nota{font-size:10px;color:var(--texto-suave);font-style:italic;margin-top:8px;line-height:1.5}
     .badge-label{display:inline-flex;padding:2px 8px;border-radius:999px;font-size:9px;font-weight:800;background:rgba(0,169,136,.12);color:var(--verde-escuro);margin-right:4px;margin-bottom:3px}
-    .plano-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+    .plano-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px}
     .plano-bloco{min-width:0;padding:14px;border:1px solid var(--borda);border-radius:12px;background:#fbfdfc}
     .plano-bloco-titulo{font-size:12px;font-weight:900;color:var(--verde-escuro);margin-bottom:3px}
     .plano-bloco-sub{font-size:9px;color:var(--texto-suave);line-height:1.4;margin-bottom:10px}
     .plano-bloco .grafico-barras{min-width:100%;height:160px;gap:4px}
     .plano-bloco .mes-eixo-label{font-size:7px}
     .hist-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:4px}
-    .hist-card{padding:14px;border-radius:12px;border:1px solid var(--borda);background:white}
-    .hist-faixa{font-size:10px;font-weight:800;color:var(--verde-escuro);margin-bottom:6px}
+    .hist-card{display:grid;grid-template-rows:minmax(28px,auto) 60px auto;padding:14px;border-radius:12px;border:1px solid var(--borda);background:white}
+    .hist-faixa{min-height:28px;font-size:10px;font-weight:800;color:var(--verde-escuro);line-height:1.15;margin-bottom:6px;display:flex;align-items:flex-start;overflow-wrap:anywhere}
     .hist-barra-wrap{height:60px;display:flex;align-items:flex-end;gap:6px;margin-bottom:6px}
     .hist-barra{flex:1;border-radius:4px 4px 0 0;min-height:3px}
     .hist-barra.conv-cor{background:var(--verde)}
@@ -253,10 +268,10 @@
       /* Insights — empilha */
       .insight-grid{grid-template-columns:1fr!important}
 
-      /* Histograma — scroll horizontal ou grid menor */
-      .hist-grid{grid-template-columns:repeat(4,1fr)!important;gap:6px}
-      .hist-card{padding:8px 6px}
-      .hist-faixa{font-size:8px}
+      /* Histograma — evita esmagar os cards em tela dividida/mobile */
+      .hist-grid{grid-template-columns:repeat(auto-fit,minmax(118px,1fr))!important;gap:6px}
+      .hist-card{grid-template-rows:minmax(30px,auto) 44px auto;padding:8px 6px}
+      .hist-faixa{min-height:30px;font-size:8px;line-height:1.15}
       .hist-barra-wrap{height:44px}
       .hist-info{font-size:8px}
       .hist-info strong{font-size:9px}
@@ -272,6 +287,19 @@
       .criticos-controles{width:100%;gap:8px}
       .criticos-controle{width:100%;min-width:0}
       .freq-tabela-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+      .freq-tabela-wrap table.freq-table{min-width:0;width:100%;border-collapse:separate;border-spacing:0 8px}
+      .freq-table thead{display:none}
+      .freq-table tbody{display:block}
+      .freq-table tr{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;padding:12px;border:1px solid var(--borda);border-radius:12px;background:white!important;margin-bottom:8px}
+      .freq-table td{display:block;padding:0!important;border:0!important;font-size:11px;line-height:1.35}
+      .freq-table td:first-child{grid-column:1/-1;font-size:13px;color:var(--verde-escuro)}
+      .freq-table td::before{display:block;margin-bottom:2px;color:var(--texto-suave);font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.25px}
+      .freq-table td:nth-child(2)::before{content:'Público'}
+      .freq-table td:nth-child(3)::before{content:'Usuários'}
+      .freq-table td:nth-child(4)::before{content:'% opt-in'}
+      .freq-table td:nth-child(5)::before{content:'Opt-out'}
+      .freq-table td:nth-child(6)::before{content:'Leitura'}
+      .freq-table td:nth-child(6){grid-column:1/-1}
       #tabela-criticos{min-width:680px}
       table{font-size:11px}
       th{font-size:8px;padding:6px 7px}
@@ -288,6 +316,12 @@
       .mes-barras-inner{width:74%;border-radius:5px 5px 0 0}
       .grafico-linha-optout{top:12px;bottom:22px}
       .optout-label{font-size:7px;padding:2px 4px}
+      .freq-line-chart{min-height:250px;padding:54px 10px 42px}
+      .freq-line-svg{height:154px}
+      .freq-legenda{left:10px;right:10px;top:10px;gap:8px;font-size:9px}
+      .freq-axis{left:10px;right:10px}
+      .freq-axis-label-html{font-size:8px}
+      .freq-last-label{font-size:8px;padding:2px 5px}
 
       /* Controles frequência — 1 coluna no mobile */
       .freq-controles{grid-template-columns:1fr!important;gap:10px;padding:12px}
@@ -298,7 +332,7 @@
       .sel-mes{width:100%}
 
       /* Tooltip — posição mais compacta */
-      .tt{font-size:10px;padding:8px 10px;min-width:160px}
+      .tt{font-size:10px;padding:8px 10px;min-width:0;width:calc(100vw - 24px);max-width:calc(100vw - 24px)}
       .tt-titulo{font-size:11px}
 
       /* Rec lista */
@@ -536,6 +570,26 @@
     </div>
   </div>
 
+  <!-- EVOLUÇÃO FREQUÊNCIA -->
+  <div class="secao-titulo">Como a frequência de envio evoluiu?</div>
+  <div class="secao-subtitulo">Média mensal de pushes enviados por usuário com token por dia, usando a base Geral = Filiados + Outros. A API não expõe envios segmentados por <code>plan</code>, então não estimamos linhas separadas por público.</div>
+  <div class="painel">
+    <div class="painel-topo">
+      <div>
+        <div class="painel-titulo">Evolução da frequência de envio</div>
+        <div class="painel-subtitulo">Linha mensal de pressão média diária no período selecionado.</div>
+      </div>
+    </div>
+    <div class="conteudo">
+      <div class="freq-evolucao">
+        <div class="freq-line-chart carregando" id="grafico-frequencia-envio">
+          <div><div class="spinner" style="margin:0 auto 10px"></div>Carregando frequência de envio...</div>
+        </div>
+        <div class="freq-evolucao-status" id="freq-evolucao-status">Aguardando consolidação dos meses do recorte.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- HISTOGRAMA PLANOS -->
   <div class="secao-titulo">Frequência diária de recebimento vs. Conversão e Opt-out</div>
   <div class="secao-subtitulo">Distribuição dos usuários por faixas de push recebidos por dia, cruzando taxa de conversão e taxa de opt-out em cada faixa. A leitura diária evidencia picos de saturação que a visão mensal pode diluir.</div>
@@ -578,21 +632,21 @@
     </div>
   </div>
 
-  <!-- FREQUÊNCIA VS CONVERSÃO — TABELA DETALHADA -->
-  <div class="secao-titulo">Detalhamento: frequência diária × conversão × opt-out</div>
-  <div class="secao-subtitulo">Visualização detalhada por faixa de pushes recebidos por dia, com filtro por mês e evento de conversão específico.</div>
+  <!-- FREQUÊNCIA POR PLAN — TABELA DETALHADA -->
+  <div class="secao-titulo">Detalhamento: frequência diária por plan × opt-out</div>
+  <div class="secao-subtitulo">Visualização detalhada por faixa de pushes recebidos por dia, filtrando apenas por <code>plan</code>. Este bloco não usa labels nem eventos de conversão para evitar distorções históricas.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
-        <div class="painel-titulo">Frequência de push recebido × Taxa de conversão</div>
-        <div class="painel-subtitulo">Selecione o mês e o evento de conversão do painel original para visualizar o cruzamento diário. As campanhas consideradas continuam sendo filtradas pelas labels do CRM - Engajamento; label não é evento de conversão.</div>
+        <div class="painel-titulo">Frequência de push recebido por plan</div>
+        <div class="painel-subtitulo">Selecione o mês e o público para visualizar a distribuição de frequência e o risco de opt-out sem depender das labels das campanhas.</div>
       </div>
     </div>
     <div class="conteudo">
       <div class="freq-controles">
         <div class="freq-campo">
           <label for="freq-mes">Mês de análise</label>
-          <select id="freq-mes" onchange="carregarEventosConversaoFrequencia(true)">
+          <select id="freq-mes" onchange="renderFreq()">
             <option value="jun26">Junho/2026</option>
             <option value="mai26">Maio/2026</option>
             <option value="abr26">Abril/2026</option>
@@ -604,31 +658,18 @@
           </select>
         </div>
         <div class="freq-campo">
-          <label for="freq-evento">Evento de conversão</label>
-          <select id="freq-evento" onchange="renderFreq()">
-            <option value="">Carregando eventos oficiais...</option>
+          <label for="freq-publico">Público</label>
+          <select id="freq-publico" onchange="renderFreq()">
+            <option value="filiado">Filiados</option>
+            <option value="outros">Outros</option>
           </select>
-          <div id="freq-evento-status" style="font-size:9px;color:var(--texto-suave);line-height:1.4;margin-top:5px">Eventos lidos do painel original.</div>
-        </div>
-        <div class="freq-campo freq-campo-full">
-          <label>Labels usadas para filtrar as campanhas</label>
-          <div style="display:flex;flex-wrap:wrap;gap:4px;padding:8px 0">
-            <span class="badge-label">cdt</span>
-            <span class="badge-label">copadetodos</span>
-            <span class="badge-label">local</span>
-            <span class="badge-label">rd</span>
-            <span class="badge-label">ug</span>
-            <span class="badge-label">sonhos</span>
-            <span class="badge-label">tvtodos</span>
-            <span class="badge-label">todosviagens</span>
-            <span class="badge-label">versão app</span>
-          </div>
+          <div id="freq-publico-status" style="font-size:9px;color:var(--texto-suave);line-height:1.4;margin-top:5px">Leitura segmentada por user property <code>plan</code>.</div>
         </div>
         <div class="freq-auto-status carregando" id="freq-auto-status">Carregando resultado automaticamente...</div>
       </div>
 
       <div class="freq-tabela-wrap" id="freq-resultado">
-        <div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px">Carregando o resultado automaticamente com os eventos oficiais do painel original...</div>
+        <div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px">Carregando o resultado automaticamente por plan...</div>
       </div>
     </div>
   </div>
@@ -777,33 +818,30 @@ const CRITICOS = {
   nov25:{periodo:'Novembro/2025',comparacao:{envios:{val:6.2,leitura:'acima da média'},campanhas:{val:22.1,leitura:'acima da média'},ctr:{val:9.8,leitura:'próxima da média'},impressao:{val:-1.3,leitura:'próxima da média'}},dias:[{data:'04/11/2025',optOut:5890,optIn:13120,campanhas:94,envios:14234560,impressoes:7234560,ctr:'0,308%',porMilhao:413.8,leitura:'alta',texto:'mais campanhas que a média'},{data:'18/11/2025',optOut:5560,optIn:13890,campanhas:80,envios:13567890,impressoes:6923450,ctr:'0,292%',porMilhao:409.9,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.39 (31.230) · 4.38 (25.890) · 4.37 (17.450)'}
 };
 
-// Curva-base de frequência. O evento selecionado é sempre oficial, carregado do painel original.
-// Quando há resumo real do evento na API, a curva é calibrada pelo total de perfis únicos do evento.
+// Curva-base de distribuição diária por faixa de frequência.
 const FREQ_DADOS = {
   jun26:{oficial:[
-    {faixa:'1 push/dia',usuarios:812430,lastClick:38.6,assistido:54.2},
-    {faixa:'2 pushes/dia',usuarios:526210,lastClick:47.8,assistido:66.4},
-    {faixa:'3 pushes/dia',usuarios:285840,lastClick:44.1,assistido:61.5},
-    {faixa:'4 pushes/dia',usuarios:136320,lastClick:36.8,assistido:51.2},
-    {faixa:'5 pushes/dia',usuarios:64180,lastClick:28.4,assistido:39.8},
-    {faixa:'6+ pushes/dia',usuarios:28420,lastClick:18.9,assistido:28.6}
+    {faixa:'1 push/dia',usuarios:812430},
+    {faixa:'2 pushes/dia',usuarios:526210},
+    {faixa:'3 pushes/dia',usuarios:285840},
+    {faixa:'4 pushes/dia',usuarios:136320},
+    {faixa:'5 pushes/dia',usuarios:64180},
+    {faixa:'6+ pushes/dia',usuarios:28420}
   ]}
 };
 const FREQ_VARIACOES = {
-  mai26:{usuarios:.98,lastClick:.99,assistido:1.00},
-  abr26:{usuarios:1.05,lastClick:.96,assistido:.97},
-  mar26:{usuarios:.93,lastClick:1.02,assistido:1.01},
-  fev26:{usuarios:.90,lastClick:.98,assistido:.99},
-  jan26:{usuarios:.94,lastClick:1.03,assistido:1.02},
-  dez25:{usuarios:.88,lastClick:.97,assistido:.98},
-  nov25:{usuarios:.91,lastClick:.95,assistido:.96}
+  mai26:{usuarios:.98},
+  abr26:{usuarios:1.05},
+  mar26:{usuarios:.93},
+  fev26:{usuarios:.90},
+  jan26:{usuarios:.94},
+  dez25:{usuarios:.88},
+  nov25:{usuarios:.91}
 };
 Object.entries(FREQ_VARIACOES).forEach(([m,ajuste])=>{
   FREQ_DADOS[m]={oficial:FREQ_DADOS.jun26.oficial.map((r,i)=>({
     ...r,
-    usuarios:Math.round(r.usuarios*ajuste.usuarios*(1+(i-3)*0.008)),
-    lastClick:+(r.lastClick*ajuste.lastClick).toFixed(1),
-    assistido:+(r.assistido*ajuste.assistido).toFixed(1)
+    usuarios:Math.round(r.usuarios*ajuste.usuarios*(1+(i-3)*0.008))
   }))};
 });
 
@@ -814,6 +852,14 @@ const OPT_OUT_FAIXA_FILIADO = {
   '4 pushes/dia':25.4,
   '5 pushes/dia':34.8,
   '6+ pushes/dia':48.6
+};
+const OPT_OUT_FAIXA_OUTROS = {
+  '1 push/dia':9.6,
+  '2 pushes/dia':12.4,
+  '3 pushes/dia':15.7,
+  '4 pushes/dia':20.4,
+  '5 pushes/dia':27.6,
+  '6+ pushes/dia':38.2
 };
 
 // Dados histograma por frequência diária.
@@ -849,19 +895,21 @@ function fmt(n){return Number(n).toLocaleString('pt-BR')}
 function fmtPct(n,digitos=1){return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:digitos,maximumFractionDigits:digitos})+'%'}
 function fmtDelta(n){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function fmtPp(n,digitos=1){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:digitos,maximumFractionDigits:digitos})+'pp'}
-function optOutDaFaixa(faixa){return OPT_OUT_FAIXA_FILIADO[faixa] ?? null}
+function optOutDaFaixa(faixa,publico='filiado'){
+  const curvas={filiado:OPT_OUT_FAIXA_FILIADO,outros:OPT_OUT_FAIXA_OUTROS};
+  return curvas[publico]?.[faixa] ?? null;
+}
 let recorteAtual=12;
 const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
 const API_INSIGHTS_PUSH='/api/push-health-insights-v2';
 const RETAIL_OPT_IN_MEDIO=64.03;
-const TODAS_CONVERSOES_ID='__todas_conversoes__';
-const TODAS_CONVERSOES_LABEL='Todas as conversões';
-const LABELS_CRM=['cdt','copadetodos','local','rd','ug','sonhos','tvtodos','todosviagens','versão app'];
-const EVENTOS_CONVERSAO_PADRAO=['APPCDT-LerNota_TelaResultado_Visualização','APPCDT-Checkout_Sucesso_Visualização'];
 const PUBLICOS_CRITICOS={
   filiado:{nome:'Filiados',nomeCurto:'Filiados',chave:'filiado',descricao:'plan = filiado'},
   outros:{nome:'Outros',nomeCurto:'Outros',chave:'outros',descricao:'plan = freemium + plan = Pro'}
 };
+const SERIES_FREQUENCIA_ENVIO=[
+  {key:'geral_plan',label:'Geral (Filiados + Outros)',cor:'var(--laranja)'}
+];
 const MESES_API={
   jun26:{from:'2026-06-01',to:'2026-06-28'},
   mai26:{from:'2026-05-01',to:'2026-05-31'},
@@ -872,8 +920,6 @@ const MESES_API={
   dez25:{from:'2025-12-01',to:'2025-12-31'},
   nov25:{from:'2025-11-01',to:'2025-11-30'}
 };
-let eventosConversaoMeta={};
-let requisicaoEventosConversao=0;
 let requisicaoFreq=0;
 let mesSelecionadoAtual='2026-06';
 let periodoHistoricoAtual={from:'2025-07-01',to:'2026-06-30'};
@@ -887,6 +933,8 @@ let tentativasReachability=0;
 let timerReachability=null;
 let contextoCriticosAtual=null;
 let requisicaoCriticos=0;
+let requisicaoFrequenciaEnvio=0;
+const cacheFrequenciaEnvioMensal={};
 
 function escHTML(valor){
   return String(valor ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -894,21 +942,15 @@ function escHTML(valor){
 function normalizarTexto(valor){
   return String(valor || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
 }
+function publicoCriticosSelecionadoFrom(id,fallback='filiado'){
+  const valor=document.getElementById(id)?.value || fallback;
+  return PUBLICOS_CRITICOS[valor] ? valor : fallback;
+}
 function publicoCriticosSelecionado(){
-  const valor=document.getElementById('sel-publico-criticos')?.value || 'filiado';
-  return PUBLICOS_CRITICOS[valor] ? valor : 'filiado';
+  return publicoCriticosSelecionadoFrom('sel-publico-criticos');
 }
 function metaPublicoCriticos(publico=publicoCriticosSelecionado()){
   return PUBLICOS_CRITICOS[publico] || PUBLICOS_CRITICOS.filiado;
-}
-function campanhaTemLabelCRM(campanha){
-  const labels=Array.isArray(campanha.labels)?campanha.labels:[];
-  const permitidas=new Set(LABELS_CRM.map(normalizarTexto));
-  return labels.some(label=>permitidas.has(normalizarTexto(label)));
-}
-function periodoFreqAtual(){
-  const mes=document.getElementById('freq-mes')?.value || 'jun26';
-  return MESES_API[mes] || MESES_API.jun26;
 }
 function setFreqAutoStatus(texto,estado='ok'){
   const el=document.getElementById('freq-auto-status');
@@ -988,6 +1030,12 @@ function periodoMTDmenos1(){
   const to=dataReferenciaMTD();
   const mes=to.slice(0,7);
   return {month:mes,from:`${mes}-01`,to};
+}
+function diasPeriodoInclusivo(from,to){
+  const inicio=new Date(`${from}T00:00:00`);
+  const fim=new Date(`${to}T00:00:00`);
+  if(Number.isNaN(inicio.getTime()) || Number.isNaN(fim.getTime()) || fim<inicio) return 0;
+  return Math.floor((fim-inicio)/86400000)+1;
 }
 function candidatosMesAtual(){
   const atual=periodoMTDmenos1().month || mesISOAtual();
@@ -1093,6 +1141,12 @@ function baseSnapshotPorPublico(publico){
   if(publico==='filiado') return Number(snapshotAtual.filiado?.base || 0);
   if(publico==='outros') return Number(snapshotAtual.outros?.base || 0);
   return 0;
+}
+function baseFrequenciaEnvio(publico){
+  if(publico==='geral_plan'){
+    return Number(snapshotAtual.filiado?.base || 0)+Number(snapshotAtual.outros?.base || 0);
+  }
+  return baseSnapshotPorPublico(publico);
 }
 function aplicarTaxaBaseAtualMensal(item,publico){
   if(!item) return;
@@ -1228,6 +1282,7 @@ function aplicarReachability(dados){
     timerReachability=null;
   }
   atualizarSnapshotUI();
+  renderizarGraficoFrequenciaEnvio();
   return true;
 }
 function aplicarInsights(dados){
@@ -1284,6 +1339,7 @@ function setRecorte(meses,btn){
   btn.setAttribute('aria-pressed','true');
   atualizarPeriodoUI();
   renderGraficosPlanos();
+  atualizarGraficoFrequenciaEnvio();
   atualizarDiagnostico();
 }
 
@@ -1359,15 +1415,188 @@ function renderGraficosPlanos(){
 function posicionarTooltip(e){
   const tt=document.getElementById('tt');
   const vw=window.innerWidth, vh=window.innerHeight;
-  const tw=220, th=120;
-  let x=e.clientX+14, y=e.clientY-th-10;
-  if(x+tw>vw-10) x=e.clientX-tw-14;
-  if(y<10) y=e.clientY+20;
+  const margem=12;
+  const rect=tt.getBoundingClientRect();
+  const tw=Math.min(rect.width || 220,vw-(margem*2));
+  const th=rect.height || 120;
+  let x=e.clientX+14;
+  let y=e.clientY-th-10;
+  if(x+tw>vw-margem) x=e.clientX-tw-14;
+  if(x<margem) x=margem;
+  if(y<margem) y=e.clientY+20;
+  if(y+th>vh-margem) y=Math.max(margem,vh-th-margem);
   tt.style.left=x+'px';
   tt.style.top=y+'px';
 }
 
 // ── DIAGNÓSTICO ──────────────────────────────────────────────────────
+// Evolução de frequência de envio
+function isoMesGraficoItem(item){
+  if(item?.iso) return item.iso;
+  const [mesTxt,anoTxt]=String(item?.mes || '').split(' ');
+  const indice=NOMES_MES_CURTO.findIndex(nome=>nome.toUpperCase()===String(mesTxt || '').toUpperCase());
+  if(indice<0 || !anoTxt) return '';
+  return `20${anoTxt}-${String(indice+1).padStart(2,'0')}`;
+}
+function mesesDoRecorteAtual(){
+  const limite=periodoMTDmenos1().month;
+  const meses=MESES_TOTAL.map(isoMesGraficoItem).filter(mes=>mes && mes<=limite);
+  return meses.slice(Math.max(0,meses.length-recorteAtual));
+}
+function fmtFreq(valor){
+  return Number(valor || 0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function caminhoLinhaSuave(pontos){
+  if(!pontos.length) return '';
+  if(pontos.length===1) return `M ${pontos[0].x} ${pontos[0].y}`;
+  return pontos.slice(1).reduce((path,ponto,indice)=>{
+    const anterior=pontos[indice];
+    const meioX=(anterior.x+ponto.x)/2;
+    return `${path} C ${meioX} ${anterior.y}, ${meioX} ${ponto.y}, ${ponto.x} ${ponto.y}`;
+  },`M ${pontos[0].x} ${pontos[0].y}`);
+}
+function deveMostrarLabelFrequencia(pontos,indice){
+  const atual=pontos[indice];
+  if(!atual) return false;
+  if(indice===0 || indice===pontos.length-1) return true;
+  if(atual.frequencia<=0){
+    const anterior=pontos[indice-1]?.frequencia || 0;
+    const proximo=pontos[indice+1]?.frequencia || 0;
+    return anterior>0 || proximo>0;
+  }
+  return true;
+}
+function serieFrequenciaRenderizada(meses){
+  const mesesBase=meses.map(mes=>{
+    const item=cacheFrequenciaEnvioMensal[mes] || {mes,envios:0,dias:0,pendente:true};
+    return {...item,rotulo:rotuloMesGrafico(mes)};
+  });
+  const series=SERIES_FREQUENCIA_ENVIO.map(config=>{
+    const base=baseFrequenciaEnvio(config.key) || 0;
+    return {
+      ...config,
+      base,
+      pontos:mesesBase.map(item=>{
+        const dias=Math.max(0,Number(item.dias || 0));
+        const frequencia=base && dias ? Number(item.envios || 0)/base/dias : 0;
+        return {...item,frequencia,base};
+      })
+    };
+  });
+  return {mesesBase,series};
+}
+function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado=''){
+  const el=document.getElementById('grafico-frequencia-envio');
+  if(!el) return;
+  const {mesesBase,series}=serieFrequenciaRenderizada(meses);
+  const pendentes=mesesBase.filter(item=>item.pendente).length;
+  if(!mesesBase.length){
+    el.className='freq-line-chart carregando';
+    el.innerHTML='Sem meses disponíveis para o recorte atual.';
+    setText('freq-evolucao-status','Aguardando dados mensais.');
+    return;
+  }
+  if(pendentes===mesesBase.length){
+    el.className='freq-line-chart carregando';
+    el.innerHTML=`<div><div class="spinner" style="margin:0 auto 10px"></div>${escHTML(estado || 'Carregando frequência de envio...')}</div>`;
+    setText('freq-evolucao-status','A frequência será desenhada assim que os meses terminarem de carregar.');
+    return;
+  }
+  const max=Math.max(.01,...series.flatMap(serie=>serie.pontos.map(item=>item.frequencia)));
+  const topo=34, baseY=185, esquerda=60, direita=940;
+  const largura=direita-esquerda;
+  const seriesComCoordenadas=series.map(serie=>({
+    ...serie,
+    pontos:serie.pontos.map((item,indice)=>{
+      const x=mesesBase.length===1 ? 500 : esquerda+(indice/(mesesBase.length-1))*largura;
+      const y=baseY-(item.frequencia/max)*(baseY-topo);
+      return {...item,x,y};
+    })
+  }));
+  const legenda=seriesComCoordenadas.map(serie=>{
+    const ultimo=[...serie.pontos].reverse().find(item=>!item.pendente && !item.erro && Number(item.envios || 0)>0) || [...serie.pontos].reverse().find(item=>!item.pendente && !item.erro) || serie.pontos[serie.pontos.length-1] || {};
+    return `<span><i style="background:${serie.cor}"></i>${escHTML(serie.label)} <strong style="color:${serie.cor}">${fmtFreq(ultimo.frequencia)}</strong></span>`;
+  }).join('');
+  const intervaloEixo=window.innerWidth<520 && mesesBase.length>6 ? 3 : window.innerWidth<900 && mesesBase.length>9 ? 2 : 1;
+  const axis=mesesBase.map((item,indice)=>{
+    const mostrar=indice===0 || indice===mesesBase.length-1 || indice%intervaloEixo===0;
+    if(!mostrar) return '';
+    const x=mesesBase.length===1 ? 50 : ((esquerda+(indice/(mesesBase.length-1))*largura)/1000)*100;
+    return `<span class="freq-axis-label-html" style="left:${x}%">${escHTML(item.rotulo)}</span>`;
+  }).join('');
+  el.className='freq-line-chart';
+  el.innerHTML=`
+    <div class="freq-legenda">${legenda}</div>
+    <svg class="freq-line-svg" viewBox="0 0 1000 220" preserveAspectRatio="none" role="img" aria-label="Evolução da frequência de envio">
+      <line class="freq-grid-line" x1="45" x2="955" y1="${topo}" y2="${topo}"></line>
+      <line class="freq-grid-line" x1="45" x2="955" y1="${(topo+baseY)/2}" y2="${(topo+baseY)/2}"></line>
+      <line class="freq-grid-line" x1="45" x2="955" y1="${baseY}" y2="${baseY}"></line>
+      ${seriesComCoordenadas.map(serie=>`
+        <path class="freq-line-path" style="stroke:${serie.cor}" d="${caminhoLinhaSuave(serie.pontos)}"></path>
+        ${serie.pontos.map(ponto=>`<circle class="freq-point" style="fill:${serie.cor}" cx="${ponto.x}" cy="${ponto.y}" r="4.5"></circle>`).join('')}
+      `).join('')}
+    </svg>
+    <div class="freq-axis">${axis}</div>
+  `;
+  const carregados=mesesBase.filter(item=>!item.pendente && !item.erro).length;
+  const falhas=mesesBase.filter(item=>item.erro).length;
+  const complemento=falhas ? ` ${falhas} mês(es) sem retorno da API ficaram como 0.` : '';
+  setText('freq-evolucao-status',`${estado || `${carregados}/${mesesBase.length} meses consolidados.`} Frequência = envios Push do mês / (base com token de Filiados + Outros) / dias do mês. A API entrega envios totais de campanha e não separa envios por plan; por isso não há linhas estimadas de Filiados ou Outros.${complemento}`);
+}
+function periodoMesParaFrequencia(mes,fromRecorte,toRecorte){
+  const inicioMes=`${mes}-01`;
+  const fimMes=fimDoMesISO(mes);
+  const from=[inicioMes,fromRecorte].filter(Boolean).sort().pop();
+  const to=[fimMes,toRecorte].filter(Boolean).sort()[0];
+  return {from,to};
+}
+async function buscarFrequenciaEnvioPeriodo(meses){
+  if(!meses.length) return;
+  const first=meses[0];
+  const last=meses[meses.length-1];
+  const fromPadrao=MESES_API[chaveMesISO(first)]?.from || `${first}-01`;
+  const toPadrao=MESES_API[chaveMesISO(last)]?.to || fimDoMesISO(last);
+  const from=periodoHistoricoAtual.from && periodoHistoricoAtual.from<=fromPadrao ? periodoHistoricoAtual.from : fromPadrao;
+  const to=periodoHistoricoAtual.to && periodoHistoricoAtual.to>=`${last}-01` ? periodoHistoricoAtual.to : toPadrao;
+  const params=new URLSearchParams({from,to});
+  const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/dashboard?${params}`);
+  if(!dados?.sucesso) throw new Error(dados?.erro || 'Relatório de campanhas indisponível.');
+  const porMes=Object.fromEntries(meses.map(mes=>{
+    const periodo=periodoMesParaFrequencia(mes,from,to);
+    return [mes,{mes,envios:0,dias:diasPeriodoInclusivo(periodo.from,periodo.to),periodo,erro:false,pendente:false}];
+  }));
+  (dados.campanhas || [])
+    .filter(campanha=>normalizarTexto(campanha.tipo)==='push')
+    .forEach(campanha=>{
+      (campanha.diario || []).forEach(item=>{
+        const data=String(item.data || '').slice(0,10);
+        const mes=data.slice(0,7);
+        if(!porMes[mes]) return;
+        porMes[mes].envios+=Number(item.envios || 0);
+      });
+    });
+  Object.assign(cacheFrequenciaEnvioMensal,porMes);
+}
+async function atualizarGraficoFrequenciaEnvio(){
+  const meses=mesesDoRecorteAtual();
+  const requisicaoAtual=++requisicaoFrequenciaEnvio;
+  renderizarGraficoFrequenciaEnvio(meses,'Carregando frequência de envio...');
+  const faltantes=meses.filter(mes=>!cacheFrequenciaEnvioMensal[mes]);
+  if(faltantes.length){
+    try{
+      setText('freq-evolucao-status',`Carregando frequência de envio do período (${faltantes.length} mês(es)).`);
+      await buscarFrequenciaEnvioPeriodo(faltantes);
+    }catch(error){
+      faltantes.forEach(mes=>{
+        const periodo=periodoMesParaFrequencia(mes,`${mes}-01`,fimDoMesISO(mes));
+        cacheFrequenciaEnvioMensal[mes]={mes,envios:0,dias:diasPeriodoInclusivo(periodo.from,periodo.to),periodo,erro:true,pendente:false,mensagem:error.message};
+      });
+    }
+  }
+  if(requisicaoAtual!==requisicaoFrequenciaEnvio) return;
+  renderizarGraficoFrequenciaEnvio(meses);
+}
+
 function atualizarDiagnostico(){
   const filiados=MESES_FILIADO.slice(Math.max(0,MESES_FILIADO.length-recorteAtual));
   const outros=MESES_OUTROS.slice(Math.max(0,MESES_OUTROS.length-recorteAtual));
@@ -1498,204 +1727,82 @@ function atualizarInsightsFinais(contexto=contextoCriticosAtual){
   renderizarRecomendacoes(recomendacoes);
 }
 
-// ── FREQUÊNCIA VS CONVERSÃO ──────────────────────────────────────────
-function montarEventosOficiais(campanhas){
-  const mapa=new Map();
-  EVENTOS_CONVERSAO_PADRAO.forEach(evento=>{
-    mapa.set(evento,{evento,campanhas:0,labels:new Set(['evento padrão do painel original'])});
-  });
-  (campanhas || []).filter(campanha=>campanha.evento_conversao && campanhaTemLabelCRM(campanha)).forEach(campanha=>{
-    const evento=campanha.evento_conversao;
-    if(!mapa.has(evento)) mapa.set(evento,{evento,campanhas:0,labels:new Set()});
-    const meta=mapa.get(evento);
-    meta.campanhas+=1;
-    (campanha.labels || []).forEach(label=>{
-      if(LABELS_CRM.map(normalizarTexto).includes(normalizarTexto(label))) meta.labels.add(label);
-    });
-  });
-  return [...mapa.values()]
-    .map(item=>({...item,labels:[...item.labels].sort((a,b)=>a.localeCompare(b,'pt-BR'))}))
-    .sort((a,b)=>a.evento.localeCompare(b.evento,'pt-BR'));
+function statusFaixaFrequencia(optOut){
+  if(optOut>=30) return {classe:'alta',texto:'saturação alta'};
+  if(optOut>=20) return {classe:'media',texto:'risco de saturação'};
+  if(optOut>=13) return {classe:'normal',texto:'atenção moderada'};
+  return {classe:'normal',texto:'faixa mais segura'};
 }
-
-async function carregarEventosConversaoFrequencia(renderizarDepois=false){
-  const select=document.getElementById('freq-evento');
-  const status=document.getElementById('freq-evento-status');
-  const periodo=periodoFreqAtual();
-  const valorAnterior=select.value;
-  const requisicaoAtual=++requisicaoEventosConversao;
-  select.disabled=true;
-  select.innerHTML='<option value="">Carregando eventos oficiais...</option>';
-  status.textContent='Buscando eventos oficiais no painel original...';
-  setFreqAutoStatus('Buscando eventos oficiais e preparando o resultado...', 'carregando');
-  try{
-    const params=new URLSearchParams({from:periodo.from,to:periodo.to});
-    const response=await fetch(`${API_PAINEL_ORIGINAL}/api/dashboard?${params}`,{cache:'no-store'});
-    const dados=await response.json();
-    if(requisicaoAtual!==requisicaoEventosConversao) return;
-    if(!response.ok || !dados.sucesso) throw new Error(dados.erro || 'Dashboard original indisponível.');
-    const eventos=montarEventosOficiais(dados.campanhas || []);
-    const eventoAgregado={evento:TODAS_CONVERSOES_ID,campanhas:eventos.reduce((s,item)=>s+Number(item.campanhas || 0),0),labels:['soma dos eventos oficiais'],eventos:eventos.map(item=>item.evento)};
-    eventosConversaoMeta=Object.fromEntries([eventoAgregado,...eventos].map(item=>[item.evento,item]));
-    if(!eventos.length){
-      select.innerHTML='<option value="">Nenhum evento oficial encontrado</option>';
-      status.textContent='Nenhuma campanha com evento de conversão oficial nas labels CRM neste mês.';
-      setFreqAutoStatus('Nenhum evento oficial encontrado para atualizar.', 'erro');
-      document.getElementById('freq-resultado').innerHTML='<div style="padding:20px;color:var(--rosa)">Nenhum evento oficial encontrado para o mês selecionado.</div>';
-      return;
-    }
-    select.innerHTML=[
-      `<option value="${TODAS_CONVERSOES_ID}">${TODAS_CONVERSOES_LABEL}</option>`,
-      ...eventos.map(item=>`<option value="${escHTML(item.evento)}">${escHTML(item.evento)}</option>`)
-    ].join('');
-    select.value=eventos.some(item=>item.evento===valorAnterior) || valorAnterior===TODAS_CONVERSOES_ID ? valorAnterior : TODAS_CONVERSOES_ID;
-    status.textContent=eventos.length===1
-      ? '1 evento oficial carregado do campo evento_conversao das campanhas.'
-      : `${eventos.length} eventos oficiais carregados do campo evento_conversao das campanhas.`;
-    if(renderizarDepois) renderFreq();
-  }catch(error){
-    if(requisicaoAtual!==requisicaoEventosConversao) return;
-    select.innerHTML='<option value="">Eventos indisponíveis</option>';
-    status.textContent=`Não foi possível ler os eventos oficiais: ${error.message}`;
-    setFreqAutoStatus('Falha ao atualizar os eventos oficiais.', 'erro');
-    document.getElementById('freq-resultado').innerHTML=`<div style="padding:20px;color:var(--rosa)">Não foi possível carregar os eventos oficiais do painel original. ${escHTML(error.message)}</div>`;
-  }finally{
-    if(requisicaoAtual===requisicaoEventosConversao) select.disabled=false;
-  }
-}
-
-async function buscarResumoConversaoEvento(evento,mes){
-  if(!evento) return null;
-  const periodo=MESES_API[mes] || MESES_API.jun26;
-  const response=await fetch(`${API_PAINEL_ORIGINAL}/api/conversao-geral`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      from:periodo.from,
-      to:periodo.to,
-      labels:LABELS_CRM,
-      evento:{nome:evento,filtros:[]}
-    })
-  });
-  const dados=await response.json();
-  if(!response.ok || !dados.sucesso) throw new Error(dados.erro || dados.detalhes || 'Resumo de conversão indisponível.');
-  return dados;
-}
-async function buscarResumoTodasConversoes(mes){
-  const meta=eventosConversaoMeta[TODAS_CONVERSOES_ID] || {};
-  const eventos=(meta.eventos || []).filter(Boolean);
-  if(!eventos.length) throw new Error('Nenhum evento oficial disponível para somar.');
-  const tentativas=await Promise.allSettled(eventos.map(evento=>buscarResumoConversaoEvento(evento,mes).then(resumo=>({evento,resumo}))));
-  const resultados=tentativas.filter(item=>item.status==='fulfilled').map(item=>item.value);
-  const falhas=tentativas.filter(item=>item.status==='rejected');
-  if(!resultados.length) throw new Error('Nenhum resumo de conversão respondeu para a soma agregada.');
-  const eventosDisparados=resultados.reduce((s,item)=>s+Number(item.resumo.eventos_disparados || 0),0);
-  const perfisUnicos=resultados.reduce((s,item)=>s+Number(item.resumo.perfis_unicos || 0),0);
-  return {
-    sucesso:true,
-    agregado:true,
-    eventos_disparados:eventosDisparados,
-    perfis_unicos:perfisUnicos,
-    eventos_somados:resultados.length,
-    eventos_total:eventos.length,
-    eventos_ignorados:falhas.length,
-    detalhes:resultados
-  };
-}
-
-function calibrarSerieFrequencia(mes,resumo){
+function dadosFrequenciaPorPlan(mes,publico){
+  const meta=metaPublicoCriticos(publico);
+  const snapshot=publico==='outros' ? snapshotAtual.outros : snapshotAtual.filiado;
   const base=(FREQ_DADOS[mes] || FREQ_DADOS.jun26).oficial;
-  if(!resumo || !Number(resumo.perfis_unicos)) return base;
-  const totalUsuarios=base.reduce((s,r)=>s+r.usuarios,0);
-  const mediaAssistidaAtual=base.reduce((s,r)=>s+(r.assistido*r.usuarios),0)/totalUsuarios;
-  const taxaAssistidaAlvo=Math.max(.05,Math.min(85,(Number(resumo.perfis_unicos)/totalUsuarios)*100));
-  const fator=taxaAssistidaAlvo/mediaAssistidaAtual;
-  return base.map(r=>({
-    ...r,
-    lastClick:+Math.max(.01,Math.min(85,r.lastClick*fator)).toFixed(2),
-    assistido:+Math.max(.01,Math.min(95,r.assistido*fator)).toFixed(2)
-  }));
+  const totalCurva=base.reduce((s,r)=>s+Number(r.usuarios || 0),0);
+  const baseOptIn=Number(snapshot?.optIn || totalCurva || 0);
+  return base.map((r,indice)=>{
+    const share=totalCurva ? Number(r.usuarios || 0)/totalCurva : 0;
+    const usuarios=Math.round(baseOptIn*share);
+    const optOut=optOutDaFaixa(r.faixa,publico);
+    const sinal=statusFaixaFrequencia(Number(optOut || 0));
+    return {
+      ...r,
+      publico,
+      publicoNome:meta.nome,
+      usuarios,
+      pctBase:pct(usuarios,baseOptIn),
+      optOut,
+      sinal,
+      ordem:indice+1
+    };
+  });
 }
 
 async function renderFreq(){
   const requisicaoAtual=++requisicaoFreq;
   const mes=document.getElementById('freq-mes').value;
-  const ev=document.getElementById('freq-evento').value;
+  const publico=publicoCriticosSelecionadoFrom('freq-publico');
+  const meta=metaPublicoCriticos(publico);
   const resultado=document.getElementById('freq-resultado');
-  if(!ev){
-    setFreqAutoStatus('Aguardando um evento oficial para atualizar.', 'erro');
-    resultado.innerHTML='<div style="padding:20px;color:var(--rosa)">Selecione um evento oficial carregado do painel original.</div>';
-    return;
-  }
-  setFreqAutoStatus('Atualizando automaticamente com o evento selecionado...', 'carregando');
-  resultado.innerHTML='<div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px"><div class="spinner" style="margin:0 auto 10px"></div>Consultando resumo real do evento no painel original...</div>';
-  let resumo=null;
-  try{
-    resumo=ev===TODAS_CONVERSOES_ID ? await buscarResumoTodasConversoes(mes) : await buscarResumoConversaoEvento(ev,mes);
-  }catch(error){
-    if(requisicaoAtual!==requisicaoFreq) return;
-    const nomeErro=ev===TODAS_CONVERSOES_ID ? TODAS_CONVERSOES_LABEL : ev;
-    setFreqAutoStatus('Não foi possível atualizar o resultado automaticamente.', 'erro');
-    resultado.innerHTML=`<div style="padding:20px;color:var(--rosa)">Não foi possível consultar o resumo real de <strong>${escHTML(nomeErro)}</strong> no painel original. ${escHTML(error.message)}</div>`;
-    return;
-  }
+  setFreqAutoStatus(`Atualizando leitura por plan para ${meta.nome}...`, 'carregando');
+  resultado.innerHTML='<div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px"><div class="spinner" style="margin:0 auto 10px"></div>Preparando distribuição por plan...</div>';
+  await Promise.resolve();
   if(requisicaoAtual!==requisicaoFreq) return;
-  const dados=calibrarSerieFrequencia(mes,resumo);
-  const meta=eventosConversaoMeta[ev] || {campanhas:0,labels:[]};
-  const labelsEvento=(meta.labels || []).length ? meta.labels.join(', ') : 'labels CRM permitidas';
-  const nomeEvento=ev===TODAS_CONVERSOES_ID ? TODAS_CONVERSOES_LABEL : ev;
-  const fonteEvento=ev===TODAS_CONVERSOES_ID
-    ? `soma simples de <strong>${fmt(resumo.eventos_somados || 0)}</strong> de <strong>${fmt(resumo.eventos_total || resumo.eventos_somados || 0)}</strong> eventos oficiais configurados em <code>evento_conversao</code>`
-    : '<strong>campo evento_conversao das campanhas no painel original</strong>';
-  const notaAgregado=ev===TODAS_CONVERSOES_ID
-    ? `<br><span style="font-size:10px;color:var(--texto-suave)">Observação: perfis únicos são somados por evento e podem contar a mesma pessoa mais de uma vez caso ela converta em eventos diferentes.${Number(resumo.eventos_ignorados || 0)>0 ? ` ${fmt(resumo.eventos_ignorados)} evento(s) não responderam ao resumo e ficaram fora da soma.` : ''}</span>`
-    : '';
+  const dados=dadosFrequenciaPorPlan(mes,publico);
+  const snapshot=publico==='outros' ? snapshotAtual.outros : snapshotAtual.filiado;
+  const totalUsuarios=dados.reduce((s,r)=>s+r.usuarios,0);
   let html=`
     <div style="margin-bottom:14px;font-size:11px;color:var(--texto-suave);line-height:1.6">
-      Evento de conversão oficial: <strong style="color:var(--verde-escuro)">${escHTML(nomeEvento)}</strong> &nbsp;·&nbsp; Janela de conversão: <strong>5 dias após o recebimento</strong><br>
-      Fonte do evento: ${fonteEvento} · Campanhas no mês com esse evento: <strong>${fmt(meta.campanhas || 0)}</strong> · Labels observadas: <strong>${escHTML(labelsEvento)}</strong><br>
-      Resumo real do painel original: <strong>${fmt(resumo.eventos_disparados || 0)}</strong> eventos disparados · <strong>${fmt(resumo.perfis_unicos || 0)}</strong> perfis únicos.${notaAgregado}
+      Público selecionado: <strong style="color:var(--verde-escuro)">${escHTML(meta.nome)}</strong> &nbsp;·&nbsp; Filtro: <strong>${escHTML(meta.descricao)}</strong><br>
+      Base opt-in atual usada para distribuir as faixas: <strong>${fmt(snapshot?.optIn || 0)}</strong> usuários. Este bloco <strong>não usa labels, campaign_id nem evento_conversao</strong>.
     </div>
     <table class="dados-tabela freq-table">
       <thead><tr>
         <th>Pushes recebidos<br><span style="font-weight:600;text-transform:none;letter-spacing:0">por dia</span></th>
-        <th>Usuários<br><span style="font-weight:600;text-transform:none;letter-spacing:0">nesta faixa</span></th>
-        <th>% da base<br><span style="font-weight:600;text-transform:none;letter-spacing:0">opt-in</span></th>
-        <th>Taxa conversão<br><span style="font-weight:600;text-transform:none;letter-spacing:0">Last Click</span></th>
-        <th>Taxa conversão<br><span style="font-weight:600;text-transform:none;letter-spacing:0">Assistidos</span></th>
-        <th>Uplift assistido<br><span style="font-weight:600;text-transform:none;letter-spacing:0">vs. last click</span></th>
-        <th>Taxa opt-out<br><span style="font-weight:600;text-transform:none;letter-spacing:0">nesta faixa</span></th>
-        <th>Sinal</th>
+        <th>Público</th>
+        <th>Usuários estimados<br><span style="font-weight:600;text-transform:none;letter-spacing:0">nesta faixa</span></th>
+        <th>% da base<br><span style="font-weight:600;text-transform:none;letter-spacing:0">opt-in do plan</span></th>
+        <th>Taxa opt-out<br><span style="font-weight:600;text-transform:none;letter-spacing:0">da faixa</span></th>
+        <th>Leitura</th>
       </tr></thead><tbody>`;
-  const totalUsuarios=dados.reduce((s,r)=>s+r.usuarios,0);
-  const maxConv=Math.max(...dados.map(r=>r.assistido));
-  dados.forEach((r,i)=>{
-    const pctBase=(r.usuarios/totalUsuarios)*100;
-    const uplift=r.assistido-r.lastClick;
-    const optOutFaixa=optOutDaFaixa(r.faixa);
-    const isMax=r.assistido===maxConv;
-    const isDecline=i>0&&r.assistido<dados[i-1].assistido;
-    const sinal=isMax?'<span class="pill pill-normal">✓ Ponto ótimo</span>':isDecline?'<span class="pill pill-media">↘ Queda de conversão</span>':'<span class="pill" style="background:#f0f5f3;color:var(--texto-suave)">—</span>';
-    html+=`<tr style="${isMax?'background:rgba(0,169,136,.06)':''}">
+  dados.forEach(r=>{
+    const destaque=r.optOut>=20?'background:rgba(251,42,91,.035)':r.ordem===1?'background:rgba(0,169,136,.045)':'';
+    html+=`<tr style="${destaque}">
       <td><strong>${r.faixa}</strong></td>
+      <td>${escHTML(r.publicoNome)}</td>
       <td>${fmt(r.usuarios)}</td>
-      <td>${fmtPct(pctBase)}</td>
-      <td style="font-weight:800;color:var(--verde-escuro)">${fmtPct(r.lastClick)}</td>
-      <td style="font-weight:800;color:var(--azul)">${fmtPct(r.assistido)}</td>
-      <td style="color:var(--laranja);font-weight:700">${fmtPp(uplift)}</td>
-      <td style="color:var(--rosa);font-weight:700">${optOutFaixa == null ? '—' : fmtPct(optOutFaixa)}</td>
-      <td>${sinal}</td>
+      <td>${fmtPct(r.pctBase,1)}</td>
+      <td style="color:var(--rosa);font-weight:800">${r.optOut == null ? '—' : fmtPct(r.optOut,1)}</td>
+      <td><span class="pill pill-${r.sinal.classe}">${escHTML(r.sinal.texto)}</span></td>
     </tr>`;
   });
   html+=`</tbody></table>`;
   html+=`<div class="nota-box info" style="margin-top:12px">
-    📌 <strong>Last Click:</strong> usuário clicou no push e realizou o evento na janela de 5 dias.<br>
-    📌 <strong>Assistidos:</strong> usuário recebeu o push (mesmo sem clicar) e realizou o evento na janela — mede o impacto indireto da comunicação.<br>
-    📌 <strong>Uplift:</strong> diferença entre assistidos e last click — quanto a presença do push influenciou mesmo sem o clique.<br>
-    📌 <strong>Importante:</strong> o nome do evento e os totais vêm do painel original; a distribuição por faixa de frequência diária é uma curva calibrada para o evento, pois o painel original não expõe o histórico individual de pushes recebidos por usuário nesta API.
+    📌 <strong>Metodologia:</strong> a distribuição por faixa usa a curva diária de frequência do painel V2 e é recalibrada para a base opt-in atual do <code>plan</code> escolhido.<br>
+    📌 <strong>Por que mudou:</strong> este bloco deixou de cruzar conversão por labels porque o histórico de labels mudou antes de abril, o que poderia omitir campanhas e confundir a leitura.<br>
+    📌 <strong>Leitura correta:</strong> use esta seção para comparar pressão de frequência entre <strong>Filiados</strong> e <strong>Outros</strong>; use os blocos de conversão do painel original apenas quando o recorte de campanhas/labels estiver consistente.
   </div>`;
   resultado.innerHTML=html;
-  setFreqAutoStatus(`Resultado atualizado automaticamente para ${ev}.`, 'ok');
+  setFreqAutoStatus(`Resultado atualizado por plan para ${meta.nome}: ${fmt(totalUsuarios)} usuários distribuídos nas faixas.`, 'ok');
 }
 
 // ── DIAS CRÍTICOS ────────────────────────────────────────────────────
@@ -1862,6 +1969,7 @@ document.addEventListener('touchstart', fecharTooltip);
 
 // ── INIT ─────────────────────────────────────────────────────────────
 async function inicializarPainel(){
+  renderFreq();
   try{
     await carregarDadosAtuaisPainel();
   }catch(error){
@@ -1871,10 +1979,11 @@ async function inicializarPainel(){
   }
   recalcularSeriesRenderizadasSobreBaseAtual();
   renderGraficosPlanos();
+  atualizarGraficoFrequenciaEnvio();
   renderCriticos();
   atualizarDiagnostico();
   renderHistogramasPlanos();
-  carregarEventosConversaoFrequencia(true);
+  renderFreq();
 }
 inicializarPainel();
 </script>
