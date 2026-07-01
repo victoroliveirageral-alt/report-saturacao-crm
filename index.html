@@ -405,7 +405,7 @@
 // para que quando o painel pedir dados reais, o backend já esteja ativo.
 (function(){
   const BACKEND = 'https://relatorio-campanhas-clevertap.onrender.com';
-  const ENDPOINT_PING = BACKEND + '/api/reachability-push-v2';
+  const ENDPOINT_PING = BACKEND + '/api/reachability-push';
   const t0 = Date.now();
   let avisoColdStart = null;
 
@@ -632,7 +632,7 @@
           <div class="grafico-outer"><div class="grafico-barras" id="grafico-nao-filiados"></div></div>
         </div>
       </div>
-      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha mostra opt-outs do mês sobre a base atual com token do recorte; não é mais opt-out dividido por movimentos.</span></div>
+      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights</code>. A linha mostra opt-outs do mês sobre a base atual com token do recorte; não é mais opt-out dividido por movimentos.</span></div>
     </div>
   </div>
 
@@ -684,8 +684,8 @@
   </div>
 
   <!-- HISTOGRAMA PLANOS -->
-  <div class="secao-titulo">Frequência diária de recebimento vs. Conversão e Opt-out</div>
-  <div class="secao-subtitulo">Distribuição dos usuários por faixas de push recebidos por dia, cruzando taxa de conversão e taxa de opt-out em cada faixa. A leitura diária evidencia picos de saturação que a visão mensal pode diluir.</div>
+  <div class="secao-titulo">Frequência diária de recebimento vs. Conversão e Opt-out ⚠️ dado indisponível</div>
+  <div class="secao-subtitulo">Distribuição dos usuários por faixas de push recebidos por dia, cruzando taxa de conversão e taxa de opt-out em cada faixa. Requer exportação de evento bruto do CleverTap; sem endpoint direto disponível hoje — seção temporariamente sem dado, ver nota abaixo.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -722,8 +722,8 @@
 
 
   <!-- FREQUÊNCIA POR PLAN — TABELA DETALHADA -->
-  <div class="secao-titulo">Detalhamento: frequência diária por plan × opt-out</div>
-  <div class="secao-subtitulo">Visualização detalhada por faixa de pushes recebidos por dia, filtrando apenas por <code>plan</code>. Este bloco não usa labels nem eventos de conversão para evitar distorções históricas.</div>
+  <div class="secao-titulo">Detalhamento: frequência diária por plan × opt-out ⚠️ dado indisponível</div>
+  <div class="secao-subtitulo">Visualização detalhada por faixa de pushes recebidos por dia, filtrando apenas por <code>plan</code>. Requer exportação de evento bruto do CleverTap; sem endpoint direto disponível hoje.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -848,7 +848,7 @@
 <script>
 // ── DADOS ──────────────────────────────────────────────────────────────
 // Dados mensais segmentados por plan = filiado e Outros.
-// Fonte: painel original, endpoint /api/push-health-insights-v2.mensal_por_plano.
+// Fonte: painel original, endpoint /api/push-health-insights.mensal_por_plano.
 // Importante: as barras são movimentos de permissão do mês; a linha usa
 // opt-outs do mês sobre a base atual com token do recorte.
 const MESES_FILIADO = [
@@ -901,98 +901,11 @@ const BASES_GRAFICO = {
 // Alias para manter compatibilidade com o diagnóstico principal (Filiado)
 const MESES = MESES_FILIADO;
 
-const CRITICOS = {
-  jun26:{periodo:'Junho/2026',comparacao:{envios:{val:-3.9,leitura:'próxima da média'},campanhas:{val:36.3,leitura:'muito acima da média'},ctr:{val:31.2,leitura:'muito acima da média'},impressao:{val:0.9,leitura:'próxima da média'}},dias:[{data:'23/06/2026',optOut:6940,optIn:12307,campanhas:159,envios:18093672,impressoes:9073654,ctr:'0,267%',porMilhao:383.56,leitura:'alta',texto:'mais campanhas que a média'},{data:'12/06/2026',optOut:5498,optIn:14646,campanhas:16,envios:12680109,impressoes:8102703,ctr:'0,355%',porMilhao:433.62,leitura:'normal',texto:'sem desvio forte'},{data:'22/06/2026',optOut:5428,optIn:13658,campanhas:153,envios:15516852,impressoes:8301873,ctr:'0,261%',porMilhao:349.81,leitura:'alta',texto:'mais campanhas que a média'},{data:'08/06/2026',optOut:5312,optIn:14568,campanhas:92,envios:18307705,impressoes:9049951,ctr:'0,265%',porMilhao:290.15,leitura:'normal',texto:'sem desvio forte'},{data:'17/06/2026',optOut:5239,optIn:14355,campanhas:143,envios:24501224,impressoes:12058162,ctr:'0,245%',porMilhao:213.83,leitura:'media',texto:'volume de envios acima da média'},{data:'25/06/2026',optOut:5059,optIn:11966,campanhas:170,envios:19096806,impressoes:9137882,ctr:'0,230%',porMilhao:265,leitura:'alta',texto:'mais campanhas que a média'},{data:'06/06/2026',optOut:4992,optIn:6366,campanhas:68,envios:23533296,impressoes:12997797,ctr:'0,183%',porMilhao:212.12,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.43 (43.648) · 4.44 (47.068) · 4.42 (15.657) · 4.45 (14.518)'},
-  mai26:{periodo:'Maio/2026',comparacao:{envios:{val:-1.2,leitura:'próxima da média'},campanhas:{val:28.7,leitura:'acima da média'},ctr:{val:18.4,leitura:'acima da média'},impressao:{val:2.1,leitura:'próxima da média'}},dias:[{data:'19/05/2026',optOut:5820,optIn:11240,campanhas:148,envios:16482190,impressoes:8321440,ctr:'0,288%',porMilhao:353.12,leitura:'alta',texto:'mais campanhas que a média'},{data:'26/05/2026',optOut:5610,optIn:13180,campanhas:131,envios:18921340,impressoes:9012880,ctr:'0,274%',porMilhao:296.5,leitura:'alta',texto:'mais campanhas que a média'},{data:'12/05/2026',optOut:5290,optIn:14020,campanhas:89,envios:17234560,impressoes:8776230,ctr:'0,259%',porMilhao:307.0,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.44 (41.230) · 4.43 (38.912) · 4.45 (22.341)'},
-  abr26:{periodo:'Abril/2026',comparacao:{envios:{val:8.4,leitura:'acima da média'},campanhas:{val:42.1,leitura:'muito acima da média'},ctr:{val:22.5,leitura:'acima da média'},impressao:{val:3.2,leitura:'próxima da média'}},dias:[{data:'14/04/2026',optOut:7120,optIn:10890,campanhas:162,envios:17823450,impressoes:8912340,ctr:'0,271%',porMilhao:399.5,leitura:'alta',texto:'mais campanhas que a média'},{data:'21/04/2026',optOut:6840,optIn:11230,campanhas:145,envios:19234560,impressoes:9456780,ctr:'0,263%',porMilhao:355.6,leitura:'alta',texto:'mais campanhas que a média'},{data:'07/04/2026',optOut:6310,optIn:12450,campanhas:98,envios:18123400,impressoes:9023450,ctr:'0,255%',porMilhao:348.2,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.43 (44.120) · 4.44 (39.870) · 4.42 (18.340)'},
-  mar26:{periodo:'Março/2026',comparacao:{envios:{val:-5.1,leitura:'próxima da média'},campanhas:{val:19.8,leitura:'acima da média'},ctr:{val:14.2,leitura:'acima da média'},impressao:{val:-1.4,leitura:'próxima da média'}},dias:[{data:'10/03/2026',optOut:5640,optIn:13120,campanhas:112,envios:14234560,impressoes:7456780,ctr:'0,291%',porMilhao:396.2,leitura:'alta',texto:'mais campanhas que a média'},{data:'24/03/2026',optOut:5280,optIn:14560,campanhas:97,envios:16789230,impressoes:8234560,ctr:'0,283%',porMilhao:314.5,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.42 (38.780) · 4.43 (35.120) · 4.41 (22.340)'},
-  fev26:{periodo:'Fevereiro/2026',comparacao:{envios:{val:-2.3,leitura:'próxima da média'},campanhas:{val:15.4,leitura:'acima da média'},ctr:{val:10.1,leitura:'acima da média'},impressao:{val:0.5,leitura:'próxima da média'}},dias:[{data:'11/02/2026',optOut:5120,optIn:13450,campanhas:98,envios:13823450,impressoes:7234560,ctr:'0,298%',porMilhao:370.4,leitura:'alta',texto:'mais campanhas que a média'},{data:'25/02/2026',optOut:4890,optIn:14120,campanhas:84,envios:15234560,impressoes:7823450,ctr:'0,282%',porMilhao:320.9,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.42 (36.450) · 4.41 (29.780) · 4.40 (18.230)'},
-  jan26:{periodo:'Janeiro/2026',comparacao:{envios:{val:4.2,leitura:'próxima da média'},campanhas:{val:12.8,leitura:'acima da média'},ctr:{val:8.9,leitura:'próxima da média'},impressao:{val:-0.8,leitura:'próxima da média'}},dias:[{data:'07/01/2026',optOut:5340,optIn:14560,campanhas:92,envios:14823450,impressoes:7634560,ctr:'0,304%',porMilhao:360.2,leitura:'alta',texto:'mais campanhas que a média'},{data:'21/01/2026',optOut:4980,optIn:15230,campanhas:78,envios:15123450,impressoes:7823450,ctr:'0,288%',porMilhao:329.3,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.41 (34.120) · 4.40 (28.450) · 4.39 (16.780)'},
-  dez25:{periodo:'Dezembro/2025',comparacao:{envios:{val:-1.8,leitura:'próxima da média'},campanhas:{val:10.3,leitura:'acima da média'},ctr:{val:7.4,leitura:'próxima da média'},impressao:{val:1.2,leitura:'próxima da média'}},dias:[{data:'10/12/2025',optOut:5180,optIn:14230,campanhas:88,envios:13234560,impressoes:6923450,ctr:'0,299%',porMilhao:391.4,leitura:'alta',texto:'mais campanhas que a média'},{data:'22/12/2025',optOut:4920,optIn:15120,campanhas:72,envios:14567890,impressoes:7456780,ctr:'0,284%',porMilhao:337.8,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.40 (32.890) · 4.39 (27.340) · 4.38 (18.120)'},
-  nov25:{periodo:'Novembro/2025',comparacao:{envios:{val:6.2,leitura:'acima da média'},campanhas:{val:22.1,leitura:'acima da média'},ctr:{val:9.8,leitura:'próxima da média'},impressao:{val:-1.3,leitura:'próxima da média'}},dias:[{data:'04/11/2025',optOut:5890,optIn:13120,campanhas:94,envios:14234560,impressoes:7234560,ctr:'0,308%',porMilhao:413.8,leitura:'alta',texto:'mais campanhas que a média'},{data:'18/11/2025',optOut:5560,optIn:13890,campanhas:80,envios:13567890,impressoes:6923450,ctr:'0,292%',porMilhao:409.9,leitura:'normal',texto:'sem desvio forte'}],versoes:'4.39 (31.230) · 4.38 (25.890) · 4.37 (17.450)'}
-};
-
-// Curva-base de distribuição diária por faixa de frequência.
-const FREQ_DADOS = {
-  jun26:{oficial:[
-    {faixa:'1 push/dia',usuarios:812430},
-    {faixa:'2 pushes/dia',usuarios:526210},
-    {faixa:'3 pushes/dia',usuarios:285840},
-    {faixa:'4 pushes/dia',usuarios:136320},
-    {faixa:'5 pushes/dia',usuarios:64180},
-    {faixa:'6+ pushes/dia',usuarios:28420}
-  ]}
-};
-const FREQ_VARIACOES = {
-  mai26:{usuarios:.98},
-  abr26:{usuarios:1.05},
-  mar26:{usuarios:.93},
-  fev26:{usuarios:.90},
-  jan26:{usuarios:.94},
-  dez25:{usuarios:.88},
-  nov25:{usuarios:.91}
-};
-Object.entries(FREQ_VARIACOES).forEach(([m,ajuste])=>{
-  FREQ_DADOS[m]={oficial:FREQ_DADOS.jun26.oficial.map((r,i)=>({
-    ...r,
-    usuarios:Math.round(r.usuarios*ajuste.usuarios*(1+(i-3)*0.008))
-  }))};
-});
-
-const OPT_OUT_FAIXA_FILIADO = {
-  '1 push/dia':9.8,
-  '2 pushes/dia':13.6,
-  '3 pushes/dia':18.9,
-  '4 pushes/dia':25.4,
-  '5 pushes/dia':34.8,
-  '6+ pushes/dia':48.6
-};
-const OPT_OUT_FAIXA_OUTROS = {
-  '1 push/dia':9.6,
-  '2 pushes/dia':12.4,
-  '3 pushes/dia':15.7,
-  '4 pushes/dia':20.4,
-  '5 pushes/dia':27.6,
-  '6+ pushes/dia':38.2
-};
-
-// Dados histograma por frequência diária.
-const HIST_TOTAL=[
-  {faixa:'1 push/dia',pct:43.2,conv:17.9,optOut:10.2},
-  {faixa:'2 pushes/dia',pct:27.0,conv:20.8,optOut:13.2},
-  {faixa:'3 pushes/dia',pct:14.5,conv:18.7,optOut:17.0},
-  {faixa:'4 pushes/dia',pct:7.7,conv:15.2,optOut:22.8},
-  {faixa:'5 pushes/dia',pct:4.3,conv:10.9,optOut:31.0},
-  {faixa:'6+ pushes/dia',pct:3.3,conv:7.1,optOut:43.4}
-];
-
-const HIST_FILIADO=[
-  {faixa:'1 push/dia',pct:44.1,conv:18.6,optOut:9.8},
-  {faixa:'2 pushes/dia',pct:27.4,conv:21.5,optOut:13.6},
-  {faixa:'3 pushes/dia',pct:13.8,conv:19.4,optOut:18.9},
-  {faixa:'4 pushes/dia',pct:7.1,conv:15.8,optOut:25.4},
-  {faixa:'5 pushes/dia',pct:4.0,conv:11.4,optOut:34.8},
-  {faixa:'6+ pushes/dia',pct:3.6,conv:7.5,optOut:48.6}
-];
-
-const HIST_OUTROS=[
-  {faixa:'1 push/dia',pct:42.0,conv:16.8,optOut:9.6},
-  {faixa:'2 pushes/dia',pct:26.5,conv:19.6,optOut:12.4},
-  {faixa:'3 pushes/dia',pct:15.3,conv:17.8,optOut:15.7},
-  {faixa:'4 pushes/dia',pct:8.6,conv:14.5,optOut:20.4},
-  {faixa:'5 pushes/dia',pct:4.7,conv:10.2,optOut:27.6},
-  {faixa:'6+ pushes/dia',pct:2.9,conv:6.5,optOut:38.2}
-];
-
 // ── HELPERS ─────────────────────────────────────────────────────────
 function fmt(n){return Number(n).toLocaleString('pt-BR')}
 function fmtPct(n,digitos=1){return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:digitos,maximumFractionDigits:digitos})+'%'}
 function fmtDelta(n){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1})+'%'}
 function fmtPp(n,digitos=1){const valor=Number(n);return (valor>0?'+':'')+valor.toLocaleString('pt-BR',{minimumFractionDigits:digitos,maximumFractionDigits:digitos})+'pp'}
-function optOutDaFaixa(faixa,publico='filiado'){
-  const curvas={filiado:OPT_OUT_FAIXA_FILIADO,outros:OPT_OUT_FAIXA_OUTROS};
-  return curvas[publico]?.[faixa] ?? null;
-}
 let recorteAtual=12;
 let ttAberto=false;
 let ttAlvo=null;
@@ -1001,7 +914,7 @@ let histTtAlvo=null;
 let freqTtAberto=false;
 let freqTtAlvo=null;
 const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
-const API_INSIGHTS_PUSH='/api/push-health-insights-v2';
+const API_INSIGHTS_PUSH='/api/push-health-insights';
 const RETAIL_OPT_IN_MEDIO=64.03;
 const PUBLICOS_CRITICOS={
   filiado:{nome:'Filiados',nomeCurto:'Filiados',chave:'filiado',descricao:'plan = filiado'},
@@ -1024,9 +937,9 @@ let requisicaoFreq=0;
 let mesSelecionadoAtual='2026-06';
 let periodoHistoricoAtual={from:'2025-07-01',to:'2026-06-30'};
 let snapshotAtual={
-  total:{base:7361217,optIn:6037156,optOut:1422398,taxaIn:82.01,taxaOut:19.32},
-  filiado:{base:4022990,optIn:3277323,optOut:841364,taxaIn:81.46,taxaOut:20.91,shareBase:54.65},
-  outros:{base:280677,optIn:230518,optOut:52756,taxaIn:82.13,taxaOut:18.8,shareBase:3.81},
+  total:{base:0,optIn:0,optOut:0,taxaIn:0,taxaOut:0},
+  filiado:{base:0,optIn:0,optOut:0,taxaIn:0,taxaOut:0,shareBase:0},
+  outros:{base:0,optIn:0,optOut:0,taxaIn:0,taxaOut:0,shareBase:0},
   atualizadoEm:null
 };
 let tentativasReachability=0;
@@ -1034,23 +947,9 @@ let timerReachability=null;
 let contextoCriticosAtual=null;
 let requisicaoCriticos=0;
 let requisicaoFrequenciaEnvio=0;
-// Cache pré-populado com dados históricos para evitar zeros nos meses anteriores
-// enquanto a API carrega. Serão sobrescritos quando a API responder.
-const FREQ_HISTORICO_MENSAL = {
-  '2025-07':{mes:'2025-07',envios:71234560,dias:31,pendente:false,erro:false},
-  '2025-08':{mes:'2025-08',envios:79812340,dias:31,pendente:false,erro:false},
-  '2025-09':{mes:'2025-09',envios:68923450,dias:30,pendente:false,erro:false},
-  '2025-10':{mes:'2025-10',envios:74561230,dias:31,pendente:false,erro:false},
-  '2025-11':{mes:'2025-11',envios:72134560,dias:30,pendente:false,erro:false},
-  '2025-12':{mes:'2025-12',envios:69234560,dias:31,pendente:false,erro:false},
-  '2026-01':{mes:'2026-01',envios:76823450,dias:31,pendente:false,erro:false},
-  '2026-02':{mes:'2026-02',envios:68912340,dias:28,pendente:false,erro:false},
-  '2026-03':{mes:'2026-03',envios:78234560,dias:31,pendente:false,erro:false},
-  '2026-04':{mes:'2026-04',envios:91823450,dias:30,pendente:false,erro:false},
-  '2026-05':{mes:'2026-05',envios:86712340,dias:31,pendente:false,erro:false},
-  '2026-06':{mes:'2026-06',envios:79234560,dias:28,pendente:false,erro:false}
-};
-const cacheFrequenciaEnvioMensal=Object.assign({},FREQ_HISTORICO_MENSAL);
+// Cache começa vazio de propósito: buscarFrequenciaEnvioPeriodo() (real, via /api/dashboard)
+// popula cada mês assim que a API responde. Nunca pré-popular com números fabricados aqui.
+const cacheFrequenciaEnvioMensal={};
 
 function escHTML(valor){
   return String(valor ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1434,7 +1333,7 @@ function aplicarInsights(dados){
 async function carregarDadosAtuaisPainel(){
   const [insights,reachability]=await Promise.allSettled([
     buscarInsightsMaisRecente(),
-    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push-v2`)
+    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`)
   ]);
   if(insights.status==='fulfilled') aplicarInsights(insights.value);
   if(reachability.status==='fulfilled'){
@@ -1452,7 +1351,7 @@ function agendarAtualizacaoReachability(segundos=25){
     timerReachability=null;
     tentativasReachability+=1;
     try{
-      const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push-v2`);
+      const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`);
       const aplicado=aplicarReachability(dados);
       if(!aplicado && dados?.processando) agendarAtualizacaoReachability(dados.aguarde_segundos || 25);
     }catch(error){
@@ -1844,7 +1743,7 @@ function atualizarNotaAumentoRecente(){
   const meses=filiados.map(rotuloMesItemPeriodo).join(', ');
   const taxasFiliados=filiados.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
   const taxasOutros=outros.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
-  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na linha recalculada sobre base atual, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha usa opt-outs do mês sobre a base atual com token do recorte, com MTD-1 até ontem quando o mês está aberto.</span>`);
+  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na linha recalculada sobre base atual, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights</code>. A linha usa opt-outs do mês sobre a base atual com token do recorte, com MTD-1 até ontem quando o mês está aberto.</span>`);
   const inicio=rotuloMesItemPeriodo(filiados[0]);
   const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
   setText('insight-sazonalidade',`O aumento recente de opt-out em ${inicio}–${fim} deve ser lido junto do calendário de campanhas. O painel atualiza esse recorte automaticamente quando um novo mês fica disponível na API.`);
@@ -1956,82 +1855,23 @@ function atualizarInsightsFinais(contexto=contextoCriticosAtual){
   renderizarRecomendacoes(recomendacoes);
 }
 
-function statusFaixaFrequencia(optOut){
-  if(optOut>=30) return {classe:'alta',texto:'saturação alta'};
-  if(optOut>=20) return {classe:'media',texto:'risco de saturação'};
-  if(optOut>=13) return {classe:'normal',texto:'atenção moderada'};
-  return {classe:'normal',texto:'faixa mais segura'};
-}
-function dadosFrequenciaPorPlan(mes,publico){
-  const meta=metaPublicoCriticos(publico);
-  const snapshot=publico==='outros' ? snapshotAtual.outros : snapshotAtual.filiado;
-  const base=(FREQ_DADOS[mes] || FREQ_DADOS.jun26).oficial;
-  const totalCurva=base.reduce((s,r)=>s+Number(r.usuarios || 0),0);
-  const baseOptIn=Number(snapshot?.optIn || totalCurva || 0);
-  return base.map((r,indice)=>{
-    const share=totalCurva ? Number(r.usuarios || 0)/totalCurva : 0;
-    const usuarios=Math.round(baseOptIn*share);
-    const optOut=optOutDaFaixa(r.faixa,publico);
-    const sinal=statusFaixaFrequencia(Number(optOut || 0));
-    return {
-      ...r,
-      publico,
-      publicoNome:meta.nome,
-      usuarios,
-      pctBase:pct(usuarios,baseOptIn),
-      optOut,
-      sinal,
-      ordem:indice+1
-    };
-  });
-}
-
+// Removido em 2026-07: a curva de "pushes recebidos por dia por usuário" exigiria
+// exportação de evento bruto do CleverTap (Get Events API / feed SFTP) + agregação própria.
+// Não existe endpoint direto (confirmado com o time CleverTap) que devolva esse cruzamento
+// pronto, então este bloco não pode ser preenchido com dado real hoje. Em vez de manter
+// números fabricados, mostramos um aviso honesto até esse pipeline existir.
 async function renderFreq(){
   const requisicaoAtual=++requisicaoFreq;
-  const mes=document.getElementById('freq-mes').value;
   const publico=publicoCriticosSelecionadoFrom('freq-publico');
   const meta=metaPublicoCriticos(publico);
   const resultado=document.getElementById('freq-resultado');
-  setFreqAutoStatus(`Atualizando leitura por plan para ${meta.nome}...`, 'carregando');
-  resultado.innerHTML='<div style="text-align:center;padding:32px;color:var(--texto-suave);font-size:12px"><div class="spinner" style="margin:0 auto 10px"></div>Preparando distribuição por plan...</div>';
+  setFreqAutoStatus('Dado indisponível para este bloco.', 'erro');
   await Promise.resolve();
   if(requisicaoAtual!==requisicaoFreq) return;
-  const dados=dadosFrequenciaPorPlan(mes,publico);
-  const snapshot=publico==='outros' ? snapshotAtual.outros : snapshotAtual.filiado;
-  const totalUsuarios=dados.reduce((s,r)=>s+r.usuarios,0);
-  let html=`
-    <div style="margin-bottom:14px;font-size:11px;color:var(--texto-suave);line-height:1.6">
-      Público selecionado: <strong style="color:var(--verde-escuro)">${escHTML(meta.nome)}</strong> &nbsp;·&nbsp; Filtro: <strong>${escHTML(meta.descricao)}</strong><br>
-      Base opt-in atual usada para distribuir as faixas: <strong>${fmt(snapshot?.optIn || 0)}</strong> usuários. Este bloco <strong>não usa labels, campaign_id nem evento_conversao</strong>.
-    </div>
-    <table class="dados-tabela freq-table">
-      <thead><tr>
-        <th>Pushes recebidos<br><span style="font-weight:600;text-transform:none;letter-spacing:0">por dia</span></th>
-        <th>Público</th>
-        <th>Usuários estimados<br><span style="font-weight:600;text-transform:none;letter-spacing:0">nesta faixa</span></th>
-        <th>% da base<br><span style="font-weight:600;text-transform:none;letter-spacing:0">opt-in do plan</span></th>
-        <th>Taxa opt-out<br><span style="font-weight:600;text-transform:none;letter-spacing:0">da faixa</span></th>
-        <th>Leitura</th>
-      </tr></thead><tbody>`;
-  dados.forEach(r=>{
-    const destaque=r.optOut>=20?'background:rgba(251,42,91,.035)':r.ordem===1?'background:rgba(0,169,136,.045)':'';
-    html+=`<tr style="${destaque}">
-      <td><strong>${r.faixa}</strong></td>
-      <td>${escHTML(r.publicoNome)}</td>
-      <td>${fmt(r.usuarios)}</td>
-      <td>${fmtPct(r.pctBase,1)}</td>
-      <td style="color:var(--rosa);font-weight:800">${r.optOut == null ? '—' : fmtPct(r.optOut,1)}</td>
-      <td><span class="pill pill-${r.sinal.classe}">${escHTML(r.sinal.texto)}</span></td>
-    </tr>`;
-  });
-  html+=`</tbody></table>`;
-  html+=`<div class="nota-box info" style="margin-top:12px">
-    📌 <strong>Metodologia:</strong> a distribuição por faixa usa a curva diária de frequência do painel V2 e é recalibrada para a base opt-in atual do <code>plan</code> escolhido.<br>
-    📌 <strong>Por que mudou:</strong> este bloco deixou de cruzar conversão por labels porque o histórico de labels mudou antes de abril, o que poderia omitir campanhas e confundir a leitura.<br>
-    📌 <strong>Leitura correta:</strong> use esta seção para comparar pressão de frequência entre <strong>Filiados</strong> e <strong>Outros</strong>; use os blocos de conversão do painel original apenas quando o recorte de campanhas/labels estiver consistente.
+  resultado.innerHTML=`<div class="nota-box aviso" style="margin:0">
+    ⚠️ <strong>Dado indisponível.</strong> Esta seção mostraria a distribuição de ${escHTML(meta.nome)} por faixa de pushes recebidos/dia, cruzada com opt-out.<br>
+    <span style="font-size:10px;color:var(--texto-suave);margin-top:6px;display:block">📌 A CleverTap não expõe um endpoint direto para "contagem de perfis que receberam um evento N vezes num dia" — isso exigiria exportar eventos brutos (Get Events API / feed SFTP) e agregar em um pipeline próprio, fora do escopo deste painel hoje. Confirmado com o suporte/IA da CleverTap em 01/07/2026. Nenhum número é exibido aqui até essa fonte existir.</span>
   </div>`;
-  resultado.innerHTML=html;
-  setFreqAutoStatus(`Resultado atualizado por plan para ${meta.nome}: ${fmt(totalUsuarios)} usuários distribuídos nas faixas.`, 'ok');
 }
 
 // ── DIAS CRÍTICOS ────────────────────────────────────────────────────
@@ -2200,10 +2040,14 @@ function renderHistDataset(id,dados,corBase='var(--verde-escuro)',datasetLabel='
     el.appendChild(card);
   });
 }
+// Removido em 2026-07: mesmo motivo do bloco de frequência por plan — sem endpoint real
+// para "pushes recebidos por dia por usuário", confirmado com o suporte da CleverTap.
 function renderHistogramasPlanos(){
-  renderHistDataset('hist-total',HIST_TOTAL,'var(--laranja)','Total');
-  renderHistDataset('hist-filiado',HIST_FILIADO,'var(--verde-escuro)','Filiados');
-  renderHistDataset('hist-nao-filiados',HIST_OUTROS,'var(--azul)','Outros');
+  const aviso='<div class="nota-box aviso" style="margin:0;font-size:10px">⚠️ Dado indisponível — requer exportação de evento bruto da CleverTap (sem endpoint direto).</div>';
+  ['hist-total','hist-filiado','hist-nao-filiados'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=aviso;
+  });
 }
 
 // ── FECHAR TOOLTIP AO CLICAR/SCROLL ─────────────────────────────────
@@ -2222,7 +2066,7 @@ document.addEventListener('touchstart', fecharTooltip);
 // ── BASE MOM ─────────────────────────────────────────────────────────
 // Estima a base com token mês a mês retroativamente a partir do snapshot atual
 function calcularBaseMoM() {
-  const baseAtual = Number(snapshotAtual.total?.base) || 7361217; // usa o snapshot ao vivo quando disponível
+  const baseAtual = Number(snapshotAtual.total?.base ?? 0); // usa apenas o snapshot ao vivo da API; sem fallback fabricado
   const series = [...MESES_TOTAL].reverse();
   let baseAcum = baseAtual;
   const resultado = [];
@@ -2361,7 +2205,7 @@ async function inicializarPainel(){
       })
       .catch(e => console.warn('insights:', e)),
 
-    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push-v2`)
+    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`)
       .then(dados => {
         const aplicado = aplicarReachability(dados);
         if(!aplicado && dados?.processando) agendarAtualizacaoReachability(dados.aguarde_segundos);
