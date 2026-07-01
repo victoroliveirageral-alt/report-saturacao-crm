@@ -1314,6 +1314,9 @@ function aplicarReachability(dados){
     timerReachability=null;
   }
   atualizarSnapshotUI();
+  renderGraficosPlanos();
+  renderGraficoBaseMoM();
+  atualizarDiagnostico();
   renderizarGraficoFrequenciaEnvio();
   return true;
 }
