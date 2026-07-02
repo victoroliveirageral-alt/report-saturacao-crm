@@ -549,7 +549,7 @@
   <section class="benchmark" aria-labelledby="benchmark-retail-titulo">
     <div class="benchmark-topo">
       <div>
-        <div class="benchmark-titulo" id="benchmark-retail-titulo">Retail vs. Cartão de TODOS</div>
+        <div class="benchmark-titulo" id="benchmark-retail-titulo">Cartão de TODOS x Retail</div>
         <div class="benchmark-sub">Comparativo do opt-in atual do Cartão de TODOS com o benchmark Pushwoosh para Retail.</div>
       </div>
       <a class="benchmark-fonte" href="https://www.pushwoosh.com/pt/blog/push%20notification%20benchmarks/" target="_blank" rel="noopener">Fonte: Pushwoosh · Retail</a>
@@ -565,18 +565,8 @@
         <div class="benchmark-valor azul">64,03%</div>
         <div class="benchmark-detalhe">Média simples entre iOS e Android publicados pela Pushwoosh.</div>
       </div>
-      <div class="benchmark-metrica">
-        <div class="benchmark-label">Retail · Android</div>
-        <div class="benchmark-valor azul">75,28%</div>
-        <div class="benchmark-detalhe">Opt-in por plataforma no estudo.</div>
-      </div>
-      <div class="benchmark-metrica">
-        <div class="benchmark-label">Retail · iOS</div>
-        <div class="benchmark-valor texto">52,78%</div>
-        <div class="benchmark-detalhe">Opt-in por plataforma no estudo.</div>
-      </div>
     </div>
-    <div class="benchmark-nota">Leitura: a Pushwoosh publica o opt-in de Retail por plataforma. O <strong>64,03%</strong> é uma média simples para leitura executiva, não um agregado ponderado oficial. CTR de Retail fica fora deste bloco para manter a comparação focada em opt-in.</div>
+    <div class="benchmark-nota">Leitura: comparação em nível geral (não quebrado por sistema operacional) — não temos hoje uma diferenciação confiável de Android x iOS do nosso lado, então evitamos comparar um número geral nosso contra números da Pushwoosh quebrados por plataforma. O <strong>64,03%</strong> é uma média simples para leitura executiva, não um agregado ponderado oficial. CTR de Retail fica fora deste bloco para manter a comparação focada em opt-in.</div>
   </section>
 
   <!-- FILIADO VS OUTROS -->
@@ -760,8 +750,9 @@
           <div class="hist-grid" id="hist-nao-filiados"></div>
         </div>
       </div>
+      <div id="hist-tooltip" style="display:none;position:fixed;z-index:999;padding:11px 13px;border-radius:12px;background:var(--texto);color:white;font-size:10.5px;line-height:1.7;box-shadow:0 10px 24px rgba(0,0,0,.25);pointer-events:none;max-width:240px"></div>
       <div class="nota-box info" style="margin-top:16px">
-        📌 <strong>Barra cheia:</strong> de todos os dias-usuário com pelo menos 1 push no mês, % que caiu em cada faixa de frequência. <strong>Barra rosa:</strong> dentro dessa faixa, % dos perfis que JÁ ESTÃO em opt-out hoje (não necessariamente naquele dia específico — é o status atual de quem teve aquela frequência). Contagem direta via evento <code>Push Impressions</code> + status <code>has_token</code>/<code>MSG-push</code> na CleverTap, segmentado por <code>plan</code>.<br>
+        📌 <strong>Barra cheia:</strong> de todos os dias-usuário com pelo menos 1 push no mês, % que caiu em cada faixa de frequência. <strong>Barra rosa:</strong> dentro dessa faixa, % dos perfis que JÁ ESTÃO em opt-out hoje (não necessariamente naquele dia específico — é o status atual de quem teve aquela frequência). Contagem direta via evento <code>Push Impressions</code> + status <code>has_token</code>/<code>MSG-push</code> na CleverTap, segmentado por <code>plan</code>. Passe o mouse em qualquer barra pra ver o detalhe.<br>
         ⚠️ <strong>O que esse gráfico ainda NÃO mostra:</strong> taxa de conversão por faixa. Exigiria cruzar cada dia/faixa com eventos de conversão por usuário individual — não implementado.
       </div>
     </div>
@@ -787,6 +778,7 @@
         <div class="freq-campo">
           <label for="freq-publico">Público</label>
           <select id="freq-publico" onchange="renderFreq()">
+            <option value="geral">Geral (Filiados + Outros)</option>
             <option value="filiado">Filiados</option>
             <option value="outros">Outros</option>
           </select>
@@ -814,6 +806,7 @@
         <div class="criticos-controle">
           <label for="sel-publico-criticos" style="display:block;font-size:9px;font-weight:800;color:var(--texto-suave);text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px">Público</label>
           <select class="sel-mes" id="sel-publico-criticos" onchange="renderCriticos()">
+            <option value="geral">Geral (Filiados + Outros)</option>
             <option value="filiado">Filiados</option>
             <option value="outros">Outros</option>
           </select>
@@ -990,6 +983,7 @@ const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
 const API_INSIGHTS_PUSH='/api/push-health-insights';
 const RETAIL_OPT_IN_MEDIO=64.03;
 const PUBLICOS_CRITICOS={
+  geral:{nome:'Geral (Filiados + Outros)',nomeCurto:'Geral',chave:'total',descricao:'Filiados + Outros somados'},
   filiado:{nome:'Filiados',nomeCurto:'Filiados',chave:'filiado',descricao:'plan = filiado'},
   outros:{nome:'Outros',nomeCurto:'Outros',chave:'outros',descricao:'plan = freemium + plan = Pro'}
 };
@@ -1666,6 +1660,16 @@ function serieFrequenciaRenderizada(meses){
 function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado=''){
   const el=document.getElementById('grafico-frequencia-envio');
   if(!el) return;
+  // -----------------------------------------------------------------------------
+  // CORREÇÃO 2026-07 #15: antes, se os envios já tivessem chegado mas a base do
+  // reachability AINDA não (ex: reachability lento/em retry), o gráfico renderizava
+  // frequência=0 pra todo mundo (envios/0=0) — parecia dado real zerado, mas era só
+  // "ainda não sei a base". Agora trata base indisponível como estado de
+  // carregamento, igual a quando os envios ainda não chegaram, e volta a tentar
+  // quando snapshotAtual for preenchido (aplicarReachability já dispara um novo
+  // render quando isso acontece).
+  // -----------------------------------------------------------------------------
+  const baseAindaIndisponivel=!(Number(snapshotAtual?.total?.base)>0);
   const {mesesBase,series}=serieFrequenciaRenderizada(meses);
   const pendentes=mesesBase.filter(item=>item.pendente).length;
   if(!mesesBase.length){
@@ -1674,10 +1678,10 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
     setText('freq-evolucao-status','Aguardando dados mensais.');
     return;
   }
-  if(pendentes===mesesBase.length){
+  if(pendentes===mesesBase.length || baseAindaIndisponivel){
     el.className='freq-line-chart carregando';
-    el.innerHTML=`<div><div class="spinner" style="margin:0 auto 10px"></div>${escHTML(estado || 'Carregando frequência de envio...')}</div>`;
-    setText('freq-evolucao-status','A frequência será desenhada assim que os meses terminarem de carregar.');
+    el.innerHTML=`<div><div class="spinner" style="margin:0 auto 10px"></div>${escHTML(estado || (baseAindaIndisponivel ? 'Aguardando base de usuários (reachability)...' : 'Carregando frequência de envio...'))}</div>`;
+    setText('freq-evolucao-status',baseAindaIndisponivel ? 'Envios já carregados; aguardando a base de usuários pra calcular a frequência por pessoa.' : 'A frequência será desenhada assim que os meses terminarem de carregar.');
     return;
   }
   const max=Math.max(.01,...series.flatMap(serie=>serie.pontos.map(item=>item.frequencia)));
@@ -1971,8 +1975,15 @@ async function renderFreq() {
   if (requisicaoAtual !== requisicaoFreq) return;
 
   const diasCobertos = dados.dias_disponiveis || 0;
-  const buckets = publico === 'outros' ? (dados.buckets_outros || {}) : (dados.buckets_filiado || {});
-  const bucketsOptOut = publico === 'outros' ? (dados.buckets_outros_optout || {}) : (dados.buckets_filiado_optout || {});
+  // "geral" não vem pronto da API (que só tem buckets_filiado/buckets_outros) —
+  // soma os dois client-side, mesmo padrão já usado no histograma pro bloco Total.
+  const somarBuckets = (a, b) => Object.fromEntries(FAIXAS_FREQ_LABELS.map(f => [f, (a[f] || 0) + (b[f] || 0)]));
+  const buckets = publico === 'geral'
+    ? somarBuckets(dados.buckets_filiado || {}, dados.buckets_outros || {})
+    : publico === 'outros' ? (dados.buckets_outros || {}) : (dados.buckets_filiado || {});
+  const bucketsOptOut = publico === 'geral'
+    ? somarBuckets(dados.buckets_filiado_optout || {}, dados.buckets_outros_optout || {})
+    : publico === 'outros' ? (dados.buckets_outros_optout || {}) : (dados.buckets_filiado_optout || {});
   const totalBase = FAIXAS_FREQ_LABELS.reduce((s, f) => s + (buckets[f] || 0), 0);
 
   if (diasCobertos === 0) {
@@ -2194,9 +2205,10 @@ function renderHistDataset(id,dados,corBase='var(--verde-escuro)',datasetLabel='
 // faixa) e taxa de opt-out DENTRO daquela faixa (% de quem já está em opt-out hoje,
 // entre quem teve essa frequência). Ainda sem conversão (não implementado).
 // -------------------------------------------------------------------------------------
-function renderBarraDuplaFaixa(id, buckets, bucketsOptOut, corBase) {
+function renderBarraDuplaFaixa(id, buckets, bucketsOptOut, corBase, nomeGrupo) {
   const el = document.getElementById(id);
   if (!el) return;
+  const tooltip = document.getElementById('hist-tooltip');
   const total = FAIXAS_FREQ_LABELS.reduce((s, f) => s + (buckets[f] || 0), 0);
   const maxPct = Math.max(1, ...FAIXAS_FREQ_LABELS.map(f => total > 0 ? ((buckets[f] || 0) / total) * 100 : 0));
   const maxOptOutTaxa = Math.max(1, ...FAIXAS_FREQ_LABELS.map(f => {
@@ -2211,8 +2223,7 @@ function renderBarraDuplaFaixa(id, buckets, bucketsOptOut, corBase) {
     const taxaOptOut = valor > 0 ? (valorOptOut / valor) * 100 : 0;
     const card = document.createElement('div');
     card.className = 'hist-card';
-    card.style.cssText = 'border-color:rgba(0,169,136,.2);background:#fff;cursor:default';
-    card.title = `${faixa}\n${fmtPct(pct, 1)} dos dias-usuário (${fmt(valor)})\nOpt-out dentro da faixa: ${fmtPct(taxaOptOut, 1)} (${fmt(valorOptOut)} já em opt-out hoje)`;
+    card.style.cssText = 'border-color:rgba(0,169,136,.2);background:#fff;cursor:pointer';
     card.innerHTML = `
       <div class="hist-faixa" style="color:${corBase}">${faixa}</div>
       <div class="hist-barra-wrap">
@@ -2220,6 +2231,37 @@ function renderBarraDuplaFaixa(id, buckets, bucketsOptOut, corBase) {
         <div class="hist-barra optout-cor" style="height:${Math.round((taxaOptOut / maxOptOutTaxa) * 54) + 3}px"></div>
       </div>
       <div style="font-size:9px;font-weight:800;color:var(--texto-suave);text-align:center;line-height:1.5">${fmtPct(pct, 1)}<br><span style="color:var(--rosa)">${fmtPct(taxaOptOut, 1)} opt-out</span></div>`;
+
+    // ---------------------------------------------------------------------------
+    // NOVO 2026-07 #15: tooltip HTML explicando a faixa em linguagem simples,
+    // com position:fixed (escapa do overflow:hidden do painel automaticamente,
+    // sem precisar de clamp manual por borda como no gráfico de compras).
+    // ---------------------------------------------------------------------------
+    const mostrarTooltip = evento => {
+      tooltip.innerHTML = `
+        <b style="display:block;font-size:11px;margin-bottom:6px;color:white">${escHTML(nomeGrupo)} · ${escHTML(faixa)}</b>
+        <span style="display:block;margin-bottom:3px"><strong style="color:${corBase}">${fmtPct(pct, 1)}</strong> dos dias-usuário do mês caem nessa faixa <span style="color:rgba(255,255,255,.6)">(${fmt(valor)} dias-usuário)</span></span>
+        <span style="display:block;margin-bottom:6px"><strong style="color:var(--rosa)">${fmtPct(taxaOptOut, 1)}</strong> de quem teve essa frequência já está em opt-out hoje <span style="color:rgba(255,255,255,.6)">(${fmt(valorOptOut)} perfis)</span></span>
+        <span style="display:block;font-size:9px;color:rgba(255,255,255,.55);line-height:1.5">Ex: se essa faixa é "3 pushes/dia", significa dias em que a pessoa recebeu exatamente 3 pushes — não é a mesma pessoa toda vez, é cada dia contado separado.</span>`;
+      const largura = tooltip.offsetWidth || 240;
+      const altura = tooltip.offsetHeight || 90;
+      const margem = 10;
+      let x = evento.clientX - largura / 2;
+      x = Math.max(margem, Math.min(x, window.innerWidth - largura - margem));
+      let y = evento.clientY - altura - 16;
+      if (y < margem) y = evento.clientY + 20; // sem espaço em cima, mostra embaixo do cursor
+      tooltip.style.left = x + 'px';
+      tooltip.style.top = y + 'px';
+      tooltip.style.display = 'block';
+    };
+    card.addEventListener('mouseenter', mostrarTooltip);
+    card.addEventListener('mousemove', mostrarTooltip);
+    card.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    card.addEventListener('touchstart', evento => {
+      evento.preventDefault();
+      mostrarTooltip(evento.touches[0]);
+    }, { passive: false });
+
     el.appendChild(card);
   });
 }
@@ -2260,9 +2302,9 @@ async function renderHistogramasPlanos() {
       total[f] = (dados.buckets_filiado?.[f] || 0) + (dados.buckets_outros?.[f] || 0);
       totalOptOut[f] = (dados.buckets_filiado_optout?.[f] || 0) + (dados.buckets_outros_optout?.[f] || 0);
     });
-    renderBarraDuplaFaixa('hist-total', total, totalOptOut, 'var(--laranja)');
-    renderBarraDuplaFaixa('hist-filiado', dados.buckets_filiado || {}, dados.buckets_filiado_optout || {}, 'var(--verde-escuro)');
-    renderBarraDuplaFaixa('hist-nao-filiados', dados.buckets_outros || {}, dados.buckets_outros_optout || {}, 'var(--azul)');
+    renderBarraDuplaFaixa('hist-total', total, totalOptOut, 'var(--laranja)', 'Total');
+    renderBarraDuplaFaixa('hist-filiado', dados.buckets_filiado || {}, dados.buckets_filiado_optout || {}, 'var(--verde-escuro)', 'Filiados');
+    renderBarraDuplaFaixa('hist-nao-filiados', dados.buckets_outros || {}, dados.buckets_outros_optout || {}, 'var(--azul)', 'Outros');
   } catch (error) {
     if (label) label.textContent = 'Não foi possível carregar a frequência diária agora.';
   }
