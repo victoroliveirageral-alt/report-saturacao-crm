@@ -733,20 +733,20 @@
   </div>
 
   <!-- HISTOGRAMA PLANOS -->
-  <div class="secao-titulo">Frequência diária de recebimento vs. Conversão e Opt-out ⚠️ dado indisponível</div>
-  <div class="secao-subtitulo">Distribuição dos usuários por faixas de push recebidos por dia, cruzando taxa de conversão e taxa de opt-out em cada faixa. Requer exportação de evento bruto do CleverTap; sem endpoint direto disponível hoje — seção temporariamente sem dado, ver nota abaixo.</div>
+  <div class="secao-titulo">Frequência diária de recebimento (distribuição real)</div>
+  <div class="secao-subtitulo">Distribuição de dias-usuário por faixa de push recebido no dia, calculada via contagem direta de evento na CleverTap (não é estimativa, não usa export de evento bruto).</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
-        <div class="painel-titulo">Histograma: pushes por dia × conversão × opt-out por recorte</div>
-        <div class="painel-subtitulo">Cada coluna representa a média de pushes recebidos por usuário em um dia com campanha.</div>
+        <div class="painel-titulo">Histograma: pushes por dia, por recorte</div>
+        <div class="painel-subtitulo" id="hist-mes-label">Cada barra é a % de dias-usuário do mês naquela faixa de frequência.</div>
       </div>
     </div>
     <div class="conteudo">
       <div class="plano-grid">
         <div class="plano-bloco">
           <div class="plano-bloco-titulo">Total</div>
-          <div class="plano-bloco-sub">Todas as pessoas com push no recorte.</div>
+          <div class="plano-bloco-sub">Filiados + Outros somados.</div>
           <div class="hist-grid" id="hist-total"></div>
         </div>
         <div class="plano-bloco">
@@ -760,40 +760,29 @@
           <div class="hist-grid" id="hist-nao-filiados"></div>
         </div>
       </div>
-      <div class="nota-box aviso" style="margin-top:16px">
-        ⚠️ <strong>Ponto de saturação:</strong> 1 push/dia é a faixa mais segura. A partir de <strong>3 pushes/dia</strong>, o opt-out começa a acelerar; acima de <strong>5 pushes/dia</strong>, a queda de conversão e o aumento de opt-out ficam bem mais evidentes.
-      </div>
-      <div class="nota-box info" style="margin-top:10px">
-        📌 <strong>Metodologia:</strong> a faixa diária representa a frequência média de pushes recebidos por usuário em dias com campanha. Conversão generalizada = soma dos eventos oficiais configurados como <code>evento_conversao</code> nas campanhas do painel original, em janela de 5 dias após recebimento. Opt-out considera perfis com <code>has_token = true</code> e <code>MSG-push = false</code>; Filiados aplica <code>plan = filiado</code> e Outros soma <code>plan = freemium</code> + <code>plan = Pro</code>.
+      <div class="nota-box info" style="margin-top:16px">
+        📌 <strong>Barra cheia:</strong> de todos os dias-usuário com pelo menos 1 push no mês, % que caiu em cada faixa de frequência. <strong>Barra rosa:</strong> dentro dessa faixa, % dos perfis que JÁ ESTÃO em opt-out hoje (não necessariamente naquele dia específico — é o status atual de quem teve aquela frequência). Contagem direta via evento <code>Push Impressions</code> + status <code>has_token</code>/<code>MSG-push</code> na CleverTap, segmentado por <code>plan</code>.<br>
+        ⚠️ <strong>O que esse gráfico ainda NÃO mostra:</strong> taxa de conversão por faixa. Exigiria cruzar cada dia/faixa com eventos de conversão por usuário individual — não implementado.
       </div>
     </div>
   </div>
 
 
   <!-- FREQUÊNCIA POR PLAN — TABELA DETALHADA -->
-  <div class="secao-titulo">Detalhamento: frequência diária por plan × opt-out ⚠️ dado indisponível</div>
-  <div class="secao-subtitulo">Visualização detalhada por faixa de pushes recebidos por dia, filtrando apenas por <code>plan</code>. Requer exportação de evento bruto do CleverTap; sem endpoint direto disponível hoje.</div>
+  <div class="secao-titulo">Detalhamento: frequência diária por plan</div>
+  <div class="secao-subtitulo">Distribuição de dias-usuário por faixa de push recebido no dia, filtrando por <code>plan</code>. Dado real, contagem direta de evento — sem taxa de opt-out por faixa (ver nota na seção acima).</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
         <div class="painel-titulo">Frequência de push recebido por plan</div>
-        <div class="painel-subtitulo">Selecione o mês e o público para visualizar a distribuição de frequência e o risco de opt-out sem depender das labels das campanhas.</div>
+        <div class="painel-subtitulo">Selecione o mês e o público. Meses sem backfill completo mostram um aviso de cobertura parcial.</div>
       </div>
     </div>
     <div class="conteudo">
       <div class="freq-controles">
         <div class="freq-campo">
           <label for="freq-mes">Mês de análise</label>
-          <select id="freq-mes" onchange="renderFreq()">
-            <option value="jun26">Junho/2026</option>
-            <option value="mai26">Maio/2026</option>
-            <option value="abr26">Abril/2026</option>
-            <option value="mar26">Março/2026</option>
-            <option value="fev26">Fevereiro/2026</option>
-            <option value="jan26">Janeiro/2026</option>
-            <option value="dez25">Dezembro/2025</option>
-            <option value="nov25">Novembro/2025</option>
-          </select>
+          <select id="freq-mes" onchange="renderFreq()"></select>
         </div>
         <div class="freq-campo">
           <label for="freq-publico">Público</label>
@@ -1943,23 +1932,86 @@ function atualizarInsightsFinais(contexto=contextoCriticosAtual){
   renderizarRecomendacoes(recomendacoes);
 }
 
-// Removido em 2026-07: a curva de "pushes recebidos por dia por usuário" exigiria
-// exportação de evento bruto do CleverTap (Get Events API / feed SFTP) + agregação própria.
-// Não existe endpoint direto (confirmado com o time CleverTap) que devolva esse cruzamento
-// pronto, então este bloco não pode ser preenchido com dado real hoje. Em vez de manter
-// números fabricados, mostramos um aviso honesto até esse pipeline existir.
-async function renderFreq(){
-  const requisicaoAtual=++requisicaoFreq;
-  const publico=publicoCriticosSelecionadoFrom('freq-publico');
-  const meta=metaPublicoCriticos(publico);
-  const resultado=document.getElementById('freq-resultado');
-  setFreqAutoStatus('Dado indisponível para este bloco.', 'erro');
-  await Promise.resolve();
-  if(requisicaoAtual!==requisicaoFreq) return;
-  resultado.innerHTML=`<div class="nota-box aviso" style="margin:0">
-    ⚠️ <strong>Dado indisponível.</strong> Esta seção mostraria a distribuição de ${escHTML(meta.nome)} por faixa de pushes recebidos/dia, cruzada com opt-out.<br>
-    <span style="font-size:10px;color:var(--texto-suave);margin-top:6px;display:block">📌 A CleverTap não expõe um endpoint direto para "contagem de perfis que receberam um evento N vezes num dia" — isso exigiria exportar eventos brutos (Get Events API / feed SFTP) e agregar em um pipeline próprio, fora do escopo deste painel hoje. Confirmado com o suporte/IA da CleverTap em 01/07/2026. Nenhum número é exibido aqui até essa fonte existir.</span>
+// -------------------------------------------------------------------------------------
+// REESCRITO 2026-07 #10: tabela de frequência por plan com dado REAL, incluindo
+// opt-out por faixa (fechamos o TODO). "Usuários" aqui é dias-usuário (soma dos dias
+// do mês) — se a mesma pessoa teve a mesma faixa em vários dias, cada dia conta.
+// -------------------------------------------------------------------------------------
+function popularSeletorMesFreq() {
+  const select = document.getElementById('freq-mes');
+  if (!select || select.options.length) return; // só popula uma vez
+  const hoje = new Date();
+  const opcoes = [];
+  for (let i = 1; i <= 12; i += 1) {
+    const d = new Date(hoje.getFullYear(), hoje.getMonth() - i, 1);
+    const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    opcoes.push(`<option value="${iso}">${rotuloMesGrafico(iso)}</option>`);
+  }
+  select.innerHTML = opcoes.join('');
+}
+
+async function renderFreq() {
+  popularSeletorMesFreq();
+  const requisicaoAtual = ++requisicaoFreq;
+  const mes = document.getElementById('freq-mes').value;
+  const publico = publicoCriticosSelecionadoFrom('freq-publico');
+  const meta = metaPublicoCriticos(publico);
+  const resultado = document.getElementById('freq-resultado');
+  setFreqAutoStatus(`Carregando ${meta.nome}...`, 'carregando');
+
+  let dados;
+  try {
+    dados = await buscarFrequenciaDiaria(mes);
+  } catch (error) {
+    if (requisicaoAtual !== requisicaoFreq) return;
+    setFreqAutoStatus('Não foi possível carregar agora.', 'erro');
+    resultado.innerHTML = `<div class="nota-box aviso" style="margin:0">⚠️ Erro ao consultar /api/frequencia-diaria.</div>`;
+    return;
+  }
+  if (requisicaoAtual !== requisicaoFreq) return;
+
+  const diasCobertos = dados.dias_disponiveis || 0;
+  const buckets = publico === 'outros' ? (dados.buckets_outros || {}) : (dados.buckets_filiado || {});
+  const bucketsOptOut = publico === 'outros' ? (dados.buckets_outros_optout || {}) : (dados.buckets_filiado_optout || {});
+  const totalBase = FAIXAS_FREQ_LABELS.reduce((s, f) => s + (buckets[f] || 0), 0);
+
+  if (diasCobertos === 0) {
+    setFreqAutoStatus(`${rotuloMesGrafico(mes)} · sem dias processados ainda para este mês.`, 'erro');
+    resultado.innerHTML = `<div class="nota-box aviso" style="margin:0">⚠️ O backfill ainda não processou nenhum dia de ${escHTML(rotuloMesGrafico(mes))}. Tente um mês mais recente ou aguarde o backfill avançar.</div>`;
+    return;
+  }
+
+  let html = `
+    <div style="margin-bottom:14px;font-size:11px;color:var(--texto-suave);line-height:1.6">
+      Público: <strong style="color:var(--verde-escuro)">${escHTML(meta.nome)}</strong> · ${diasCobertos} dia(s) processado(s) de ${escHTML(rotuloMesGrafico(mes))} · Total de dias-usuário no mês: <strong>${fmt(totalBase)}</strong>
+    </div>
+    <table class="dados-tabela freq-table">
+      <thead><tr>
+        <th>Pushes recebidos<br><span style="font-weight:600;text-transform:none;letter-spacing:0">por dia</span></th>
+        <th>Dias-usuário<br><span style="font-weight:600;text-transform:none;letter-spacing:0">na faixa</span></th>
+        <th>% do total<br><span style="font-weight:600;text-transform:none;letter-spacing:0">do mês</span></th>
+        <th>Opt-out<br><span style="font-weight:600;text-transform:none;letter-spacing:0">dentro da faixa</span></th>
+      </tr></thead><tbody>`;
+  FAIXAS_FREQ_LABELS.forEach(faixa => {
+    const valor = buckets[faixa] || 0;
+    const valorOptOut = bucketsOptOut[faixa] || 0;
+    const pctBase = totalBase > 0 ? (valor / totalBase) * 100 : 0;
+    const taxaOptOut = valor > 0 ? (valorOptOut / valor) * 100 : 0;
+    const destaque = taxaOptOut >= 15 ? 'background:rgba(251,42,91,.035)' : '';
+    html += `<tr style="${destaque}">
+      <td><strong>${faixa}</strong></td>
+      <td>${fmt(valor)}</td>
+      <td>${fmtPct(pctBase, 1)}</td>
+      <td style="color:var(--rosa);font-weight:800">${fmtPct(taxaOptOut, 1)}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  html += `<div class="nota-box info" style="margin-top:12px">
+    📌 <strong>Metodologia:</strong> contagem direta de evento <code>Push Impressions</code> na CleverTap (não estimativa, não usa export bruto). "Dias-usuário" soma os dias do mês — a mesma pessoa pode aparecer em várias linhas se teve frequências diferentes em dias diferentes.<br>
+    📌 <strong>Opt-out:</strong> status atual (<code>has_token</code>/<code>MSG-push</code>) de quem teve aquela frequência em algum dia do mês — não é o status que a pessoa tinha naquele dia específico.
   </div>`;
+  resultado.innerHTML = html;
+  setFreqAutoStatus(`${rotuloMesGrafico(mes)} · ${meta.nome}: ${fmt(totalBase)} dias-usuário em ${diasCobertos} dia(s) processado(s).`, 'ok');
 }
 
 // ── DIAS CRÍTICOS ────────────────────────────────────────────────────
@@ -2128,14 +2180,92 @@ function renderHistDataset(id,dados,corBase='var(--verde-escuro)',datasetLabel='
     el.appendChild(card);
   });
 }
-// Removido em 2026-07: mesmo motivo do bloco de frequência por plan — sem endpoint real
-// para "pushes recebidos por dia por usuário", confirmado com o suporte da CleverTap.
-function renderHistogramasPlanos(){
-  const aviso='<div class="nota-box aviso" style="margin:0;font-size:10px">⚠️ Dado indisponível — requer exportação de evento bruto da CleverTap (sem endpoint direto).</div>';
-  ['hist-total','hist-filiado','hist-nao-filiados'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.innerHTML=aviso;
+// -------------------------------------------------------------------------------------
+// REESCRITO 2026-07 #9: histograma de frequência com dado REAL (contagem direta de
+// evento, ver frequencia-diaria.js no backend). Desenha 1 barra por faixa (% de
+// dias-usuário) — sem conversão nem opt-out, porque não temos esse cruzamento ainda
+// (ver nota-box na própria seção). Não reaproveita renderHistDataset (que espera 3
+// barras: pct/conv/optOut) pra não mostrar barras zeradas que pareceriam "0% de
+// conversão" quando na verdade é "não medimos isso".
+// -------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------
+// REESCRITO 2026-07 #10: agora com opt-out REAL por faixa (fechamos o TODO — ver
+// frequencia-diaria.js). 2 barras por card: distribuição (% de dias-usuário na
+// faixa) e taxa de opt-out DENTRO daquela faixa (% de quem já está em opt-out hoje,
+// entre quem teve essa frequência). Ainda sem conversão (não implementado).
+// -------------------------------------------------------------------------------------
+function renderBarraDuplaFaixa(id, buckets, bucketsOptOut, corBase) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const total = FAIXAS_FREQ_LABELS.reduce((s, f) => s + (buckets[f] || 0), 0);
+  const maxPct = Math.max(1, ...FAIXAS_FREQ_LABELS.map(f => total > 0 ? ((buckets[f] || 0) / total) * 100 : 0));
+  const maxOptOutTaxa = Math.max(1, ...FAIXAS_FREQ_LABELS.map(f => {
+    const base = buckets[f] || 0;
+    return base > 0 ? ((bucketsOptOut[f] || 0) / base) * 100 : 0;
+  }));
+  el.innerHTML = '';
+  FAIXAS_FREQ_LABELS.forEach(faixa => {
+    const valor = buckets[faixa] || 0;
+    const valorOptOut = bucketsOptOut[faixa] || 0;
+    const pct = total > 0 ? (valor / total) * 100 : 0;
+    const taxaOptOut = valor > 0 ? (valorOptOut / valor) * 100 : 0;
+    const card = document.createElement('div');
+    card.className = 'hist-card';
+    card.style.cssText = 'border-color:rgba(0,169,136,.2);background:#fff;cursor:default';
+    card.title = `${faixa}\n${fmtPct(pct, 1)} dos dias-usuário (${fmt(valor)})\nOpt-out dentro da faixa: ${fmtPct(taxaOptOut, 1)} (${fmt(valorOptOut)} já em opt-out hoje)`;
+    card.innerHTML = `
+      <div class="hist-faixa" style="color:${corBase}">${faixa}</div>
+      <div class="hist-barra-wrap">
+        <div class="hist-barra" style="background:${corBase};height:${Math.round((pct / maxPct) * 54) + 3}px"></div>
+        <div class="hist-barra optout-cor" style="height:${Math.round((taxaOptOut / maxOptOutTaxa) * 54) + 3}px"></div>
+      </div>
+      <div style="font-size:9px;font-weight:800;color:var(--texto-suave);text-align:center;line-height:1.5">${fmtPct(pct, 1)}<br><span style="color:var(--rosa)">${fmtPct(taxaOptOut, 1)} opt-out</span></div>`;
+    el.appendChild(card);
   });
+}
+
+const FAIXAS_FREQ_LABELS = ['1 push/dia', '2 pushes/dia', '3 pushes/dia', '4 pushes/dia', '5 pushes/dia', '6+ pushes/dia'];
+let cacheFrequenciaDiariaPorMes = {};
+
+// O mês corrente ainda está em andamento (poucos ou nenhum dia processado pelo
+// backfill) — o padrão sensato pra abrir a tela é o ÚLTIMO MÊS FECHADO, que tem
+// chance real de estar com o backfill completo.
+function mesFechadoMaisRecenteIso() {
+  const hoje = new Date();
+  const mesAnterior = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1);
+  return `${mesAnterior.getFullYear()}-${String(mesAnterior.getMonth() + 1).padStart(2, '0')}`;
+}
+
+async function buscarFrequenciaDiaria(mes) {
+  if (cacheFrequenciaDiariaPorMes[mes]) return cacheFrequenciaDiariaPorMes[mes];
+  const dados = await fetchJSON(`${API_PAINEL_ORIGINAL}/api/frequencia-diaria?month=${mes}`);
+  cacheFrequenciaDiariaPorMes[mes] = dados;
+  return dados;
+}
+
+async function renderHistogramasPlanos() {
+  const mes = mesFechadoMaisRecenteIso();
+  const label = document.getElementById('hist-mes-label');
+  try {
+    const dados = await buscarFrequenciaDiaria(mes);
+    const diasCobertos = dados.dias_disponiveis || 0;
+    if (label) {
+      label.textContent = diasCobertos > 0
+        ? `${rotuloMesGrafico(mes)} · ${diasCobertos} dia(s) processado(s) no backfill. Barra cheia = % de dias-usuário; barra rosa = taxa de opt-out dentro da faixa.`
+        : `${rotuloMesGrafico(mes)} · ainda sem dias processados no backfill para este mês.`;
+    }
+    const total = {};
+    const totalOptOut = {};
+    FAIXAS_FREQ_LABELS.forEach(f => {
+      total[f] = (dados.buckets_filiado?.[f] || 0) + (dados.buckets_outros?.[f] || 0);
+      totalOptOut[f] = (dados.buckets_filiado_optout?.[f] || 0) + (dados.buckets_outros_optout?.[f] || 0);
+    });
+    renderBarraDuplaFaixa('hist-total', total, totalOptOut, 'var(--laranja)');
+    renderBarraDuplaFaixa('hist-filiado', dados.buckets_filiado || {}, dados.buckets_filiado_optout || {}, 'var(--verde-escuro)');
+    renderBarraDuplaFaixa('hist-nao-filiados', dados.buckets_outros || {}, dados.buckets_outros_optout || {}, 'var(--azul)');
+  } catch (error) {
+    if (label) label.textContent = 'Não foi possível carregar a frequência diária agora.';
+  }
 }
 
 // ── FECHAR TOOLTIP AO CLICAR/SCROLL ─────────────────────────────────
