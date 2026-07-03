@@ -683,6 +683,9 @@
         </div>
         <div class="freq-evolucao-status" id="freq-evolucao-status">Aguardando consolidação dos meses do recorte.</div>
       </div>
+      <div class="nota-box info" style="margin-top:12px">
+        📌 <strong>Início do histórico:</strong> a conta CleverTap da Cartão de TODOS registra campanhas de push a partir de <strong>Jan/2026</strong> (confirmado na API: os meses anteriores retornam zero campanhas, e o volume Jan→Mar/26 mostra a rampa de adoção da ferramenta). Meses anteriores a esse marco não aparecem no gráfico porque não há envios registrados nesta plataforma — não é falha de dados.
+      </div>
     </div>
   </div>
 
@@ -1633,10 +1636,25 @@ function baseMoMPorMesIso(){
   return mapa;
 }
 function serieFrequenciaRenderizada(meses){
-  const mesesBase=meses.map(mes=>{
+  let mesesBase=meses.map(mes=>{
     const item=cacheFrequenciaEnvioMensal[mes] || {mes,envios:0,dias:0,pendente:true};
     return {...item,rotulo:rotuloMesGrafico(mes)};
   });
+  // -----------------------------------------------------------------------------
+  // AJUSTE 2026-07 #20: corta do INÍCIO da série os meses confirmados sem nenhuma
+  // campanha (carregados, envios=0) que vêm antes do primeiro mês com envio real.
+  // Investigação de 2026-07-03 confirmou: a conta CleverTap da Cartão de TODOS só
+  // tem campanhas a partir de jan/2026 (a API responde sucesso com zero campanhas
+  // para jul–dez/25, e a curva jan 2,3M → fev 17M → mar 228M é rampa de adoção da
+  // ferramenta). Desenhar esses meses como frequência 0 parecia dado quebrado,
+  // quando na verdade é "antes da CleverTap". Zeros NO MEIO ou NO FIM da série
+  // continuam aparecendo — esses seriam anomalias reais que merecem ser vistas.
+  // -----------------------------------------------------------------------------
+  const primeiroComEnvio=mesesBase.findIndex(item=>!item.pendente && Number(item.envios || 0)>0);
+  if(primeiroComEnvio>0){
+    const soZerosCarregadosAntes=mesesBase.slice(0,primeiroComEnvio).every(item=>!item.pendente && !Number(item.envios || 0));
+    if(soZerosCarregadosAntes) mesesBase=mesesBase.slice(primeiroComEnvio);
+  }
   // Cada mês usa sua PRÓPRIA base estimada (Filiados+Outros daquele mês),
   // não a base do snapshot atual. Mesma metodologia do gráfico "Base MoM".
   const basesPorMes=baseMoMPorMesIso();
