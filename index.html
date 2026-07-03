@@ -101,7 +101,7 @@
     .mes-bar-out{width:100%;background:var(--rosa);min-height:3px}
     /* Gráfico de linha de frequência de compras (4 séries sobrepostas) */
     .compras-linha-chart svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-    .compras-linha-chart polyline{fill:none;stroke-width:2.4;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
+    .compras-linha-chart polyline,.compras-linha-chart path{fill:none;stroke-width:2.4;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round}
     .compras-linha-1x{stroke:var(--verde);filter:drop-shadow(0 1px 2px rgba(0,169,136,.25))}
     .compras-linha-2x{stroke:var(--azul);filter:drop-shadow(0 1px 2px rgba(5,169,196,.25))}
     .compras-linha-3x{stroke:var(--laranja);filter:drop-shadow(0 1px 2px rgba(242,139,34,.25))}
@@ -2254,9 +2254,23 @@ function renderBarraDuplaFaixa(id, buckets, bucketsOptOut, corBase, nomeGrupo) {
     card.addEventListener('mouseenter', mostrarTooltip);
     card.addEventListener('mousemove', mostrarTooltip);
     card.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
-    card.addEventListener('touchstart', evento => {
+    // CORREÇÃO 2026-07 #18 (mobile): usa touchend (mesma fase do fechar global) +
+    // stopPropagation (impede o fechar global de rodar no mesmo toque) + toggle
+    // (tocar de novo na mesma barra fecha). Antes usava touchstart sem
+    // stopPropagation, o que dava corrida com o fechar do document e fazia o
+    // tooltip abrir-e-fechar no mesmo toque, ou nem aparecer.
+    card.addEventListener('touchend', evento => {
       evento.preventDefault();
-      mostrarTooltip(evento.touches[0]);
+      evento.stopPropagation();
+      const jaAberto = tooltip.style.display === 'block' && tooltip.dataset.faixaAtual === faixa;
+      if (jaAberto) {
+        tooltip.style.display = 'none';
+        tooltip.dataset.faixaAtual = '';
+      } else {
+        const t = evento.changedTouches[0];
+        mostrarTooltip({ clientX: t.clientX, clientY: t.clientY });
+        tooltip.dataset.faixaAtual = faixa;
+      }
     }, { passive: false });
 
     el.appendChild(card);
@@ -2308,16 +2322,35 @@ async function renderHistogramasPlanos() {
 }
 
 // ── FECHAR TOOLTIP AO CLICAR/SCROLL ─────────────────────────────────
+// CORREÇÃO 2026-07 #18 (mobile): antes, o fechar escutava 'touchstart' no document
+// e fechava SEMPRE — inclusive no mesmo toque que abria um tooltip numa barra, já
+// que o touchstart da barra e o do document disparavam quase juntos (corrida). Além
+// disso, misturava touchstart (fechar) com touchend (abrir) em gráficos diferentes.
+// Agora: (a) o fechar roda no 'touchend'/'click', mesma fase em que os gráficos
+// abrem; (b) só fecha se o toque foi FORA de qualquer gráfico ou tooltip (checa se o
+// alvo está dentro de um container marcado). Assim, tocar numa barra abre e mantém;
+// tocar em qualquer outro lugar fecha; e não há mais corrida entre abrir e fechar.
 function fecharTooltip(){
-  document.getElementById('tt').style.display='none';
+  const tt=document.getElementById('tt');
+  if(tt) tt.style.display='none';
   fecharTooltipFrequencia();
   ttAberto=false; ttAlvo=null;
   histTtAberto=false; histTtAlvo=null;
   freqTtAberto=false; freqTtAlvo=null;
+  const histTooltip=document.getElementById('hist-tooltip');
+  if(histTooltip) histTooltip.style.display='none';
+  const comprasTooltip=document.getElementById('compras-tooltip');
+  if(comprasTooltip) comprasTooltip.style.display='none';
 }
-document.addEventListener('click', fecharTooltip);
-document.addEventListener('scroll', fecharTooltip, true);
-document.addEventListener('touchstart', fecharTooltip);
+// Seletor dos elementos que TÊM tooltip (ou são o próprio tooltip): tocar dentro
+// deles não deve fechar. Tocar fora, sim.
+const SELETOR_AREAS_TOOLTIP='.hist-card,[data-freq-serie],[data-mom-index],.compras-hover-col,#hist-tooltip,#compras-tooltip,#tt,.mes-grupo';
+function tocouForaDeTooltip(alvo){
+  return !(alvo instanceof Element) || !alvo.closest(SELETOR_AREAS_TOOLTIP);
+}
+document.addEventListener('click',evento=>{ if(tocouForaDeTooltip(evento.target)) fecharTooltip(); });
+document.addEventListener('scroll',fecharTooltip,true);
+document.addEventListener('touchend',evento=>{ if(tocouForaDeTooltip(evento.target)) fecharTooltip(); });
 
 
 // ── BASE MOM ─────────────────────────────────────────────────────────
@@ -2477,11 +2510,16 @@ function renderGraficoComprasCashback() {
   svg.setAttribute('viewBox', '0 0 100 100');
   svg.setAttribute('preserveAspectRatio', 'none');
   svg.setAttribute('aria-hidden', 'true');
+  // AJUSTE 2026-07 #18: usa <path> com curva suave (caminhoLinhaSuave, a mesma do
+  // gráfico de frequência de envio) em vez de <polyline> de segmentos retos. O
+  // polyline só arredondava os vértices (stroke-linejoin), mas a linha entre pontos
+  // continuava reta/angulosa; o path com curvas de Bézier deixa a linha de fato
+  // suavizada de ponta a ponta.
   pontosPorSerie.forEach(s => {
-    const polyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
-    polyline.setAttribute('points', s.pontos.map(p => `${p.x},${p.y}`).join(' '));
-    polyline.setAttribute('class', s.classe);
-    svg.appendChild(polyline);
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', caminhoLinhaSuave(s.pontos));
+    path.setAttribute('class', s.classe);
+    svg.appendChild(path);
   });
   wrap.appendChild(svg);
 
@@ -2569,7 +2607,24 @@ function renderGraficoComprasCashback() {
     colHover.addEventListener('mouseenter', mostrarTooltip);
     colHover.addEventListener('mousemove', mostrarTooltip);
     colHover.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
-    colHover.addEventListener('touchstart', evento => { evento.preventDefault(); mostrarTooltip(evento); }, {passive:false});
+    // CORREÇÃO 2026-07 #18 (mobile): antes passava o próprio TouchEvent pro
+    // mostrarTooltip, que lê evento.clientX — mas num toque o clientX fica em
+    // evento.touches[0], então vinha undefined e o tooltip nem posicionava direito.
+    // Agora extrai clientX/Y do toque, usa touchend + stopPropagation (evita corrida
+    // com o fechar global) e faz toggle (tocar de novo fecha).
+    colHover.addEventListener('touchend', evento => {
+      evento.preventDefault();
+      evento.stopPropagation();
+      const jaAberto = tooltip.style.display === 'block' && tooltip.dataset.mesAtual === String(d.mes);
+      if (jaAberto) {
+        tooltip.style.display = 'none';
+        tooltip.dataset.mesAtual = '';
+      } else {
+        const t = evento.changedTouches[0];
+        mostrarTooltip({ clientX: t.clientX, clientY: t.clientY });
+        tooltip.dataset.mesAtual = String(d.mes);
+      }
+    }, { passive: false });
     wrap.appendChild(colHover);
   });
 }
