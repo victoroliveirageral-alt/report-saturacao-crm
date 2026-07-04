@@ -684,7 +684,7 @@
         <div class="freq-evolucao-status" id="freq-evolucao-status">Aguardando consolidação dos meses do recorte.</div>
       </div>
       <div class="nota-box info" style="margin-top:12px">
-        📌 <strong>Início do histórico:</strong> a conta CleverTap da Cartão de TODOS registra campanhas de push a partir de <strong>Jan/2026</strong> (confirmado na API: os meses anteriores retornam zero campanhas, e o volume Jan→Mar/26 mostra a rampa de adoção da ferramenta). Meses anteriores a esse marco não aparecem no gráfico porque não há envios registrados nesta plataforma — não é falha de dados.
+        📌 <strong>Início do histórico neste gráfico:</strong> a API de relatórios de campanha da CleverTap retorna dados de envio apenas a partir de <strong>Jan/2026</strong> — consultas a meses anteriores respondem com sucesso, porém sem nenhuma campanha listada. A integração com a CleverTap existe desde 2025, então a ausência dos meses anteriores é uma limitação do relatório disponível na plataforma (retenção de relatórios de campanha ou campanhas removidas), não falha do painel. Meses sem envio registrado não são desenhados para não parecer queda real.
       </div>
     </div>
   </div>
@@ -1652,7 +1652,9 @@ function serieFrequenciaRenderizada(meses){
   // -----------------------------------------------------------------------------
   const primeiroComEnvio=mesesBase.findIndex(item=>!item.pendente && Number(item.envios || 0)>0);
   if(primeiroComEnvio>0){
-    const soZerosCarregadosAntes=mesesBase.slice(0,primeiroComEnvio).every(item=>!item.pendente && !Number(item.envios || 0));
+    // (#21) exige !item.erro: um mês cuja BUSCA falhou não é "zero confirmado" —
+    // sem isso, uma falha transitória no início da série permitia corte indevido.
+    const soZerosCarregadosAntes=mesesBase.slice(0,primeiroComEnvio).every(item=>!item.pendente && !item.erro && !Number(item.envios || 0));
     if(soZerosCarregadosAntes) mesesBase=mesesBase.slice(primeiroComEnvio);
   }
   // Cada mês usa sua PRÓPRIA base estimada (Filiados+Outros daquele mês),
@@ -1697,6 +1699,17 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
     el.className='freq-line-chart carregando';
     el.innerHTML=`<div><div class="spinner" style="margin:0 auto 10px"></div>${escHTML(estado || (baseAindaIndisponivel ? 'Aguardando base de usuários (reachability)...' : 'Carregando frequência de envio...'))}</div>`;
     setText('freq-evolucao-status',baseAindaIndisponivel ? 'Envios já carregados; aguardando a base de usuários pra calcular a frequência por pessoa.' : 'A frequência será desenhada assim que os meses terminarem de carregar.');
+    return;
+  }
+  // CORREÇÃO 2026-07 #21: se TODOS os meses carregados falharam na busca (ex:
+  // CleverTap instável no momento da visita), mostra o estado de falha temporária
+  // com aviso do retry — antes, desenhava a linha em zero como se fosse dado real.
+  const itensCarregados=mesesBase.filter(item=>!item.pendente);
+  const itensComErro=itensCarregados.filter(item=>item.erro);
+  if(itensCarregados.length>0 && itensComErro.length===itensCarregados.length){
+    el.className='freq-line-chart carregando';
+    el.innerHTML=`<div>⚠️ Não foi possível consultar os envios agora (instabilidade na CleverTap).<br><span style="font-size:10px;color:var(--texto-suave)">Nova tentativa automática em instantes — isso NÃO significa envio zerado.</span></div>`;
+    setText('freq-evolucao-status','Falha temporária ao consultar a CleverTap; nova tentativa automática agendada.');
     return;
   }
   const max=Math.max(.01,...series.flatMap(serie=>serie.pontos.map(item=>item.frequencia)));
@@ -1801,11 +1814,22 @@ async function buscarFrequenciaEnvioPeriodo(meses){
     });
   Object.assign(cacheFrequenciaEnvioMensal,porMes);
 }
+let timerRetryFrequenciaEnvio=null;
 async function atualizarGraficoFrequenciaEnvio(){
   const meses=mesesDoRecorteAtual();
   const requisicaoAtual=++requisicaoFrequenciaEnvio;
   renderizarGraficoFrequenciaEnvio(meses,'Carregando frequência de envio...');
-  const faltantes=meses.filter(mes=>!cacheFrequenciaEnvioMensal[mes]);
+  // -----------------------------------------------------------------------------
+  // CORREÇÃO 2026-07 #21: meses com erro:true também contam como "faltantes".
+  // Antes, uma falha única na busca (ex: CleverTap respondendo 429/502 por
+  // instabilidade) gravava envios:0 permanente no cache — o gráfico desenhava a
+  // linha ZERADA como se fosse dado real, e nunca mais tentava buscar na sessão.
+  // Agora: erro é estado transitório (re-buscável) + retry automático em 45s.
+  // -----------------------------------------------------------------------------
+  const faltantes=meses.filter(mes=>{
+    const item=cacheFrequenciaEnvioMensal[mes];
+    return !item || item.erro;
+  });
   if(faltantes.length){
     try{
       setText('freq-evolucao-status',`Carregando frequência de envio do período (${faltantes.length} mês(es)).`);
@@ -1815,6 +1839,12 @@ async function atualizarGraficoFrequenciaEnvio(){
         const periodo=periodoMesParaFrequencia(mes,`${mes}-01`,fimDoMesISO(mes));
         cacheFrequenciaEnvioMensal[mes]={mes,envios:0,dias:diasPeriodoInclusivo(periodo.from,periodo.to),periodo,erro:true,pendente:false,mensagem:error.message};
       });
+      if(!timerRetryFrequenciaEnvio){
+        timerRetryFrequenciaEnvio=setTimeout(()=>{
+          timerRetryFrequenciaEnvio=null;
+          atualizarGraficoFrequenciaEnvio();
+        },45000);
+      }
     }
   }
   if(requisicaoAtual!==requisicaoFrequenciaEnvio) return;
