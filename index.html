@@ -635,7 +635,7 @@
           <div class="grafico-outer"><div class="grafico-barras" id="grafico-nao-filiados"></div></div>
         </div>
       </div>
-      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights</code>. A linha mostra opt-outs do mês sobre a base atual com token do recorte; não é mais opt-out dividido por movimentos.</span></div>
+      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha mostra opt-outs do mês sobre a base atual com token do recorte; não é mais opt-out dividido por movimentos.</span></div>
     </div>
   </div>
 
@@ -646,12 +646,12 @@
     <div class="painel-topo">
       <div>
         <div class="painel-titulo">Evolução da base com token (MoM)</div>
-        <div class="painel-subtitulo">Base total (Filiados + Outros) com pelo menos um device token ativo. Barras empilhadas: <span style="color:var(--verde);font-weight:800">opt-in</span> e <span style="color:var(--rosa);font-weight:800">opt-out</span> como proporção da base.</div>
+        <div class="painel-subtitulo">Base estimada de Filiados + Outros com pelo menos um device token ativo. Barras empilhadas: <span style="color:var(--verde);font-weight:800">opt-in</span> e <span style="color:var(--rosa);font-weight:800">opt-out</span> como proporção da base.</div>
       </div>
       <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Opt-in</span>
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Opt-out</span>
-        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--laranja)"></i> Base total</span>
+        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--laranja)"></i> Base estimada</span>
       </div>
     </div>
     <div class="conteudo">
@@ -660,8 +660,8 @@
       </div>
       <div id="grafico-base-mom-linha" style="margin-top:14px;overflow-x:auto"></div>
       <div class="nota-box info" style="margin-top:12px">
-        📌 <strong>Metodologia:</strong> A base mensal é estimada somando cumulativamente os opt-ins e subtraindo os opt-outs mês a mês, partindo do snapshot atual de <strong>7.361.217</strong> usuários com token (junho/2026). Isso permite entender a tendência de crescimento da base alcançável via Push.<br>
-        ⚠️ <strong>Limitação:</strong> A CleverTap não expõe o total da base com token em datas passadas via API — este cálculo é uma estimativa retroativa baseada nos movimentos mensais. O valor atual (jun/26) é o único dado preciso.
+        📌 <strong>Metodologia:</strong> A base mensal é estimada somando cumulativamente os opt-ins e subtraindo os opt-outs mês a mês, partindo do snapshot atual de <strong id="base-mom-snapshot">Filiados + Outros</strong>. Isso permite entender a tendência da base alcançável via Push dentro dos planos classificados.<br>
+        ⚠️ <strong>Limitação:</strong> A CleverTap não expõe o total da base com token em datas passadas via API — este cálculo é uma estimativa retroativa baseada nos movimentos mensais. O snapshot atual é o único ponto preciso; os meses anteriores são leitura direcional.
       </div>
     </div>
   </div>
@@ -884,7 +884,7 @@
 <script>
 // ── DADOS ──────────────────────────────────────────────────────────────
 // Dados mensais segmentados por plan = filiado e Outros.
-// Fonte: painel original, endpoint /api/push-health-insights.mensal_por_plano.
+// Fonte: painel original, endpoint /api/push-health-insights-v2.mensal_por_plano.
 // Importante: as barras são movimentos de permissão do mês; a linha usa
 // opt-outs do mês sobre a base atual com token do recorte.
 const MESES_FILIADO = [
@@ -980,7 +980,7 @@ let histTtAlvo=null;
 let freqTtAberto=false;
 let freqTtAlvo=null;
 const API_PAINEL_ORIGINAL='https://relatorio-campanhas-clevertap.onrender.com';
-const API_INSIGHTS_PUSH='/api/push-health-insights';
+const API_INSIGHTS_PUSH='/api/push-health-insights-v2';
 const RETAIL_OPT_IN_MEDIO=64.03;
 const PUBLICOS_CRITICOS={
   geral:{nome:'Geral (Filiados + Outros)',nomeCurto:'Geral',chave:'total',descricao:'Filiados + Outros somados'},
@@ -1136,21 +1136,34 @@ function numeroSeguro(valor,padrao=0){
   const numero=Number(valor);
   return Number.isFinite(numero) ? numero : padrao;
 }
+function reachabilityPronta(){
+  const baseTotal=Number(snapshotAtual?.total?.base || 0);
+  return Number.isFinite(baseTotal) && baseTotal>0;
+}
 const _sessionCache = new Map();
-async function fetchJSON(url){
-  const cacheavel = /reachability|push-health-insights/.test(url);
+async function fetchJSON(url,opcoes={}){
+  const timeoutMs=Number(opcoes.timeoutMs ?? 30000);
+  const cacheavel = opcoes.cacheavel ?? /reachability|push-health-insights/.test(url);
   if(cacheavel && _sessionCache.has(url)){
     const {ts, data} = _sessionCache.get(url);
     if(Date.now() - ts < 5*60*1000) return data;
   }
   mostrarIndicadorAtualizacao(true);
+  const controller=timeoutMs>0 && typeof AbortController!=='undefined' ? new AbortController() : null;
+  const timer=controller ? setTimeout(()=>controller.abort(),timeoutMs) : null;
   try{
-    const response = await fetch(url, {cache:'no-store'});
+    const response = await fetch(url, {cache:'no-store',signal:controller?.signal});
     if(!response.ok) throw new Error(`HTTP ${response.status}`);
     const json = await response.json();
-    if(cacheavel) _sessionCache.set(url, {ts:Date.now(), data:json});
+    // Respostas "processando" sao intermediarias; se forem cacheadas, os retries
+    // continuam lendo o mesmo 202 e o painel parece zerado mesmo depois da API concluir.
+    if(cacheavel && !json?.processando) _sessionCache.set(url, {ts:Date.now(), data:json});
     return json;
+  } catch(error) {
+    if(error?.name==='AbortError') throw new Error(`Timeout apos ${Math.round(timeoutMs/1000)}s`);
+    throw error;
   } finally {
+    if(timer) clearTimeout(timer);
     setTimeout(()=>mostrarIndicadorAtualizacao(false), 300);
   }
 }
@@ -1243,6 +1256,25 @@ function baseFrequenciaEnvio(publico){
   }
   return baseSnapshotPorPublico(publico);
 }
+function itemMensalPorISO(serie,iso){
+  return (serie || []).find(item=>isoMesGraficoItem(item)===iso) || null;
+}
+function serieMensalGeralPlan(){
+  const meses=Array.from(new Set([...MESES_TOTAL,...MESES_FILIADO,...MESES_OUTROS].map(isoMesGraficoItem).filter(Boolean))).sort();
+  return meses.map(iso=>{
+    const filiado=itemMensalPorISO(MESES_FILIADO,iso) || {};
+    const outros=itemMensalPorISO(MESES_OUTROS,iso) || {};
+    const optIn=Number(filiado.optIn || 0)+Number(outros.optIn || 0);
+    const optOut=Number(filiado.optOut || 0)+Number(outros.optOut || 0);
+    return {
+      iso,
+      mes:rotuloMesGrafico(iso),
+      optIn,
+      optOut,
+      taxaOut:pct(optOut,optIn+optOut)
+    };
+  });
+}
 function aplicarTaxaBaseAtualMensal(item,publico){
   if(!item) return;
   const base=baseSnapshotPorPublico(publico);
@@ -1315,7 +1347,9 @@ function atualizarPeriodoUI(){
   setText('footer-periodo',periodo.footer);
 }
 function atualizarTextoFonteDados(){
-  const snapshotTexto=snapshotAtual.atualizadoEm ? `Snapshot atualizado em ${dataHoraBr(snapshotAtual.atualizadoEm)}` : 'Snapshot atualizado pela API';
+  const snapshotTexto=reachabilityPronta()
+    ? (snapshotAtual.atualizadoEm ? `Snapshot atualizado em ${dataHoraBr(snapshotAtual.atualizadoEm)}` : 'Snapshot atualizado pela API')
+    : 'Snapshot em atualização pela API';
   const mtd=periodoMTDmenos1();
   const mtdTexto=`MTD-1 até ${dataBrISO(mtd.to)}`;
   setText('hero-tag',`📅 Painel V2 · Dados extraídos via API oficial CleverTap · ${mtdTexto}`);
@@ -1341,6 +1375,10 @@ function mostrarIndicadorAtualizacao(ativo){
   if(el) el.style.display = ativo ? 'inline-flex' : 'none';
 }
 function atualizarSnapshotUI(){
+  if(!reachabilityPronta()){
+    atualizarTextoFonteDados();
+    return false;
+  }
   const total=snapshotAtual.total;
   setText('snapshot-total',fmt(total.base));
   setText('snapshot-optin',fmt(total.optIn));
@@ -1354,11 +1392,13 @@ function atualizarSnapshotUI(){
   setText('benchmark-ctd-diff',fmtPp(total.taxaIn-RETAIL_OPT_IN_MEDIO,2));
   preencherGrupo('comp-filiado',snapshotAtual.filiado,'var(--verde)');
   preencherGrupo('comp-outros',snapshotAtual.outros,'var(--azul)');
+  setText('base-mom-snapshot',`${fmt(baseFrequenciaEnvio('geral_plan'))} usuários com token (Filiados + Outros)`);
   const diff=(snapshotAtual.filiado?.taxaOut || 0)-(snapshotAtual.outros?.taxaOut || 0);
   const direcao=diff>=0?'maior':'menor';
   setHTML('nota-comparativo-planos',`💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>${fmtPp(Math.abs(diff),2)} ${direcao}</strong> que Outros (${fmtPct(snapshotAtual.filiado.taxaOut,2)} vs. ${fmtPct(snapshotAtual.outros.taxaOut,2)}). O cálculo usa segmentos diretos da CleverTap: <code>has_token = true</code> + <code>MSG-push = true/false</code>; Filiados adiciona <code>plan = filiado</code> e Outros soma <code>plan = freemium</code> + <code>plan = Pro</code>. Perfis sem <code>plan</code> ficam apenas no Total.`);
   atualizarTextoFonteDados();
   atualizarInsightsFinais();
+  return true;
 }
 function aplicarReachability(dados){
   if(!dados?.sucesso || dados.processando || dados.base_com_token == null) return false;
@@ -1403,7 +1443,7 @@ function aplicarInsights(dados){
 async function carregarDadosAtuaisPainel(){
   const [insights,reachability]=await Promise.allSettled([
     buscarInsightsMaisRecente(),
-    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`)
+    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`,{cacheavel:false,timeoutMs:60000})
   ]);
   if(insights.status==='fulfilled') aplicarInsights(insights.value);
   if(reachability.status==='fulfilled'){
@@ -1421,7 +1461,7 @@ function agendarAtualizacaoReachability(segundos=25){
     timerReachability=null;
     tentativasReachability+=1;
     try{
-      const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`);
+      const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`,{cacheavel:false,timeoutMs:60000});
       const aplicado=aplicarReachability(dados);
       if(!aplicado && dados?.processando) agendarAtualizacaoReachability(dados.aguarde_segundos || 25);
     }catch(error){
@@ -1640,6 +1680,8 @@ function serieFrequenciaRenderizada(meses){
     const item=cacheFrequenciaEnvioMensal[mes] || {mes,envios:0,dias:0,pendente:true};
     return {...item,rotulo:rotuloMesGrafico(mes)};
   });
+  const falhasOcultas=mesesBase.filter(item=>item.erro).length;
+  mesesBase=mesesBase.filter(item=>!item.erro);
   // -----------------------------------------------------------------------------
   // AJUSTE 2026-07 #20: corta do INÍCIO da série os meses confirmados sem nenhuma
   // campanha (carregados, envios=0) que vêm antes do primeiro mês com envio real.
@@ -1672,7 +1714,7 @@ function serieFrequenciaRenderizada(meses){
       })
     };
   });
-  return {mesesBase,series};
+  return {mesesBase,series,falhasOcultas};
 }
 function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado=''){
   const el=document.getElementById('grafico-frequencia-envio');
@@ -1686,13 +1728,18 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   // quando snapshotAtual for preenchido (aplicarReachability já dispara um novo
   // render quando isso acontece).
   // -----------------------------------------------------------------------------
-  const baseAindaIndisponivel=!(Number(snapshotAtual?.total?.base)>0);
-  const {mesesBase,series}=serieFrequenciaRenderizada(meses);
+  const baseAindaIndisponivel=!(baseFrequenciaEnvio('geral_plan')>0);
+  const {mesesBase,series,falhasOcultas}=serieFrequenciaRenderizada(meses);
   const pendentes=mesesBase.filter(item=>item.pendente).length;
   if(!mesesBase.length){
     el.className='freq-line-chart carregando';
-    el.innerHTML='Sem meses disponíveis para o recorte atual.';
-    setText('freq-evolucao-status','Aguardando dados mensais.');
+    if(falhasOcultas){
+      el.innerHTML=`<div>Não foi possível consultar os envios agora.<br><span style="font-size:10px;color:var(--texto-suave)">Nova tentativa automática em instantes; meses com falha não são desenhados como zero.</span></div>`;
+      setText('freq-evolucao-status','Falha temporária ao consultar a CleverTap; nova tentativa automática agendada.');
+    }else{
+      el.innerHTML='Sem meses disponíveis para o recorte atual.';
+      setText('freq-evolucao-status','Aguardando dados mensais.');
+    }
     return;
   }
   if(pendentes===mesesBase.length || baseAindaIndisponivel){
@@ -1776,8 +1823,8 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
     });
   });
   const carregados=mesesBase.filter(item=>!item.pendente && !item.erro).length;
-  const falhas=mesesBase.filter(item=>item.erro).length;
-  const complemento=falhas ? ` ${falhas} mês(es) sem retorno da API ficaram como 0.` : '';
+  const falhas=falhasOcultas || 0;
+  const complemento=falhas ? ` ${falhas} mês(es) sem retorno da API não entraram na curva para evitar leitura como envio zerado.` : '';
   setText('freq-evolucao-status',`${estado || `${carregados}/${mesesBase.length} meses consolidados.`} Frequência = envios Push do mês / (base estimada daquele mês, Filiados + Outros) / dias do mês. A base de cada mês é estimada retroativamente a partir do snapshot atual — não é a mesma base fixa para todos os meses. A API entrega envios totais de campanha e não separa envios por plan; por isso não há linhas estimadas de Filiados ou Outros.${complemento}`);
 }
 function periodoMesParaFrequencia(mes,fromRecorte,toRecorte){
@@ -1787,32 +1834,53 @@ function periodoMesParaFrequencia(mes,fromRecorte,toRecorte){
   const to=[fimMes,toRecorte].filter(Boolean).sort()[0];
   return {from,to};
 }
+function periodoBuscaFrequenciaMes(mes){
+  const api=MESES_API[chaveMesISO(mes)] || {};
+  return periodoMesParaFrequencia(mes,api.from || `${mes}-01`,api.to || fimDoMesISO(mes));
+}
+async function buscarFrequenciaEnvioMes(mes){
+  const periodo=periodoBuscaFrequenciaMes(mes);
+  const params=new URLSearchParams({from:periodo.from,to:periodo.to});
+  try{
+    const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/dashboard?${params}`,{timeoutMs:22000,cacheavel:false});
+    if(!dados?.sucesso) throw new Error(dados?.erro || 'Relatorio de campanhas indisponivel.');
+    const itemMes={mes,envios:0,dias:diasPeriodoInclusivo(periodo.from,periodo.to),periodo,erro:false,pendente:false};
+    (dados.campanhas || [])
+      .filter(campanha=>normalizarTexto(campanha.tipo)==='push')
+      .forEach(campanha=>{
+        (campanha.diario || []).forEach(item=>{
+          const data=String(item.data || '').slice(0,10);
+          if(data.slice(0,7)!==mes) return;
+          itemMes.envios+=Number(item.envios || 0);
+        });
+      });
+    cacheFrequenciaEnvioMensal[mes]=itemMes;
+    return true;
+  }catch(error){
+    cacheFrequenciaEnvioMensal[mes]={
+      mes,
+      envios:0,
+      dias:diasPeriodoInclusivo(periodo.from,periodo.to),
+      periodo,
+      erro:true,
+      pendente:false,
+      mensagem:error.message
+    };
+    return false;
+  }
+}
 async function buscarFrequenciaEnvioPeriodo(meses){
   if(!meses.length) return;
-  const first=meses[0];
-  const last=meses[meses.length-1];
-  const fromPadrao=MESES_API[chaveMesISO(first)]?.from || `${first}-01`;
-  const toPadrao=MESES_API[chaveMesISO(last)]?.to || fimDoMesISO(last);
-  const from=periodoHistoricoAtual.from && periodoHistoricoAtual.from<=fromPadrao ? periodoHistoricoAtual.from : fromPadrao;
-  const to=periodoHistoricoAtual.to && periodoHistoricoAtual.to>=`${last}-01` ? periodoHistoricoAtual.to : toPadrao;
-  const params=new URLSearchParams({from,to});
-  const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/dashboard?${params}`);
-  if(!dados?.sucesso) throw new Error(dados?.erro || 'Relatório de campanhas indisponível.');
-  const porMes=Object.fromEntries(meses.map(mes=>{
-    const periodo=periodoMesParaFrequencia(mes,from,to);
-    return [mes,{mes,envios:0,dias:diasPeriodoInclusivo(periodo.from,periodo.to),periodo,erro:false,pendente:false}];
-  }));
-  (dados.campanhas || [])
-    .filter(campanha=>normalizarTexto(campanha.tipo)==='push')
-    .forEach(campanha=>{
-      (campanha.diario || []).forEach(item=>{
-        const data=String(item.data || '').slice(0,10);
-        const mes=data.slice(0,7);
-        if(!porMes[mes]) return;
-        porMes[mes].envios+=Number(item.envios || 0);
-      });
-    });
-  Object.assign(cacheFrequenciaEnvioMensal,porMes);
+  const unicos=[...new Set(meses)];
+  const tamanhoLote=3;
+  let sucessos=0;
+  for(let i=0;i<unicos.length;i+=tamanhoLote){
+    const lote=unicos.slice(i,i+tamanhoLote);
+    const resultados=await Promise.all(lote.map(buscarFrequenciaEnvioMes));
+    sucessos+=resultados.filter(Boolean).length;
+    renderizarGraficoFrequenciaEnvio(mesesDoRecorteAtual(),`Carregando frequencia de envio (${Math.min(i+tamanhoLote,unicos.length)}/${unicos.length} meses).`);
+  }
+  if(!sucessos) throw new Error('Nenhum mes retornou envios da API.');
 }
 let timerRetryFrequenciaEnvio=null;
 async function atualizarGraficoFrequenciaEnvio(){
@@ -1857,6 +1925,10 @@ function atualizarDiagnostico(){
   if(!filiados.length || !outros.length) return;
   const mediaFiliados=filiados.reduce((s,d)=>s+d.taxaOut,0)/filiados.length;
   const mediaOutros=outros.reduce((s,d)=>s+d.taxaOut,0)/outros.length;
+  if(!reachabilityPronta()){
+    atualizarNotaAumentoRecente();
+    return;
+  }
   const diff=mediaFiliados-mediaOutros;
   document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>${fmtPct(snapshotAtual.filiado.taxaOut,2)}</strong> de opt-out e Outros com <strong>${fmtPct(snapshotAtual.outros.taxaOut,2)}</strong>. Na evolução mensal do recorte de ${recorteAtual} meses, a incidência média de opt-out dos Filiados sobre a base atual é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Outros — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede volumes de ativações/desativações no mês; os cards medem o estado atual da base.`;
   atualizarNotaAumentoRecente();
@@ -1869,7 +1941,7 @@ function atualizarNotaAumentoRecente(){
   const meses=filiados.map(rotuloMesItemPeriodo).join(', ');
   const taxasFiliados=filiados.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
   const taxasOutros=outros.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
-  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na linha recalculada sobre base atual, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights</code>. A linha usa opt-outs do mês sobre a base atual com token do recorte, com MTD-1 até ontem quando o mês está aberto.</span>`);
+  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na linha recalculada sobre base atual, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha usa opt-outs do mês sobre a base atual com token do recorte, com MTD-1 até ontem quando o mês está aberto.</span>`);
   const inicio=rotuloMesItemPeriodo(filiados[0]);
   const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
   setText('insight-sazonalidade',`O aumento recente de opt-out em ${inicio}–${fim} deve ser lido junto do calendário de campanhas. O painel atualiza esse recorte automaticamente quando um novo mês fica disponível na API.`);
@@ -1927,6 +1999,15 @@ function renderizarRecomendacoes(itens){
   `).join('');
 }
 function atualizarInsightsFinais(contexto=contextoCriticosAtual){
+  if(!reachabilityPronta()){
+    setText('insight-confianca-titulo','Snapshot da base em atualização');
+    setHTML('insight-confianca','Aguardando a resposta completa de reachability da CleverTap. Enquanto isso, o painel mantém a última leitura exibida e não trata resposta intermediária como zero.');
+    renderizarRecomendacoes([{
+      titulo:'Aguardar snapshot completo da base',
+      desc:'A API retornou processamento em andamento; o painel será atualizado automaticamente quando chegar a contagem real de opt-in e opt-out.'
+    }]);
+    return;
+  }
   const ultimos3=MESES_FILIADO.slice(-3);
   const anteriores3=MESES_FILIADO.slice(-6,-3);
   const media12=mediaSerie(MESES_FILIADO);
@@ -2404,17 +2485,19 @@ document.addEventListener('touchend',evento=>{ if(tocouForaDeTooltip(evento.targ
 // ── BASE MOM ─────────────────────────────────────────────────────────
 // Estima a base com token mês a mês retroativamente a partir do snapshot atual
 function calcularBaseMoM() {
-  const baseAtual = Number(snapshotAtual.total?.base ?? 0); // usa apenas o snapshot ao vivo da API; sem fallback fabricado
-  const series = [...MESES_TOTAL].reverse();
+  const baseAtual = baseFrequenciaEnvio('geral_plan'); // Filiados + Outros; perfis sem plan ficam fora desta leitura
+  const series = serieMensalGeralPlan().reverse();
   let baseAcum = baseAtual;
   const resultado = [];
   series.forEach((m, i) => {
+    const baseMes=Math.max(0,Math.round(baseAcum));
     resultado.unshift({
       mes: m.mes,
-      base: Math.round(baseAcum),
+      iso: m.iso,
+      base: baseMes,
       optIn: m.optIn,
       optOut: m.optOut,
-      taxaOut: m.taxaOut
+      taxaOut: pct(m.optOut,baseMes)
     });
     if (i < series.length - 1) {
       baseAcum = baseAcum - m.optIn + m.optOut;
@@ -2426,7 +2509,14 @@ function calcularBaseMoM() {
 function renderGraficoBaseMoM() {
   const wrap = document.getElementById('grafico-base-mom');
   if (!wrap) return;
-  const dados = calcularBaseMoM().slice(Math.max(0, MESES_TOTAL.length - recorteAtual));
+  if (!reachabilityPronta()) {
+    wrap.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:160px;color:var(--texto-suave);font-size:11px;font-weight:800;text-align:center">Aguardando snapshot atual da base para estimar a evolução MoM.</div>';
+    const linhaEl = document.getElementById('grafico-base-mom-linha');
+    if (linhaEl) linhaEl.innerHTML = '';
+    return;
+  }
+  const serieBaseMoM = calcularBaseMoM();
+  const dados = serieBaseMoM.slice(Math.max(0, serieBaseMoM.length - recorteAtual));
   const maxBase = Math.max(...dados.map(d => d.base));
   const alturaMax = 140;
   const tt = document.getElementById('tt');
@@ -2499,7 +2589,7 @@ function renderGraficoBaseMoM() {
     linhaEl.innerHTML = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:500px">
       <thead><tr><th style="font-size:9px;font-weight:800;color:var(--texto-suave);padding:6px 8px;border-bottom:2px solid var(--borda);text-align:left">Métrica</th>${headers}</tr></thead>
       <tbody>
-        <tr><td style="font-size:10px;font-weight:800;padding:7px 8px;border-bottom:1px solid var(--borda);color:var(--texto)">Base estimada</td>${bases}</tr>
+        <tr><td style="font-size:10px;font-weight:800;padding:7px 8px;border-bottom:1px solid var(--borda);color:var(--texto)">Base estimada (Filiados + Outros)</td>${bases}</tr>
         <tr><td style="font-size:10px;font-weight:800;padding:7px 8px;color:var(--texto)">MoM</td>${mom}</tr>
       </tbody>
     </table></div>`;
@@ -2715,12 +2805,11 @@ async function inicializarPainel(){
       })
       .catch(e => console.warn('insights:', e)),
 
-    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`)
+    fetchJSON(`${API_PAINEL_ORIGINAL}/api/reachability-push`,{cacheavel:false,timeoutMs:60000})
       .then(dados => {
         const aplicado = aplicarReachability(dados);
         if(!aplicado && dados?.processando) agendarAtualizacaoReachability(dados.aguarde_segundos);
-        atualizarSnapshotUI();
-        atualizarTextoFonteDados();
+        if(!aplicado) atualizarTextoFonteDados();
       })
       .catch(e => console.warn('reachability:', e)),
 
