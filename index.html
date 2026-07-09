@@ -691,7 +691,7 @@
         <div class="freq-evolucao-status" id="freq-evolucao-status">Aguardando consolidação dos meses do recorte.</div>
       </div>
       <div class="nota-box info" style="margin-top:12px">
-        📌 <strong>Início do histórico neste gráfico:</strong> a API de relatórios de campanha da CleverTap retorna dados de envio apenas a partir de <strong>Jan/2026</strong> — consultas a meses anteriores respondem com sucesso, porém sem nenhuma campanha listada. A integração com a CleverTap existe desde 2025, então a ausência dos meses anteriores é uma limitação do relatório disponível na plataforma (retenção de relatórios de campanha ou campanhas removidas), não falha do painel. Meses sem envio registrado não são desenhados para não parecer queda real.
+        📌 <strong>Fonte deste gráfico:</strong> relatório oficial de mensagens da CleverTap, considerando campanhas Push com status <code>completed</code>, sem filtro de labels. Meses com retorno incompleto ou erro temporário da API não são desenhados como zero para não sugerir queda real de pressão.
       </div>
     </div>
   </div>
@@ -1021,7 +1021,7 @@ let timerReachability=null;
 let contextoCriticosAtual=null;
 let requisicaoCriticos=0;
 let requisicaoFrequenciaEnvio=0;
-// Cache começa vazio de propósito: buscarFrequenciaEnvioPeriodo() (real, via /api/dashboard)
+// Cache começa vazio de propósito: buscarFrequenciaEnvioPeriodo() (real, via /api/frequencia-envio-push)
 // popula cada mês assim que a API responde. Nunca pré-popular com números fabricados aqui.
 const cacheFrequenciaEnvioMensal={};
 
@@ -1599,7 +1599,7 @@ function mostrarTooltipFrequencia(e,ponto,serie,anterior){
     <div class="freq-tt-linha"><span class="freq-tt-label">Frequência</span><span class="freq-tt-val">${fmtFreq(ponto.frequencia)} push/dia</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">MoM</span><span class="freq-tt-val${momClasse}">${escHTML(mom.texto)}</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">Envios Push</span><span class="freq-tt-val">${fmt(ponto.envios || 0)}</span></div>
-    <div class="freq-tt-linha"><span class="freq-tt-label">Campanhas Push</span><span class="freq-tt-val">${fmt(ponto.campanhas || 0)}</span></div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">Campanhas Push completed</span><span class="freq-tt-val">${fmt(ponto.campanhas || 0)}</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">Base estimada do mês</span><span class="freq-tt-val">${fmt(ponto.base || 0)}</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">Dias</span><span class="freq-tt-val">${fmt(ponto.dias || 0)}</span></div>
   `;
@@ -1847,11 +1847,11 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
       <div class="freq-evolucao-metrica">
         <span>${escHTML(item.rotulo)}</span>
         <strong>${fmtFreq(item.frequencia)}</strong>
-        <small>pushes/usuário/dia<br>${fmt(item.envios || 0)} envios Push<br>${fmt(item.campanhas || 0)} campanhas Push</small>
+        <small>pushes/usuário/dia<br>${fmt(item.envios || 0)} envios Push<br>${fmt(item.campanhas || 0)} campanhas Push completed</small>
       </div>
     `).join('');
   }
-  setText('freq-evolucao-status',`${estado || `${carregados}/${mesesBase.length} meses consolidados.`} Frequência = envios Push do mês / (base estimada daquele mês, Filiados + Outros) / dias do mês. A fonte é o relatório oficial de mensagens da CleverTap sem filtro de labels, para refletir toda a pressão de Push. A base de cada mês é estimada retroativamente a partir do snapshot atual — não é a mesma base fixa para todos os meses. A API entrega envios totais de campanha e não separa envios por plan; por isso não há linhas estimadas de Filiados ou Outros.${complemento}`);
+  setText('freq-evolucao-status',`${estado || `${carregados}/${mesesBase.length} meses consolidados.`} Frequência = envios Push do mês / (base estimada daquele mês, Filiados + Outros) / dias do mês. A fonte é o relatório oficial de mensagens da CleverTap, usando campanhas Push com status completed e sem filtro de labels, para refletir toda a pressão de Push. A base de cada mês é estimada retroativamente a partir do snapshot atual — não é a mesma base fixa para todos os meses. A API entrega envios totais de campanha e não separa envios por plan; por isso não há linhas estimadas de Filiados ou Outros.${complemento}`);
 }
 function periodoMesParaFrequencia(mes,fromRecorte,toRecorte){
   const inicioMes=`${mes}-01`;
@@ -1868,6 +1868,7 @@ async function buscarFrequenciaEnvioMes(mes){
   const periodo=periodoBuscaFrequenciaMes(mes);
   const params=new URLSearchParams({from:periodo.from,to:periodo.to});
   try{
+    params.set('status','completed');
     const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/frequencia-envio-push?${params}`,{timeoutMs:90000,cacheavel:false});
     if(!dados?.sucesso) throw new Error(dados?.erro || 'Frequencia de envio Push indisponivel.');
     const mensal=(dados.meses || []).find(item=>item.mes===mes) || {};
