@@ -1599,6 +1599,7 @@ function mostrarTooltipFrequencia(e,ponto,serie,anterior){
     <div class="freq-tt-linha"><span class="freq-tt-label">Frequência</span><span class="freq-tt-val">${fmtFreq(ponto.frequencia)} push/dia</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">MoM</span><span class="freq-tt-val${momClasse}">${escHTML(mom.texto)}</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">Envios Push</span><span class="freq-tt-val">${fmt(ponto.envios || 0)}</span></div>
+    <div class="freq-tt-linha"><span class="freq-tt-label">Campanhas Push</span><span class="freq-tt-val">${fmt(ponto.campanhas || 0)}</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">Base estimada do mês</span><span class="freq-tt-val">${fmt(ponto.base || 0)}</span></div>
     <div class="freq-tt-linha"><span class="freq-tt-label">Dias</span><span class="freq-tt-val">${fmt(ponto.dias || 0)}</span></div>
   `;
@@ -1846,11 +1847,11 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
       <div class="freq-evolucao-metrica">
         <span>${escHTML(item.rotulo)}</span>
         <strong>${fmtFreq(item.frequencia)}</strong>
-        <small>pushes/usuário/dia<br>${fmt(item.envios || 0)} envios Push</small>
+        <small>pushes/usuário/dia<br>${fmt(item.envios || 0)} envios Push<br>${fmt(item.campanhas || 0)} campanhas Push</small>
       </div>
     `).join('');
   }
-  setText('freq-evolucao-status',`${estado || `${carregados}/${mesesBase.length} meses consolidados.`} Frequência = envios Push do mês / (base estimada daquele mês, Filiados + Outros) / dias do mês. A base de cada mês é estimada retroativamente a partir do snapshot atual — não é a mesma base fixa para todos os meses. A API entrega envios totais de campanha e não separa envios por plan; por isso não há linhas estimadas de Filiados ou Outros.${complemento}`);
+  setText('freq-evolucao-status',`${estado || `${carregados}/${mesesBase.length} meses consolidados.`} Frequência = envios Push do mês / (base estimada daquele mês, Filiados + Outros) / dias do mês. A fonte é o relatório oficial de mensagens da CleverTap sem filtro de labels, para refletir toda a pressão de Push. A base de cada mês é estimada retroativamente a partir do snapshot atual — não é a mesma base fixa para todos os meses. A API entrega envios totais de campanha e não separa envios por plan; por isso não há linhas estimadas de Filiados ou Outros.${complemento}`);
 }
 function periodoMesParaFrequencia(mes,fromRecorte,toRecorte){
   const inicioMes=`${mes}-01`;
@@ -1867,18 +1868,21 @@ async function buscarFrequenciaEnvioMes(mes){
   const periodo=periodoBuscaFrequenciaMes(mes);
   const params=new URLSearchParams({from:periodo.from,to:periodo.to});
   try{
-    const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/dashboard?${params}`,{timeoutMs:22000,cacheavel:false});
-    if(!dados?.sucesso) throw new Error(dados?.erro || 'Relatorio de campanhas indisponivel.');
-    const itemMes={mes,envios:0,dias:diasPeriodoInclusivo(periodo.from,periodo.to),periodo,erro:false,pendente:false};
-    (dados.campanhas || [])
-      .filter(campanha=>normalizarTexto(campanha.tipo)==='push')
-      .forEach(campanha=>{
-        (campanha.diario || []).forEach(item=>{
-          const data=String(item.data || '').slice(0,10);
-          if(data.slice(0,7)!==mes) return;
-          itemMes.envios+=Number(item.envios || 0);
-        });
-      });
+    const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/frequencia-envio-push?${params}`,{timeoutMs:90000,cacheavel:false});
+    if(!dados?.sucesso) throw new Error(dados?.erro || 'Frequencia de envio Push indisponivel.');
+    const mensal=(dados.meses || []).find(item=>item.mes===mes) || {};
+    const itemMes={
+      mes,
+      envios:Number(mensal.envios || 0),
+      campanhas:Number(mensal.campanhas_push || mensal.campanhas_push_com_envio || 0),
+      campanhasComEnvio:Number(mensal.campanhas_push_com_envio || 0),
+      dias:diasPeriodoInclusivo(periodo.from,periodo.to),
+      diasComEnvio:Array.isArray(mensal.dias_com_envio) ? mensal.dias_com_envio.length : 0,
+      periodo,
+      erro:false,
+      pendente:false,
+      fonte:dados.fonte || 'message/report.json sem filtro de labels'
+    };
     cacheFrequenciaEnvioMensal[mes]=itemMes;
     return true;
   }catch(error){
