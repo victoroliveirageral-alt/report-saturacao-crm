@@ -1718,12 +1718,13 @@ function baseMoMPorMesIso(){
   return mapa;
 }
 function serieFrequenciaRenderizada(meses){
-  let mesesBase=meses.map(mes=>{
+  const mesesSolicitados=meses.map(mes=>{
     const item=cacheFrequenciaEnvioMensal[mes] || {mes,envios:0,dias:0,pendente:true};
     return {...item,rotulo:rotuloMesGrafico(mes)};
   });
-  const falhasOcultas=mesesBase.filter(item=>item.erro).length;
-  mesesBase=mesesBase.filter(item=>!item.erro);
+  const falhasOcultas=mesesSolicitados.filter(item=>item.erro).length;
+  const pendentesOcultos=mesesSolicitados.filter(item=>item.pendente).length;
+  let mesesBase=mesesSolicitados.filter(item=>!item.erro && !item.pendente);
   // -----------------------------------------------------------------------------
   // AJUSTE 2026-07 #20: corta do INÍCIO da série os meses confirmados sem nenhuma
   // campanha (carregados, envios=0) que vêm antes do primeiro mês com envio real.
@@ -1756,7 +1757,7 @@ function serieFrequenciaRenderizada(meses){
       })
     };
   });
-  return {mesesBase,series,falhasOcultas};
+  return {mesesBase,series,falhasOcultas,pendentesOcultos,totalSolicitados:mesesSolicitados.length};
 }
 function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado=''){
   const el=document.getElementById('grafico-frequencia-envio');
@@ -1773,8 +1774,15 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   // render quando isso acontece).
   // -----------------------------------------------------------------------------
   const baseAindaIndisponivel=!(baseFrequenciaEnvio('geral_plan')>0);
-  const {mesesBase,series,falhasOcultas}=serieFrequenciaRenderizada(meses);
-  const pendentes=mesesBase.filter(item=>item.pendente).length;
+  const {mesesBase,series,falhasOcultas,pendentesOcultos,totalSolicitados}=serieFrequenciaRenderizada(meses);
+  const pendentes=pendentesOcultos;
+  if(!mesesBase.length && (pendentes || baseAindaIndisponivel)){
+    el.className='freq-line-chart carregando';
+    limparMetricas();
+    el.innerHTML=`<div><div class="spinner" style="margin:0 auto 10px"></div>${escHTML(estado || (baseAindaIndisponivel ? 'Aguardando base de usuarios (reachability)...' : 'Carregando frequencia de envio...'))}</div>`;
+    setText('freq-evolucao-status',baseAindaIndisponivel ? 'Envios ja carregados; aguardando a base de usuarios para calcular a frequencia por pessoa.' : 'A frequencia sera desenhada assim que pelo menos um mes terminar de carregar.');
+    return;
+  }
   if(!mesesBase.length){
     el.className='freq-line-chart carregando';
     limparMetricas();
@@ -1787,7 +1795,7 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
     }
     return;
   }
-  if(pendentes===mesesBase.length || baseAindaIndisponivel){
+  if(baseAindaIndisponivel){
     el.className='freq-line-chart carregando';
     limparMetricas();
     el.innerHTML=`<div><div class="spinner" style="margin:0 auto 10px"></div>${escHTML(estado || (baseAindaIndisponivel ? 'Aguardando base de usuários (reachability)...' : 'Carregando frequência de envio...'))}</div>`;
@@ -1874,7 +1882,6 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   });
   const carregados=mesesBase.filter(item=>!item.pendente && !item.erro).length;
   const falhas=falhasOcultas || 0;
-  const complemento=falhas ? ` ${falhas} mês(es) sem retorno da API não entraram na curva para evitar leitura como envio zerado.` : '';
   const pontosResumo=seriesComCoordenadas[0]?.pontos.filter(item=>!item.pendente && !item.erro) || [];
   if(metricasEl){
     metricasEl.innerHTML=pontosResumo.map(item=>`
@@ -1885,7 +1892,12 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
       </div>
     `).join('');
   }
-  setText('freq-evolucao-status',`${estado || `${carregados}/${mesesBase.length} meses consolidados.`} Frequência = envios Push do mês / (base estimada daquele mês, Filiados + Outros) / dias do mês. A fonte é o relatório oficial de mensagens da CleverTap, usando campanhas Push com status completed e sem filtro de labels, para refletir toda a pressão de Push. A base de cada mês é estimada retroativamente a partir do snapshot atual — não é a mesma base fixa para todos os meses. A API entrega envios totais de campanha e não separa envios por plan; por isso não há linhas estimadas de Filiados ou Outros.${complemento}`);
+  const statusFrequencia=estado || `${carregados}/${totalSolicitados || mesesBase.length} meses consolidados.`;
+  const avisosFrequencia=[
+    pendentes ? `${pendentes} mes(es) ainda carregando nao entram na curva ate terminar a consulta.` : '',
+    falhas ? `${falhas} mes(es) sem retorno da API nao entraram na curva para evitar leitura como envio zerado.` : ''
+  ].filter(Boolean).join(' ');
+  setText('freq-evolucao-status',`${statusFrequencia} Frequencia = envios Push do mes / (base estimada daquele mes, Filiados + Outros) / dias do mes. A fonte e o relatorio oficial de mensagens da CleverTap, usando campanhas Push com status completed e sem filtro de labels, para refletir toda a pressao de Push. A base de cada mes e estimada retroativamente a partir do snapshot atual, nao e a mesma base fixa para todos os meses. A API entrega envios totais de campanha e nao separa envios por plan; por isso nao ha linhas estimadas de Filiados ou Outros.${avisosFrequencia ? ` ${avisosFrequencia}` : ''}`);
 }
 function periodoMesParaFrequencia(mes,fromRecorte,toRecorte){
   const inicioMes=`${mes}-01`;
@@ -1905,7 +1917,8 @@ async function buscarFrequenciaEnvioMes(mes){
     params.set('status','completed');
     const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/frequencia-envio-push?${params}`,{timeoutMs:120000,cacheavel:false});
     if(!dados?.sucesso) throw new Error(dados?.erro || 'Frequencia de envio Push indisponivel.');
-    const mensal=(dados.meses || []).find(item=>item.mes===mes) || {};
+    const mensal=(dados.meses || []).find(item=>item.mes===mes);
+    if(!mensal) throw new Error(`Mes ${mes} sem retorno de envios na API.`);
     const itemMes={
       mes,
       envios:Number(mensal.envios || 0),
@@ -1948,9 +1961,17 @@ async function buscarFrequenciaEnvioPeriodo(meses,requisicaoAtual){
       renderizarGraficoFrequenciaEnvio(mesesDoRecorteAtual(),`Carregando frequência de envio (${Math.min(i+tamanhoLote,unicos.length)}/${unicos.length} meses).`);
     }
   }
+  if(sucessos<unicos.length) agendarRetryFrequenciaEnvio();
   if(!sucessos) throw new Error('Nenhum mes retornou envios da API.');
 }
 let timerRetryFrequenciaEnvio=null;
+function agendarRetryFrequenciaEnvio(){
+  if(timerRetryFrequenciaEnvio) return;
+  timerRetryFrequenciaEnvio=setTimeout(()=>{
+    timerRetryFrequenciaEnvio=null;
+    atualizarGraficoFrequenciaEnvio();
+  },45000);
+}
 async function atualizarGraficoFrequenciaEnvio(){
   const meses=mesesDoRecorteAtual();
   const requisicaoAtual=++requisicaoFrequenciaEnvio;
@@ -1975,12 +1996,7 @@ async function atualizarGraficoFrequenciaEnvio(){
         const periodo=periodoMesParaFrequencia(mes,`${mes}-01`,fimDoMesISO(mes));
         cacheFrequenciaEnvioMensal[mes]={mes,envios:0,dias:diasPeriodoInclusivo(periodo.from,periodo.to),periodo,erro:true,pendente:false,mensagem:error.message};
       });
-      if(!timerRetryFrequenciaEnvio){
-        timerRetryFrequenciaEnvio=setTimeout(()=>{
-          timerRetryFrequenciaEnvio=null;
-          atualizarGraficoFrequenciaEnvio();
-        },45000);
-      }
+      agendarRetryFrequenciaEnvio();
     }
   }
   if(requisicaoAtual!==requisicaoFrequenciaEnvio) return;
