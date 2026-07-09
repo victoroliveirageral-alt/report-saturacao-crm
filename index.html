@@ -132,6 +132,7 @@
     .freq-line-path{fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;filter:drop-shadow(0 4px 8px rgba(0,169,136,.14))}
     .freq-line-area-fill{fill:rgba(0,169,136,.05)}
     .freq-point{stroke:#fff;stroke-width:2.4;vector-effect:non-scaling-stroke}
+    .freq-point-label{font-size:22px;font-weight:900;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round}
     .freq-legenda{position:absolute;left:16px;right:16px;top:12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:10px;font-weight:900;color:var(--texto-suave)}
     .freq-legenda span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
     .freq-legenda i{display:inline-block;width:18px;height:3px;border-radius:999px}
@@ -139,6 +140,11 @@
     .freq-axis-label-html{position:absolute;top:0;transform:translateX(-50%);font-size:9px;font-weight:900;color:var(--texto-suave);white-space:nowrap}
     .freq-last-label{position:absolute;transform:translate(-50%,-50%);padding:3px 6px;border-radius:999px;background:white;border:1px solid currentColor;font-size:9px;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.06);white-space:nowrap;pointer-events:none}
     .freq-evolucao-status{margin-top:10px;color:var(--texto-suave);font-size:10px;line-height:1.5}
+    .freq-evolucao-metricas{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:8px;margin-top:12px}
+    .freq-evolucao-metrica{padding:10px 11px;border:1px solid rgba(242,139,34,.18);border-radius:12px;background:#fffdf9;box-shadow:0 2px 10px rgba(0,0,0,.03)}
+    .freq-evolucao-metrica span{display:block;color:var(--texto-suave);font-size:8px;font-weight:900;text-transform:uppercase;letter-spacing:.25px}
+    .freq-evolucao-metrica strong{display:block;margin-top:3px;color:var(--laranja);font-size:16px;line-height:1}
+    .freq-evolucao-metrica small{display:block;margin-top:5px;color:var(--texto-suave);font-size:9px;font-weight:700;line-height:1.35}
     .freq-tt{display:none;position:fixed;z-index:1000;pointer-events:none;width:max-content;min-width:220px;max-width:min(300px,calc(100vw - 24px));padding:12px 14px;border-radius:12px;background:#fff;color:var(--texto);border:1px solid rgba(0,169,136,.2);box-shadow:0 8px 28px rgba(0,0,0,.18);font-size:11px;line-height:1.55}
     .freq-tt-titulo{font-size:12px;font-weight:900;color:var(--verde-escuro);padding-bottom:6px;margin-bottom:7px;border-bottom:1px solid var(--borda)}
     .freq-tt-linha{display:flex;justify-content:space-between;gap:14px}
@@ -681,6 +687,7 @@
         <div class="freq-line-chart carregando" id="grafico-frequencia-envio">
           <div><div class="spinner" style="margin:0 auto 10px"></div>Carregando frequência de envio...</div>
         </div>
+        <div class="freq-evolucao-metricas" id="freq-evolucao-metricas"></div>
         <div class="freq-evolucao-status" id="freq-evolucao-status">Aguardando consolidação dos meses do recorte.</div>
       </div>
       <div class="nota-box info" style="margin-top:12px">
@@ -1719,6 +1726,8 @@ function serieFrequenciaRenderizada(meses){
 function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado=''){
   const el=document.getElementById('grafico-frequencia-envio');
   if(!el) return;
+  const metricasEl=document.getElementById('freq-evolucao-metricas');
+  const limparMetricas=()=>{ if(metricasEl) metricasEl.innerHTML=''; };
   // -----------------------------------------------------------------------------
   // CORREÇÃO 2026-07 #15: antes, se os envios já tivessem chegado mas a base do
   // reachability AINDA não (ex: reachability lento/em retry), o gráfico renderizava
@@ -1733,6 +1742,7 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   const pendentes=mesesBase.filter(item=>item.pendente).length;
   if(!mesesBase.length){
     el.className='freq-line-chart carregando';
+    limparMetricas();
     if(falhasOcultas){
       el.innerHTML=`<div>Não foi possível consultar os envios agora.<br><span style="font-size:10px;color:var(--texto-suave)">Nova tentativa automática em instantes; meses com falha não são desenhados como zero.</span></div>`;
       setText('freq-evolucao-status','Falha temporária ao consultar a CleverTap; nova tentativa automática agendada.');
@@ -1744,6 +1754,7 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   }
   if(pendentes===mesesBase.length || baseAindaIndisponivel){
     el.className='freq-line-chart carregando';
+    limparMetricas();
     el.innerHTML=`<div><div class="spinner" style="margin:0 auto 10px"></div>${escHTML(estado || (baseAindaIndisponivel ? 'Aguardando base de usuários (reachability)...' : 'Carregando frequência de envio...'))}</div>`;
     setText('freq-evolucao-status',baseAindaIndisponivel ? 'Envios já carregados; aguardando a base de usuários pra calcular a frequência por pessoa.' : 'A frequência será desenhada assim que os meses terminarem de carregar.');
     return;
@@ -1755,6 +1766,7 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   const itensComErro=itensCarregados.filter(item=>item.erro);
   if(itensCarregados.length>0 && itensComErro.length===itensCarregados.length){
     el.className='freq-line-chart carregando';
+    limparMetricas();
     el.innerHTML=`<div>⚠️ Não foi possível consultar os envios agora (instabilidade na CleverTap).<br><span style="font-size:10px;color:var(--texto-suave)">Nova tentativa automática em instantes — isso NÃO significa envio zerado.</span></div>`;
     setText('freq-evolucao-status','Falha temporária ao consultar a CleverTap; nova tentativa automática agendada.');
     return;
@@ -1790,6 +1802,9 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
       <line class="freq-grid-line" x1="45" x2="955" y1="${baseY}" y2="${baseY}"></line>
       ${seriesComCoordenadas.map((serie,serieIndex)=>`
         <path class="freq-line-path" style="stroke:${serie.cor}" d="${caminhoLinhaSuave(serie.pontos)}"></path>
+        ${serie.pontos.map((ponto,pontoIndex)=>deveMostrarLabelFrequencia(serie.pontos,pontoIndex) ? `
+          <text class="freq-point-label" style="fill:${serie.cor}" text-anchor="middle" x="${ponto.x}" y="${Math.max(22,ponto.y-12)}">${fmtFreq(ponto.frequencia)}</text>
+        ` : '').join('')}
         ${serie.pontos.map((ponto,pontoIndex)=>`
           <circle class="freq-point" data-freq-serie="${serieIndex}" data-freq-index="${pontoIndex}" tabindex="0" style="fill:${serie.cor}" cx="${ponto.x}" cy="${ponto.y}" r="4.5"></circle>
         `).join('')}
@@ -1825,6 +1840,16 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   const carregados=mesesBase.filter(item=>!item.pendente && !item.erro).length;
   const falhas=falhasOcultas || 0;
   const complemento=falhas ? ` ${falhas} mês(es) sem retorno da API não entraram na curva para evitar leitura como envio zerado.` : '';
+  const pontosResumo=seriesComCoordenadas[0]?.pontos.filter(item=>!item.pendente && !item.erro) || [];
+  if(metricasEl){
+    metricasEl.innerHTML=pontosResumo.map(item=>`
+      <div class="freq-evolucao-metrica">
+        <span>${escHTML(item.rotulo)}</span>
+        <strong>${fmtFreq(item.frequencia)}</strong>
+        <small>pushes/usuário/dia<br>${fmt(item.envios || 0)} envios Push</small>
+      </div>
+    `).join('');
+  }
   setText('freq-evolucao-status',`${estado || `${carregados}/${mesesBase.length} meses consolidados.`} Frequência = envios Push do mês / (base estimada daquele mês, Filiados + Outros) / dias do mês. A base de cada mês é estimada retroativamente a partir do snapshot atual — não é a mesma base fixa para todos os meses. A API entrega envios totais de campanha e não separa envios por plan; por isso não há linhas estimadas de Filiados ou Outros.${complemento}`);
 }
 function periodoMesParaFrequencia(mes,fromRecorte,toRecorte){
@@ -1869,7 +1894,7 @@ async function buscarFrequenciaEnvioMes(mes){
     return false;
   }
 }
-async function buscarFrequenciaEnvioPeriodo(meses){
+async function buscarFrequenciaEnvioPeriodo(meses,requisicaoAtual){
   if(!meses.length) return;
   const unicos=[...new Set(meses)];
   const tamanhoLote=3;
@@ -1878,7 +1903,9 @@ async function buscarFrequenciaEnvioPeriodo(meses){
     const lote=unicos.slice(i,i+tamanhoLote);
     const resultados=await Promise.all(lote.map(buscarFrequenciaEnvioMes));
     sucessos+=resultados.filter(Boolean).length;
-    renderizarGraficoFrequenciaEnvio(mesesDoRecorteAtual(),`Carregando frequencia de envio (${Math.min(i+tamanhoLote,unicos.length)}/${unicos.length} meses).`);
+    if(requisicaoAtual===requisicaoFrequenciaEnvio){
+      renderizarGraficoFrequenciaEnvio(mesesDoRecorteAtual(),`Carregando frequência de envio (${Math.min(i+tamanhoLote,unicos.length)}/${unicos.length} meses).`);
+    }
   }
   if(!sucessos) throw new Error('Nenhum mes retornou envios da API.');
 }
@@ -1901,7 +1928,7 @@ async function atualizarGraficoFrequenciaEnvio(){
   if(faltantes.length){
     try{
       setText('freq-evolucao-status',`Carregando frequência de envio do período (${faltantes.length} mês(es)).`);
-      await buscarFrequenciaEnvioPeriodo(faltantes);
+      await buscarFrequenciaEnvioPeriodo(faltantes,requisicaoAtual);
     }catch(error){
       faltantes.forEach(mes=>{
         const periodo=periodoMesParaFrequencia(mes,`${mes}-01`,fimDoMesISO(mes));
@@ -2801,7 +2828,7 @@ async function inicializarPainel(){
         renderGraficosPlanos();
         atualizarDiagnostico();
         renderGraficoBaseMoM();
-        renderizarGraficoFrequenciaEnvio(mesesDoRecorteAtual());
+        atualizarGraficoFrequenciaEnvio();
       })
       .catch(e => console.warn('insights:', e)),
 
