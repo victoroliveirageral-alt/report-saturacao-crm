@@ -1869,7 +1869,7 @@ async function buscarFrequenciaEnvioMes(mes){
   const params=new URLSearchParams({from:periodo.from,to:periodo.to});
   try{
     params.set('status','completed');
-    const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/frequencia-envio-push?${params}`,{timeoutMs:90000,cacheavel:false});
+    const dados=await fetchJSON(`${API_PAINEL_ORIGINAL}/api/frequencia-envio-push?${params}`,{timeoutMs:120000,cacheavel:false});
     if(!dados?.sucesso) throw new Error(dados?.erro || 'Frequencia de envio Push indisponivel.');
     const mensal=(dados.meses || []).find(item=>item.mes===mes) || {};
     const itemMes={
@@ -1902,7 +1902,9 @@ async function buscarFrequenciaEnvioMes(mes){
 async function buscarFrequenciaEnvioPeriodo(meses,requisicaoAtual){
   if(!meses.length) return;
   const unicos=[...new Set(meses)];
-  const tamanhoLote=3;
+  // A CleverTap costuma limitar consultas de relatório de mensagem em paralelo.
+  // Buscar mês a mês evita perder meses na curva por 429/502 temporário.
+  const tamanhoLote=1;
   let sucessos=0;
   for(let i=0;i<unicos.length;i+=tamanhoLote){
     const lote=unicos.slice(i,i+tamanhoLote);
