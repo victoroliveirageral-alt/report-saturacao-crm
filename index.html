@@ -622,7 +622,7 @@
       <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap;margin-bottom:14px">
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--laranja)"></i> Ativaram push</span>
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Desativaram push</span>
-        <span style="display:flex;align-items:center;gap:7px"><i class="legenda-linha"></i> Taxa de opt-out</span>
+        <span style="display:flex;align-items:center;gap:7px"><i class="legenda-linha"></i> Opt-out / base do recorte</span>
       </div>
       <div class="plano-grid">
         <div class="plano-bloco">
@@ -1184,15 +1184,21 @@ async function buscarInsightsMaisRecente(){
   return aplicarMTDmenos1(await fetchJSON(`${API_PAINEL_ORIGINAL}${API_INSIGHTS_PUSH}`));
 }
 function normalizarMensal(item){
+  const taxaMovimentos=Number(item.taxa_opt_out_movimentos ?? item.taxa_opt_out ?? 0);
+  const baseReferenciaAtual=Number(item.base_referencia_atual || 0);
+  const taxaBaseRaw=item.taxa_opt_out_base_atual;
+  const taxaBase=taxaBaseRaw == null ? NaN : Number(taxaBaseRaw);
+  const taxaOutBase=Number.isFinite(taxaBase) && baseReferenciaAtual>0 ? taxaBase : null;
   return {
     iso:item.mes,
     mes:rotuloMesGrafico(item.mes),
     optIn:Number(item.opt_in || 0),
     optOut:Number(item.opt_out || 0),
     taxaIn:Number(item.taxa_opt_in || 0),
-    taxaOut:Number(item.taxa_opt_out_base_atual ?? item.taxa_opt_out ?? 0),
-    taxaOutMovimentos:Number(item.taxa_opt_out_movimentos ?? item.taxa_opt_out ?? 0),
-    baseReferenciaAtual:Number(item.base_referencia_atual || 0)
+    taxaOut:taxaOutBase ?? taxaMovimentos,
+    taxaOutBase,
+    taxaOutMovimentos:taxaMovimentos,
+    baseReferenciaAtual
   };
 }
 function aplicarSerieMensal(destino,origem){
@@ -1307,7 +1313,8 @@ function recalcularSeriesRenderizadasSobreBaseAtual(){
     serie.forEach(item=>{
       item.taxaOutMovimentos=Number(item.taxaOutMovimentos ?? item.taxaOut ?? 0);
       item.baseReferenciaAtual=base;
-      item.taxaOut=pct(item.optOut,base);
+      item.taxaOutBase=pct(item.optOut,base);
+      item.taxaOut=item.taxaOutBase;
     });
   });
 }
@@ -1496,15 +1503,31 @@ function setRecorte(meses,btn){
 function periodoAtualTexto(){
   return periodoDoRecorte(recorteAtual).texto;
 }
+function taxaOutLinhaItem(item){
+  if(item?.taxaOutBase == null) return null;
+  const valor=Number(item.taxaOutBase);
+  return Number.isFinite(valor) && Number(item?.baseReferenciaAtual || 0)>0 ? valor : null;
+}
+function formatarTaxaOutLinha(item,precisao=2){
+  const taxa=taxaOutLinhaItem(item);
+  return taxa == null ? 'Aguardando base' : fmtPct(taxa,precisao);
+}
+function mediaTaxaOutLinha(serie){
+  const valores=(serie || []).map(taxaOutLinhaItem).filter(valor=>valor != null);
+  return valores.length ? valores.reduce((s,v)=>s+v,0)/valores.length : 0;
+}
 // ── GRÁFICO ─────────────────────────────────────────────────────────
 function renderLinhaOptOut(wrap,dados){
   if(!wrap || !dados.length) return;
   const maxTaxa=maxTaxaLinhaOptOut();
   const pontos=dados.map((d,i)=>{
+    const taxa=taxaOutLinhaItem(d);
+    if(taxa == null) return null;
     const x=dados.length===1 ? 50 : ((i+.5)/dados.length)*100;
-    const y=100-(Math.min(d.taxaOut,maxTaxa)/maxTaxa)*100;
-    return {x,y,d};
-  });
+    const y=100-(Math.min(taxa,maxTaxa)/maxTaxa)*100;
+    return {x,y,d,taxa};
+  }).filter(Boolean);
+  if(!pontos.length) return;
   const camada=document.createElement('div');
   camada.className='grafico-linha-optout';
   camada.innerHTML=`
@@ -1513,7 +1536,7 @@ function renderLinhaOptOut(wrap,dados){
     </svg>
     ${pontos.map(p=>`
       <span class="optout-ponto" style="left:${p.x}%;top:${p.y}%"></span>
-      <span class="optout-label" style="left:${p.x}%;top:${p.y}%">${fmtPct(p.d.taxaOut,1)}</span>
+      <span class="optout-label" style="left:${p.x}%;top:${p.y}%">${fmtPct(p.taxa,1)}</span>
     `).join('')}
   `;
   wrap.appendChild(camada);
@@ -1521,7 +1544,7 @@ function renderLinhaOptOut(wrap,dados){
 
 function maxTaxaLinhaOptOut(){
   const series=[MESES_TOTAL,MESES_FILIADO,MESES_OUTROS].flatMap(serie=>serie.slice(Math.max(0,serie.length-recorteAtual)));
-  const max=Math.max(0,...series.map(item=>Number(item.taxaOut || 0)));
+  const max=Math.max(0,...series.map(item=>taxaOutLinhaItem(item) ?? 0));
   return Math.max(5,Math.ceil((max*1.25)/5)*5);
 }
 
@@ -1546,7 +1569,7 @@ function renderGraficoDataset({dadosOrigem,wrapId,tituloBase,corIn}){
       document.getElementById('tt-in').textContent=fmt(d.optIn);
       document.getElementById('tt-out').textContent=fmt(d.optOut);
       document.getElementById('tt-total').textContent=fmt(d.optIn+d.optOut);
-      document.getElementById('tt-taxa').textContent=fmtPct(d.taxaOut);
+      document.getElementById('tt-taxa').textContent=formatarTaxaOutLinha(d);
       const linhaMov=document.getElementById('tt-linha-mov');
       if(d.taxaOutMovimentos!=null){
         document.getElementById('tt-taxa-mov').textContent=fmtPct(d.taxaOutMovimentos);
@@ -1957,12 +1980,12 @@ function atualizarDiagnostico(){
   const filiados=MESES_FILIADO.slice(Math.max(0,MESES_FILIADO.length-recorteAtual));
   const outros=MESES_OUTROS.slice(Math.max(0,MESES_OUTROS.length-recorteAtual));
   if(!filiados.length || !outros.length) return;
-  const mediaFiliados=filiados.reduce((s,d)=>s+d.taxaOut,0)/filiados.length;
-  const mediaOutros=outros.reduce((s,d)=>s+d.taxaOut,0)/outros.length;
   if(!reachabilityPronta()){
     atualizarNotaAumentoRecente();
     return;
   }
+  const mediaFiliados=mediaTaxaOutLinha(filiados);
+  const mediaOutros=mediaTaxaOutLinha(outros);
   const diff=mediaFiliados-mediaOutros;
   document.getElementById('texto-diagnostico').innerHTML=`No snapshot atual da base Push, Filiados estão com <strong>${fmtPct(snapshotAtual.filiado.taxaOut,2)}</strong> de opt-out e Outros com <strong>${fmtPct(snapshotAtual.outros.taxaOut,2)}</strong>. Na evolução mensal do recorte de ${recorteAtual} meses, a incidência média de opt-out dos Filiados sobre a base atual é <strong>${fmtPct(mediaFiliados)}</strong>, contra <strong>${fmtPct(mediaOutros)}</strong> em Outros — diferença de <strong>${fmtPp(diff)}</strong>. O gráfico mensal mede volumes de ativações/desativações no mês; os cards medem o estado atual da base.`;
   atualizarNotaAumentoRecente();
@@ -1972,9 +1995,13 @@ function atualizarNotaAumentoRecente(){
   const filiados=MESES_FILIADO.slice(-3);
   const outros=MESES_OUTROS.slice(-3);
   if(filiados.length<3 || outros.length<3) return;
+  if(!reachabilityPronta()){
+    setHTML('nota-aumento-recente',`⚠️ <strong>Meses recentes:</strong> aguardando o snapshot da base para calcular a linha opt-out/base do recorte.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code>. A linha só aparece quando a base com token do recorte está disponível, para não confundir opt-out/mês com opt-out/base.</span>`);
+    return;
+  }
   const meses=filiados.map(rotuloMesItemPeriodo).join(', ');
-  const taxasFiliados=filiados.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
-  const taxasOutros=outros.map(d=>`<strong>${fmtPct(d.taxaOut,2)}</strong>`).join(', ');
+  const taxasFiliados=filiados.map(d=>`<strong>${formatarTaxaOutLinha(d,2)}</strong>`).join(', ');
+  const taxasOutros=outros.map(d=>`<strong>${formatarTaxaOutLinha(d,2)}</strong>`).join(', ');
   setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na linha recalculada sobre base atual, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha usa opt-outs do mês sobre a base atual com token do recorte, com MTD-1 até ontem quando o mês está aberto.</span>`);
   const inicio=rotuloMesItemPeriodo(filiados[0]);
   const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
@@ -2044,9 +2071,9 @@ function atualizarInsightsFinais(contexto=contextoCriticosAtual){
   }
   const ultimos3=MESES_FILIADO.slice(-3);
   const anteriores3=MESES_FILIADO.slice(-6,-3);
-  const media12=mediaSerie(MESES_FILIADO);
-  const media3=mediaSerie(ultimos3);
-  const mediaAnterior3=mediaSerie(anteriores3);
+  const media12=mediaTaxaOutLinha(MESES_FILIADO);
+  const media3=mediaTaxaOutLinha(ultimos3);
+  const mediaAnterior3=mediaTaxaOutLinha(anteriores3);
   const variacaoRecente=mediaAnterior3 ? ((media3-mediaAnterior3)/mediaAnterior3)*100 : 0;
   const mesesRecentes=ultimos3.map(rotuloMesItemPeriodo).join(', ');
   const campanhas=variacaoComparacaoCriticos(contexto,'campanhas');
