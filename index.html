@@ -610,7 +610,7 @@
 
   <!-- EVOLUÇÃO MENSAL -->
   <div class="secao-titulo">Como a taxa de opt-out variou ao longo do tempo?</div>
-  <div class="secao-subtitulo">Cada barra mostra movimentos de permissão: usuários que ativaram e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. A linha mostra opt-outs do mês sobre a base atual com token do recorte. <strong class="dica-interacao">Passe o mouse sobre as barras para ver os detalhes.</strong></div>
+  <div class="secao-subtitulo">Cada barra mostra movimentos de permissão: usuários que ativaram e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. A linha mostra opt-outs do mês sobre a base atual com token do recorte. O último mês acompanha o mês vigente em MTD-1. <strong class="dica-interacao">Passe o mouse sobre as barras para ver os detalhes.</strong></div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -1008,8 +1008,9 @@ const MESES_API={
   nov25:{from:'2025-11-01',to:'2025-11-30'}
 };
 let requisicaoFreq=0;
-let mesSelecionadoAtual='2026-06';
-let periodoHistoricoAtual={from:'2025-07-01',to:'2026-06-30'};
+const PERIODO_MTD_INICIAL=periodoMTDmenos1();
+let mesSelecionadoAtual=PERIODO_MTD_INICIAL.month;
+let periodoHistoricoAtual={from:`${somarMesISO(PERIODO_MTD_INICIAL.month,-11)}-01`,to:PERIODO_MTD_INICIAL.to};
 let snapshotAtual={
   total:{base:0,optIn:0,optOut:0,taxaIn:0,taxaOut:0},
   filiado:{base:0,optIn:0,optOut:0,taxaIn:0,taxaOut:0,shareBase:0},
@@ -1215,15 +1216,18 @@ function atualizarMESESAPI(mensal,periodoAnalise){
   }
   const mtd=periodoMTDmenos1();
   const key=chaveMesISO(mtd.month);
-  if(MESES_API[key]) MESES_API[key]={from:mtd.from,to:mtd.to};
+  MESES_API[key]={from:mtd.from,to:mtd.to};
 }
 function atualizarSelectMeses(mensal,selecionadoISO){
-  const meses=[...(mensal || [])].map(item=>item.mes).filter(Boolean).reverse();
+  const selecionadoMes=String(selecionadoISO || periodoMTDmenos1().month || '').slice(0,7);
+  const mesesBase=[...(mensal || [])].map(item=>String(item.mes || '').slice(0,7)).filter(Boolean);
+  if(selecionadoMes && !mesesBase.includes(selecionadoMes)) mesesBase.push(selecionadoMes);
+  const meses=Array.from(new Set(mesesBase)).sort().reverse();
   ['freq-mes','sel-mes-criticos'].forEach(id=>{
     const select=document.getElementById(id);
     if(!select || !meses.length) return;
     select.innerHTML=meses.map(mes=>`<option value="${chaveMesISO(mes)}">${rotuloMesSelect(mes)}</option>`).join('');
-    const selecionado=chaveMesISO(selecionadoISO || meses[0]);
+    const selecionado=chaveMesISO(selecionadoMes || meses[0]);
     if([...select.options].some(option=>option.value===selecionado)) select.value=selecionado;
   });
 }
@@ -1252,10 +1256,17 @@ function somarDiarioMensal(diario,mesISO){
     taxa_opt_out_movimentos:pct(optOut,movimentos)
   };
 }
+function mesItemMensal(item){
+  return String(item?.mes || item?.iso || '').slice(0,7);
+}
 function substituirMensal(arrayMensal,novo){
   if(!novo || !Array.isArray(arrayMensal)) return;
-  const idx=arrayMensal.findIndex(item=>item.mes===novo.mes);
+  const mesNovo=mesItemMensal(novo);
+  if(!mesNovo) return;
+  const idx=arrayMensal.findIndex(item=>mesItemMensal(item)===mesNovo);
   if(idx>=0) arrayMensal[idx]={...arrayMensal[idx],...novo};
+  else arrayMensal.push(novo);
+  arrayMensal.sort((a,b)=>mesItemMensal(a).localeCompare(mesItemMensal(b)));
 }
 function baseSnapshotPorPublico(publico){
   if(publico==='total') return Number(snapshotAtual.total?.base || 0);
