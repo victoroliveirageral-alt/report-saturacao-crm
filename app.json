@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "Saturacao CRM - Executive Stories",
+    "slug": "saturacao-crm-executive-stories",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android", "web"],
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "extra": {
+      "apiBaseUrl": ""
+    }
+  }
+}

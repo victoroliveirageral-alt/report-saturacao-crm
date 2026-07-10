@@ -1,22 +1,55 @@
-# Painel Saturação CRM V2
+# Saturacao CRM - Executive Stories
 
-Este repositório contém a V2 do painel de saturação CRM. Ele deve ser publicado como um painel separado, sem alterar o painel original que já está em produção.
+App mobile-first em Expo + React Native Web que transforma os dados reais do painel de saturação CRM em stories executivos.
 
-## Publicação
+## Deploy no Render
 
-Serviço recomendado no Render:
+Use este diretório como raiz do serviço web.
 
-- Type: Static Site
-- Name: `report-saturacao-crm-v2`
-- Repository: `victoroliveirageral-alt/report-saturacao-crm`
-- Branch: `main`
-- Build Command: `echo "No build step"`
-- Publish Directory: `.`
+- Build command: `npm install && npm run build`
+- Start command: `npm start`
+- Runtime: Node 24+
 
-O arquivo `render.yaml` já deixa essa configuração versionada. A rota `/push-health` é reescrita para `/index.html` dentro do serviço V2.
+Variáveis recomendadas:
 
-## Ambiente atual
+- `SOURCE_PANEL_API=https://relatorio-campanhas-clevertap.onrender.com`
+- `PANEL_FALLBACK_URL=https://report-saturacao-crm.onrender.com/`
+- `OPENAI_API_KEY` opcional, para gerar briefing/perguntas com modelo e áudio.
+- `OPENAI_TEXT_MODEL` opcional, padrão `gpt-5-mini`.
+- `OPENAI_TTS_MODEL` opcional, padrão `gpt-4o-mini-tts`.
 
-A V2 também está publicada via GitHub Pages:
+O arquivo `render.yaml` já contém a configuração básica do serviço.
 
-https://victoroliveirageral-alt.github.io/report-saturacao-crm/
+## Comandos locais
+
+```bash
+npm install
+npm run build
+npm start
+```
+
+Depois abra `http://localhost:3000`.
+
+Para usar a porta local usada na validação:
+
+```powershell
+$env:PORT=4317
+npm start
+```
+
+## API exposta pelo app
+
+- `GET /api/metrics`: agrega dados reais de reachability, opt-out mensal, frequência diária e frequência de envio.
+- `POST /api/briefing`: retorna transcrição do briefing e, com `OPENAI_API_KEY`, tenta gerar áudio.
+- `POST /api/ask`: responde perguntas sobre a base usando os dados agregados.
+- `GET /api/health`: health check simples.
+
+## Validação
+
+Com o servidor local rodando:
+
+```bash
+npm run test:visual
+```
+
+O teste abre a página, valida o primeiro story, gera o briefing e consulta uma pergunta sugerida.

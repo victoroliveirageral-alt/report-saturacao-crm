@@ -1,17 +1,14 @@
 services:
   - type: web
-    name: report-saturacao-crm-v2
-    runtime: static
-    repo: https://github.com/victoroliveirageral-alt/report-saturacao-crm.git
-    branch: main
-    buildCommand: echo "No build step"
-    staticPublishPath: .
-    autoDeployTrigger: commit
-    headers:
-      - path: /*
-        name: Cache-Control
-        value: no-store
-    routes:
-      - type: rewrite
-        source: /push-health
-        destination: /index.html
+    name: saturacao-crm-executive-stories
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: SOURCE_PANEL_API
+        value: https://relatorio-campanhas-clevertap.onrender.com
+      - key: PANEL_FALLBACK_URL
+        value: https://report-saturacao-crm.onrender.com/

@@ -1,0 +1,33 @@
+﻿{
+    "name":  "saturacao-crm-executive-stories",
+    "version":  "1.0.0",
+    "private":  true,
+    "main":  "index.js",
+    "scripts":  {
+                    "start":  "node server/index.js",
+                    "dev":  "expo start --web",
+                    "build":  "expo export --platform web",
+                    "api":  "node server/index.js",
+                    "test:visual":  "npx playwright test tests/visual-smoke.spec.js --browser=chromium --reporter=line"
+                },
+    "dependencies":  {
+                         "@expo/metro-runtime":  "^57.0.3",
+                         "expo":  "^57.0.4",
+                         "expo-av":  "^16.0.8",
+                         "expo-status-bar":  "^57.0.0",
+                         "express":  "^5.1.0",
+                         "react":  "^19.2.7",
+                         "react-dom":  "^19.2.7",
+                         "react-native":  "^0.86.0",
+                         "react-native-safe-area-context":  "^5.8.0",
+                         "react-native-web":  "^0.21.2"
+                     },
+    "devDependencies":  {
+                            "@babel/core":  "^7.28.5",
+                            "@playwright/test":  "^1.61.1",
+                            "babel-preset-expo":  "^57.0.2"
+                        },
+    "engines":  {
+                    "node":  "\u003e=24"
+                }
+}
