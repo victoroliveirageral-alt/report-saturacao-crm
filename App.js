@@ -575,18 +575,72 @@ function BottomBar({ onBriefing, onAsk }) {
   );
 }
 
+function StoryControls({ current, total, paused, onPrev, onNext, onTogglePause }) {
+  const atStart = current === 0;
+  const atEnd = current === total - 1;
+
+  return (
+    <>
+      <View pointerEvents="box-none" style={styles.sideControls}>
+        <Pressable
+          accessibilityLabel="Voltar story"
+          accessibilityRole="button"
+          disabled={atStart}
+          hitSlop={12}
+          onPress={onPrev}
+          style={({ pressed }) => [
+            styles.storyNavButton,
+            atStart && styles.storyNavButtonDisabled,
+            pressed && !atStart && styles.pressed,
+          ]}
+        >
+          <Text allowFontScaling={false} style={[styles.storyNavIcon, atStart && styles.storyNavIconDisabled]}>
+            {'<'}
+          </Text>
+        </Pressable>
+        <Pressable
+          accessibilityLabel="Avancar story"
+          accessibilityRole="button"
+          disabled={atEnd}
+          hitSlop={12}
+          onPress={onNext}
+          style={({ pressed }) => [
+            styles.storyNavButton,
+            atEnd && styles.storyNavButtonDisabled,
+            pressed && !atEnd && styles.pressed,
+          ]}
+        >
+          <Text allowFontScaling={false} style={[styles.storyNavIcon, atEnd && styles.storyNavIconDisabled]}>
+            {'>'}
+          </Text>
+        </Pressable>
+      </View>
+      <Pressable
+        accessibilityLabel={paused ? 'Retomar story' : 'Pausar story'}
+        accessibilityRole="button"
+        hitSlop={10}
+        onPress={onTogglePause}
+        style={({ pressed }) => [styles.pauseButton, paused && styles.pauseButtonActive, pressed && styles.pressed]}
+      >
+        <Text allowFontScaling={false} style={[styles.pauseIcon, paused && styles.pauseIconActive]}>
+          {paused ? '>' : 'II'}
+        </Text>
+      </Pressable>
+    </>
+  );
+}
+
 function StoriesScreen({ metrics }) {
   const { compact, spaceScale } = useLayoutMetrics();
   const [current, setCurrent] = useState(0);
-  const [heldPaused, setHeldPaused] = useState(false);
+  const [userPaused, setUserPaused] = useState(false);
   const [briefingVisible, setBriefingVisible] = useState(false);
   const [askVisible, setAskVisible] = useState(false);
-  const longPressRef = useRef(false);
   const progressValue = useRef(0);
   const progress = useRef(new Animated.Value(0)).current;
   const cards = metrics.cards;
   const modalOpen = briefingVisible || askVisible;
-  const paused = heldPaused || modalOpen;
+  const paused = userPaused || modalOpen;
 
   useEffect(() => {
     const id = progress.addListener(({ value }) => {
@@ -633,27 +687,12 @@ function StoriesScreen({ metrics }) {
     animateFrom(progressValue.current);
   }, [animateFrom, paused, progress]);
 
-  const handlePress = (direction) => {
-    if (longPressRef.current) return;
-    if (direction === 'prev') goPrev();
-    if (direction === 'next') goNext();
-  };
-
-  const handleLongPress = () => {
-    longPressRef.current = true;
-    setHeldPaused(true);
-  };
-
-  const handlePressOut = () => {
-    if (!longPressRef.current) return;
-    setHeldPaused(false);
-    setTimeout(() => {
-      longPressRef.current = false;
-    }, 0);
-  };
+  const togglePause = useCallback(() => {
+    setUserPaused((value) => !value);
+  }, []);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, Platform.OS === 'web' && styles.webNoSelect]}>
       <View style={[styles.shell, { paddingHorizontal: Math.round(14 * spaceScale) }]}>
         <ProgressSegments cards={cards} current={current} progress={progress} />
         <TopBar report={metrics.report} />
@@ -661,22 +700,18 @@ function StoriesScreen({ metrics }) {
         <View style={styles.cardFrame}>
           <StoryCard card={cards[current]} compact={compact} />
           <View pointerEvents="box-none" style={styles.touchLayer}>
-            <Pressable
-              delayLongPress={220}
-              onLongPress={handleLongPress}
-              onPress={() => handlePress('prev')}
-              onPressOut={handlePressOut}
-              style={styles.touchLeft}
-            />
-            <Pressable
-              delayLongPress={220}
-              onLongPress={handleLongPress}
-              onPress={() => handlePress('next')}
-              onPressOut={handlePressOut}
-              style={styles.touchRight}
-            />
+            <Pressable onPress={goPrev} style={styles.touchLeft} />
+            <Pressable onPress={goNext} style={styles.touchRight} />
           </View>
-          {heldPaused ? (
+          <StoryControls
+            current={current}
+            total={cards.length}
+            paused={userPaused}
+            onPrev={goPrev}
+            onNext={goNext}
+            onTogglePause={togglePause}
+          />
+          {userPaused ? (
             <View style={styles.pausedTag}>
               <Text allowFontScaling={false} style={styles.pausedText}>
                 pausado
@@ -685,7 +720,7 @@ function StoriesScreen({ metrics }) {
           ) : null}
         </View>
 
-        {current === cards.length - 1 ? (
+        {false && current === cards.length - 1 ? (
           <Text allowFontScaling={false} style={styles.lastHint}>
             Toque à esquerda para voltar · à direita para avançar · segure para pausar
           </Text>
@@ -1066,6 +1101,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg,
     alignItems: 'center',
   },
+  webNoSelect: {
+    userSelect: 'none',
+  },
   shell: {
     flex: 1,
     width: '100%',
@@ -1164,9 +1202,11 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.bgElev,
     padding: 22,
+    paddingBottom: 68,
   },
   storyCardCompact: {
     padding: 16,
+    paddingBottom: 60,
     borderRadius: 22,
   },
   ambientGlow: {
@@ -1679,6 +1719,68 @@ const styles = StyleSheet.create({
   },
   touchRight: {
     flex: 1,
+  },
+  sideControls: {
+    position: 'absolute',
+    left: -8,
+    right: -8,
+    top: 0,
+    bottom: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  storyNavButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: alpha(colors.text, 0.22),
+    backgroundColor: alpha(colors.bg, 0.7),
+  },
+  storyNavButtonDisabled: {
+    opacity: 0.28,
+  },
+  storyNavIcon: {
+    color: colors.text,
+    fontSize: 24,
+    lineHeight: 26,
+    fontWeight: '900',
+  },
+  storyNavIconDisabled: {
+    color: colors.textDim,
+  },
+  pauseButton: {
+    position: 'absolute',
+    left: '50%',
+    bottom: 14,
+    width: 42,
+    height: 42,
+    marginLeft: -21,
+    borderRadius: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: alpha(colors.accent, 0.36),
+    backgroundColor: alpha(colors.bg, 0.78),
+  },
+  pauseButtonActive: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
+  pauseIcon: {
+    color: colors.text,
+    fontSize: 13,
+    lineHeight: 15,
+    fontWeight: '900',
+    letterSpacing: 0,
+  },
+  pauseIconActive: {
+    color: colors.bg,
+    fontSize: 18,
+    lineHeight: 20,
   },
   pausedTag: {
     position: 'absolute',
