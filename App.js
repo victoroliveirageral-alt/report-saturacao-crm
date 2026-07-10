@@ -575,9 +575,11 @@ function BottomBar({ onBriefing, onAsk }) {
   );
 }
 
-function StoryControls({ current, total, onPrev, onNext, onLongPress, onPressOut }) {
+function StoryControls({ current, total, paused, onPrev, onNext, onLongPress, onPressOut }) {
   const atStart = current === 0;
   const atEnd = current === total - 1;
+  const prevMuted = paused || atStart;
+  const nextMuted = paused || atEnd;
 
   return (
     <View pointerEvents="box-none" style={styles.sideControls}>
@@ -592,11 +594,11 @@ function StoryControls({ current, total, onPrev, onNext, onLongPress, onPressOut
         onPressOut={onPressOut}
         style={({ pressed }) => [
           styles.storyNavButton,
-          atStart && styles.storyNavButtonDisabled,
-          pressed && !atStart && styles.pressed,
+          prevMuted && styles.storyNavButtonDisabled,
+          pressed && !prevMuted && styles.pressed,
         ]}
       >
-        <Text allowFontScaling={false} style={[styles.storyNavIcon, atStart && styles.storyNavIconDisabled]}>
+        <Text allowFontScaling={false} style={[styles.storyNavIcon, prevMuted && styles.storyNavIconDisabled]}>
           {'<'}
         </Text>
       </Pressable>
@@ -611,11 +613,11 @@ function StoryControls({ current, total, onPrev, onNext, onLongPress, onPressOut
         onPressOut={onPressOut}
         style={({ pressed }) => [
           styles.storyNavButton,
-          atEnd && styles.storyNavButtonDisabled,
-          pressed && !atEnd && styles.pressed,
+          nextMuted && styles.storyNavButtonDisabled,
+          pressed && !nextMuted && styles.pressed,
         ]}
       >
-        <Text allowFontScaling={false} style={[styles.storyNavIcon, atEnd && styles.storyNavIconDisabled]}>
+        <Text allowFontScaling={false} style={[styles.storyNavIcon, nextMuted && styles.storyNavIconDisabled]}>
           {'>'}
         </Text>
       </Pressable>
@@ -730,6 +732,7 @@ function StoriesScreen({ metrics }) {
           <StoryControls
             current={current}
             total={cards.length}
+            paused={heldPaused}
             onPrev={() => handlePress('prev')}
             onNext={() => handlePress('next')}
             onLongPress={handleLongPress}
