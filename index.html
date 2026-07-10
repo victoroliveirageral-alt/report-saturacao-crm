@@ -54,7 +54,7 @@
     .saude-desc strong{color:var(--texto)}
     .secao-titulo{font-size:15px;font-weight:800;color:var(--verde-escuro);margin:28px 0 4px}
     .secao-subtitulo{font-size:11px;color:var(--texto-suave);margin-bottom:14px;line-height:1.5}
-    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+    .grid-3{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}
     .card{min-width:0;padding:18px;border:1px solid var(--borda);border-radius:12px;background:#f8fbfa}
     .card.verde{border-color:rgba(0,169,136,.25);background:rgba(0,169,136,.07)}
     .card.rosa{border-color:rgba(251,42,91,.2);background:rgba(251,42,91,.055)}
@@ -541,6 +541,11 @@
       <div class="card-label">Usuários que bloquearam o push (Opt-out)</div>
       <div class="card-valor"><span id="snapshot-optout">1.422.398</span> <span class="taxa" id="snapshot-optout-taxa">19,32%</span></div>
       <div class="card-detalhe"><code>has_token = true</code> e <code>MSG-push = false</code></div>
+    </div>
+    <div class="card azul">
+      <div class="card-label">Frequência de envio de push</div>
+      <div class="card-valor" id="snapshot-freq-push">—</div>
+      <div class="card-detalhe" id="snapshot-freq-push-detalhe">Carregando envios Push do período</div>
     </div>
   </div>
   <div class="nota-box info" style="margin-top:-6px;margin-bottom:20px">
@@ -1679,6 +1684,21 @@ function fmtFreqDelta(valor){
   const sinal=numero>0?'+':'';
   return `${sinal}${fmtFreq(numero)}`;
 }
+function atualizarCardFrequenciaEnvio(pontos=[],estado=''){
+  const valorEl=document.getElementById('snapshot-freq-push');
+  const detalheEl=document.getElementById('snapshot-freq-push-detalhe');
+  if(!valorEl || !detalheEl) return;
+  const validos=(pontos || []).filter(item=>!item.pendente && !item.erro && Number(item.frequencia || 0)>0);
+  if(!validos.length){
+    valorEl.textContent='—';
+    detalheEl.textContent=estado || 'Aguardando envios Push do período';
+    return;
+  }
+  const ultimo=validos[validos.length-1];
+  const media=validos.reduce((total,item)=>total+Number(item.frequencia || 0),0)/validos.length;
+  valorEl.textContent=`${fmtFreq(ultimo.frequencia)} push/dia`;
+  detalheEl.textContent=`${ultimo.rotulo || ultimo.mes}: ${fmt(ultimo.envios || 0)} envios Push · média ${fmtFreq(media)} no recorte`;
+}
 function formatarMoMFrequencia(atual,anterior){
   if(!anterior) return {texto:'sem mês anterior',classe:''};
   const diff=Number(atual.frequencia || 0)-Number(anterior.frequencia || 0);
@@ -1779,6 +1799,7 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   if(!mesesBase.length && (pendentes || baseAindaIndisponivel)){
     el.className='freq-line-chart carregando';
     limparMetricas();
+    atualizarCardFrequenciaEnvio([],baseAindaIndisponivel ? 'Aguardando base de usuários para calcular a frequência' : 'Carregando frequência de envio');
     el.innerHTML=`<div><div class="spinner" style="margin:0 auto 10px"></div>${escHTML(estado || (baseAindaIndisponivel ? 'Aguardando base de usuarios (reachability)...' : 'Carregando frequencia de envio...'))}</div>`;
     setText('freq-evolucao-status',baseAindaIndisponivel ? 'Envios ja carregados; aguardando a base de usuarios para calcular a frequencia por pessoa.' : 'A frequencia sera desenhada assim que pelo menos um mes terminar de carregar.');
     return;
@@ -1787,9 +1808,11 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
     el.className='freq-line-chart carregando';
     limparMetricas();
     if(falhasOcultas){
+      atualizarCardFrequenciaEnvio([],'Falha temporária ao consultar envios Push');
       el.innerHTML=`<div>Não foi possível consultar os envios agora.<br><span style="font-size:10px;color:var(--texto-suave)">Nova tentativa automática em instantes; meses com falha não são desenhados como zero.</span></div>`;
       setText('freq-evolucao-status','Falha temporária ao consultar a CleverTap; nova tentativa automática agendada.');
     }else{
+      atualizarCardFrequenciaEnvio([],'Sem meses disponíveis para o recorte atual');
       el.innerHTML='Sem meses disponíveis para o recorte atual.';
       setText('freq-evolucao-status','Aguardando dados mensais.');
     }
@@ -1798,6 +1821,7 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   if(baseAindaIndisponivel){
     el.className='freq-line-chart carregando';
     limparMetricas();
+    atualizarCardFrequenciaEnvio([],'Aguardando base de usuários para calcular a frequência');
     el.innerHTML=`<div><div class="spinner" style="margin:0 auto 10px"></div>${escHTML(estado || (baseAindaIndisponivel ? 'Aguardando base de usuários (reachability)...' : 'Carregando frequência de envio...'))}</div>`;
     setText('freq-evolucao-status',baseAindaIndisponivel ? 'Envios já carregados; aguardando a base de usuários pra calcular a frequência por pessoa.' : 'A frequência será desenhada assim que os meses terminarem de carregar.');
     return;
@@ -1810,6 +1834,7 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   if(itensCarregados.length>0 && itensComErro.length===itensCarregados.length){
     el.className='freq-line-chart carregando';
     limparMetricas();
+    atualizarCardFrequenciaEnvio([],'Falha temporária ao consultar envios Push');
     el.innerHTML=`<div>⚠️ Não foi possível consultar os envios agora (instabilidade na CleverTap).<br><span style="font-size:10px;color:var(--texto-suave)">Nova tentativa automática em instantes — isso NÃO significa envio zerado.</span></div>`;
     setText('freq-evolucao-status','Falha temporária ao consultar a CleverTap; nova tentativa automática agendada.');
     return;
@@ -1883,6 +1908,7 @@ function renderizarGraficoFrequenciaEnvio(meses=mesesDoRecorteAtual(),estado='')
   const carregados=mesesBase.filter(item=>!item.pendente && !item.erro).length;
   const falhas=falhasOcultas || 0;
   const pontosResumo=seriesComCoordenadas[0]?.pontos.filter(item=>!item.pendente && !item.erro) || [];
+  atualizarCardFrequenciaEnvio(pontosResumo);
   if(metricasEl){
     metricasEl.innerHTML=pontosResumo.map(item=>`
       <div class="freq-evolucao-metrica">
