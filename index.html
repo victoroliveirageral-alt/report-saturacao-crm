@@ -615,7 +615,7 @@
 
   <!-- EVOLUÇÃO MENSAL -->
   <div class="secao-titulo">Como a taxa de opt-out variou ao longo do tempo?</div>
-  <div class="secao-subtitulo">Cada barra mostra movimentos de permissão: usuários que ativaram e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. A linha mostra opt-outs do mês sobre a base atual com token do recorte. O último mês acompanha o mês vigente em MTD-1. <strong class="dica-interacao">Passe o mouse sobre as barras para ver os detalhes.</strong></div>
+  <div class="secao-subtitulo">Cada barra mostra movimentos de permissão: usuários que ativaram e os que <span style="color:var(--rosa);font-weight:800">desativaram</span> o push naquele mês. A linha mostra opt-outs do mês sobre a base atual opt-in do recorte (quem pode receber push). O último mês acompanha o mês vigente em MTD-1. <strong class="dica-interacao">Passe o mouse sobre as barras para ver os detalhes.</strong></div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -646,23 +646,23 @@
           <div class="grafico-outer"><div class="grafico-barras" id="grafico-nao-filiados"></div></div>
         </div>
       </div>
-      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha mostra opt-outs do mês sobre a base atual com token do recorte; não é mais opt-out dividido por movimentos.</span></div>
+      <div class="nota-box aviso" id="nota-aumento-recente" style="margin-top:14px">⚠️ <strong>Meses recentes:</strong> carregando leitura do último trimestre disponível.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam os eventos <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha mostra opt-outs do mês sobre a base atual opt-in do recorte (quem pode receber push); não é opt-out dividido por movimentos.</span></div>
     </div>
   </div>
 
   <!-- BASE MOM -->
   <div class="secao-titulo">A base Push cresceu ou diminuiu ao longo do tempo?</div>
-  <div class="secao-subtitulo">Evolução estimada da base com device token mês a mês. Permite entender se as análises de opt-out estão sendo feitas sobre uma base crescente, estável ou em retração.</div>
+  <div class="secao-subtitulo">Evolução estimada da base opt-in (quem pode receber push) mês a mês. Permite entender se as análises de opt-out estão sendo feitas sobre uma base crescente, estável ou em retração.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
-        <div class="painel-titulo">Evolução da base com token (MoM)</div>
-        <div class="painel-subtitulo">Base estimada de Filiados + Outros com pelo menos um device token ativo. Barras empilhadas: <span style="color:var(--verde);font-weight:800">opt-in</span> e <span style="color:var(--rosa);font-weight:800">opt-out</span> como proporção da base.</div>
+        <div class="painel-titulo">Evolução da base opt-in (MoM)</div>
+        <div class="painel-subtitulo">Base opt-in estimada de Filiados + Outros (<code>has_token</code> + <code>MSG-push = true</code>). Barras empilhadas: <span style="color:var(--verde);font-weight:800">opt-in</span> e <span style="color:var(--rosa);font-weight:800">opt-out</span> como proporção da base.</div>
       </div>
       <div style="display:flex;gap:14px;font-size:10px;font-weight:800;align-items:center;flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--verde)"></i> Opt-in</span>
         <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--rosa)"></i> Opt-out</span>
-        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--laranja)"></i> Base estimada</span>
+        <span style="display:flex;align-items:center;gap:5px"><i style="display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--laranja)"></i> Base opt-in estimada</span>
       </div>
     </div>
     <div class="conteudo">
@@ -671,15 +671,15 @@
       </div>
       <div id="grafico-base-mom-linha" style="margin-top:14px;overflow-x:auto"></div>
       <div class="nota-box info" style="margin-top:12px">
-        📌 <strong>Metodologia:</strong> A base mensal é estimada somando cumulativamente os opt-ins e subtraindo os opt-outs mês a mês, partindo do snapshot atual de <strong id="base-mom-snapshot">Filiados + Outros</strong>. Isso permite entender a tendência da base alcançável via Push dentro dos planos classificados.<br>
-        ⚠️ <strong>Limitação:</strong> A CleverTap não expõe o total da base com token em datas passadas via API — este cálculo é uma estimativa retroativa baseada nos movimentos mensais. O snapshot atual é o único ponto preciso; os meses anteriores são leitura direcional.
+        📌 <strong>Metodologia:</strong> A base mensal estimada agora é a base <strong>opt-in</strong> (ajuste Jul/26: quem já está em opt-out não recebe push). Estimativa retroativa: soma opt-ins e subtrai opt-outs mês a mês, partindo do snapshot atual de <strong id="base-mom-snapshot">Filiados + Outros</strong>.<br>
+        ⚠️ <strong>Limitação:</strong> A CleverTap não expõe o total da base em datas passadas via API — este cálculo é uma estimativa retroativa baseada nos movimentos mensais. O snapshot atual é o único ponto preciso; os meses anteriores são leitura direcional.
       </div>
     </div>
   </div>
 
   <!-- EVOLUÇÃO FREQUÊNCIA -->
   <div class="secao-titulo">Como a frequência de envio evoluiu?</div>
-  <div class="secao-subtitulo">Média mensal de pushes enviados por usuário com token por dia, usando a base Geral = Filiados + Outros. A API não expõe envios segmentados por <code>plan</code>, então não estimamos linhas separadas por público.</div>
+  <div class="secao-subtitulo">Média mensal de pushes enviados por usuário opt-in por dia (quem pode receber), usando a base Geral = Filiados + Outros. A API não expõe envios segmentados por <code>plan</code>, então não estimamos linhas separadas por público.</div>
   <div class="painel">
     <div class="painel-topo">
       <div>
@@ -898,7 +898,7 @@
 // Dados mensais segmentados por plan = filiado e Outros.
 // Fonte: painel original, endpoint /api/push-health-insights-v2.mensal_por_plano.
 // Importante: as barras são movimentos de permissão do mês; a linha usa
-// opt-outs do mês sobre a base atual com token do recorte.
+// opt-outs do mês sobre a base atual OPT-IN do recorte (#22: quem pode receber).
 const MESES_FILIADO = [
   {mes:'JUL 25',optIn:289718,optOut:106720,taxaOut:26.92},
   {mes:'AGO 25',optIn:321116,optOut:103226,taxaOut:24.33},
@@ -1279,11 +1279,28 @@ function baseSnapshotPorPublico(publico){
   if(publico==='outros') return Number(snapshotAtual.outros?.base || 0);
   return 0;
 }
+// =====================================================================================
+// AJUSTE 2026-07 #22 (decisão de metodologia do time): denominador das taxas e da
+// frequência de envio passa a ser a base OPT-IN (perfis com has_token=True E
+// MSG-push=True), não mais a base com token total. Racional: quem já está em
+// opt-out NÃO recebe push — então "opt-outs do mês sobre quem pode receber" e
+// "envios por usuário que recebe" são as leituras fiéis. A base com token continua
+// nos cards do Comparativo como retrato do estoque endereçável (lá faz sentido:
+// é de onde saem as frações de opt-in/opt-out).
+// =====================================================================================
+function baseOptInPorPublico(publico){
+  if(publico==='total') return Number(snapshotAtual.total?.optIn || 0);
+  if(publico==='filiado') return Number(snapshotAtual.filiado?.optIn || 0);
+  if(publico==='outros') return Number(snapshotAtual.outros?.optIn || 0);
+  return 0;
+}
 function baseFrequenciaEnvio(publico){
   if(publico==='geral_plan'){
-    return Number(snapshotAtual.filiado?.base || 0)+Number(snapshotAtual.outros?.base || 0);
+    // #22: envios só chegam a quem está opt-in — dividir pela base com token
+    // diluía a frequência (~22% a menos que o real sentido por quem recebe).
+    return Number(snapshotAtual.filiado?.optIn || 0)+Number(snapshotAtual.outros?.optIn || 0);
   }
-  return baseSnapshotPorPublico(publico);
+  return baseOptInPorPublico(publico);
 }
 function itemMensalPorISO(serie,iso){
   return (serie || []).find(item=>isoMesGraficoItem(item)===iso) || null;
@@ -1306,13 +1323,13 @@ function serieMensalGeralPlan(){
 }
 function aplicarTaxaBaseAtualMensal(item,publico){
   if(!item) return;
-  const base=baseSnapshotPorPublico(publico);
+  const base=baseOptInPorPublico(publico); // #22: taxa sobre quem PODE receber
   if(!base) return;
   item.taxa_opt_out_movimentos=Number(item.taxa_opt_out_movimentos ?? item.taxa_opt_out ?? 0);
   item.base_referencia_atual=base;
   item.taxa_opt_out_base_atual=pct(item.opt_out,base);
   item.taxa_opt_out=item.taxa_opt_out_base_atual;
-  item.metodologia_taxa_opt_out='opt_out_mensal_sobre_base_atual_com_token';
+  item.metodologia_taxa_opt_out='opt_out_mensal_sobre_base_atual_opt_in';
 }
 function recalcularTaxasDadosAPI(dados){
   if(!dados?.sucesso) return dados;
@@ -1324,7 +1341,7 @@ function recalcularTaxasDadosAPI(dados){
 }
 function recalcularSeriesRenderizadasSobreBaseAtual(){
   [['total',MESES_TOTAL],['filiado',MESES_FILIADO],['outros',MESES_OUTROS]].forEach(([publico,serie])=>{
-    const base=baseSnapshotPorPublico(publico);
+    const base=baseOptInPorPublico(publico); // #22: taxa sobre quem PODE receber
     if(!base) return;
     serie.forEach(item=>{
       item.taxaOutMovimentos=Number(item.taxaOutMovimentos ?? item.taxaOut ?? 0);
@@ -1422,7 +1439,7 @@ function atualizarSnapshotUI(){
   setText('benchmark-ctd-diff',fmtPp(total.taxaIn-RETAIL_OPT_IN_MEDIO,2));
   preencherGrupo('comp-filiado',snapshotAtual.filiado,'var(--verde)');
   preencherGrupo('comp-outros',snapshotAtual.outros,'var(--azul)');
-  setText('base-mom-snapshot',`${fmt(baseFrequenciaEnvio('geral_plan'))} usuários com token (Filiados + Outros)`);
+  setText('base-mom-snapshot',`${fmt(baseFrequenciaEnvio('geral_plan'))} usuários opt-in (Filiados + Outros)`);
   const diff=(snapshotAtual.filiado?.taxaOut || 0)-(snapshotAtual.outros?.taxaOut || 0);
   const direcao=diff>=0?'maior':'menor';
   setHTML('nota-comparativo-planos',`💡 <strong>O que isso significa?</strong> No estado atual da base, Filiados têm opt-out <strong>${fmtPp(Math.abs(diff),2)} ${direcao}</strong> que Outros (${fmtPct(snapshotAtual.filiado.taxaOut,2)} vs. ${fmtPct(snapshotAtual.outros.taxaOut,2)}). O cálculo usa segmentos diretos da CleverTap: <code>has_token = true</code> + <code>MSG-push = true/false</code>; Filiados adiciona <code>plan = filiado</code> e Outros soma <code>plan = freemium</code> + <code>plan = Pro</code>. Perfis sem <code>plan</code> ficam apenas no Total.`);
@@ -2049,13 +2066,13 @@ function atualizarNotaAumentoRecente(){
   const outros=MESES_OUTROS.slice(-3);
   if(filiados.length<3 || outros.length<3) return;
   if(!reachabilityPronta()){
-    setHTML('nota-aumento-recente',`⚠️ <strong>Meses recentes:</strong> aguardando o snapshot da base para calcular a linha opt-out/base do recorte.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code>. A linha só aparece quando a base com token do recorte está disponível, para não confundir opt-out/mês com opt-out/base.</span>`);
+    setHTML('nota-aumento-recente',`⚠️ <strong>Meses recentes:</strong> aguardando o snapshot da base para calcular a linha opt-out/base do recorte.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code>. A linha só aparece quando a base opt-in do recorte está disponível, para não confundir opt-out/mês com opt-out/base.</span>`);
     return;
   }
   const meses=filiados.map(rotuloMesItemPeriodo).join(', ');
   const taxasFiliados=filiados.map(d=>`<strong>${formatarTaxaOutLinha(d,2)}</strong>`).join(', ');
   const taxasOutros=outros.map(d=>`<strong>${formatarTaxaOutLinha(d,2)}</strong>`).join(', ');
-  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na linha recalculada sobre base atual, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha usa opt-outs do mês sobre a base atual com token do recorte, com MTD-1 até ontem quando o mês está aberto.</span>`);
+  setHTML('nota-aumento-recente',`⚠️ <strong>Últimos 3 meses disponíveis (${meses}):</strong> na linha recalculada sobre base atual, Filiados ficaram em ${taxasFiliados}, enquanto Outros ficaram em ${taxasOutros}.<br><span style="font-size:9px;color:var(--texto-suave);margin-top:4px;display:block">📌 <strong>Metodologia:</strong> as barras mensais usam <code>Channel Subscribed</code> e <code>Channel Unsubscribed</code> do endpoint <code>/api/push-health-insights-v2</code>. A linha usa opt-outs do mês sobre a base atual opt-in do recorte (quem pode receber push), com MTD-1 até ontem quando o mês está aberto.</span>`);
   const inicio=rotuloMesItemPeriodo(filiados[0]);
   const fim=rotuloMesItemPeriodo(filiados[filiados.length-1]);
   setText('insight-sazonalidade',`O aumento recente de opt-out em ${inicio}–${fim} deve ser lido junto do calendário de campanhas. O painel atualiza esse recorte automaticamente quando um novo mês fica disponível na API.`);
@@ -2597,7 +2614,7 @@ document.addEventListener('touchend',evento=>{ if(tocouForaDeTooltip(evento.targ
 
 
 // ── BASE MOM ─────────────────────────────────────────────────────────
-// Estima a base com token mês a mês retroativamente a partir do snapshot atual
+// Estima a base OPT-IN mês a mês retroativamente a partir do snapshot atual (#22)
 function calcularBaseMoM() {
   const baseAtual = baseFrequenciaEnvio('geral_plan'); // Filiados + Outros; perfis sem plan ficam fora desta leitura
   const series = serieMensalGeralPlan().reverse();
