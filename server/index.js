@@ -41,6 +41,10 @@ function fmtPercent(value, digits = 1) {
   return `${fmtNumber(value, digits)}%`;
 }
 
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function parseMonth(month) {
   const [year, monthIndex] = String(month).split('-').map(Number);
   return { year, monthIndex };
@@ -105,6 +109,52 @@ async function fetchPanelJson(pathname, options = {}) {
   }
 }
 
+async function fetchPanelJsonReady(pathname, options = {}) {
+  const attempts = options.attempts || 8;
+  let lastPayload = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    lastPayload = await fetchPanelJson(pathname, options);
+    if (!lastPayload?.processando) return lastPayload;
+
+    const waitSeconds = Math.min(30, Math.max(3, Number(lastPayload.aguarde_segundos || 8)));
+    if (attempt < attempts) await wait(waitSeconds * 1000);
+  }
+
+  throw new Error(
+    `Painel fonte ainda processando ${pathname}: ${lastPayload?.progresso || 'sem progresso informado'}.`,
+  );
+}
+
+function emptyReachabilitySegment() {
+  return {
+    base_com_token: 0,
+    perfis_opt_in: 0,
+    perfis_opt_out: 0,
+    taxa_opt_in: 0,
+    taxa_opt_out: 0,
+    share_base: 0,
+    share_opt_in: 0,
+    share_opt_out: 0,
+  };
+}
+
+function normalizeReachability(reachability) {
+  const segmentacao = reachability.segmentacao_plan || {};
+  return {
+    ...reachability,
+    segmentacao_plan: {
+      ...segmentacao,
+      filiado: segmentacao.filiado || emptyReachabilitySegment(),
+      outros: segmentacao.outros || emptyReachabilitySegment(),
+    },
+    metodologia: {
+      observacao: 'Opt-in e opt-out sao segmentos diretos da CleverTap; nao sao calculados como complemento.',
+      ...(reachability.metodologia || {}),
+    },
+  };
+}
+
 function getMonthlySeries(insights, plan = 'total') {
   const byPlan = insights?.mensal_por_plano?.[plan];
   const series = Array.isArray(byPlan) ? byPlan : insights?.mensal;
@@ -158,10 +208,11 @@ function makeObservation(reachability, series, stableMonth, pressure) {
 }
 
 async function buildMetrics() {
-  const [reachability, insights] = await Promise.all([
-    fetchPanelJson('/api/reachability-push', { timeoutMs: 120000 }),
-    fetchPanelJson('/api/push-health-insights-v2', { timeoutMs: 120000 }),
+  const [rawReachability, insights] = await Promise.all([
+    fetchPanelJsonReady('/api/reachability-push', { timeoutMs: 120000, attempts: 10 }),
+    fetchPanelJsonReady('/api/push-health-insights-v2', { timeoutMs: 120000, attempts: 8 }),
   ]);
+  const reachability = normalizeReachability(rawReachability);
 
   if (!reachability?.sucesso || !insights?.sucesso) {
     throw new Error('O painel fonte respondeu sem sucesso nos endpoints principais.');
@@ -172,13 +223,22 @@ async function buildMetrics() {
   const stableInsightsPromise =
     stableMonth === insights.mes_selecionado
       ? Promise.resolve(insights)
-      : fetchPanelJson(`/api/push-health-insights-v2?month=${encodeURIComponent(stableMonth)}`, { timeoutMs: 120000 });
+      : fetchPanelJsonReady(`/api/push-health-insights-v2?month=${encodeURIComponent(stableMonth)}`, {
+          timeoutMs: 120000,
+          attempts: 6,
+        });
   const from = `${stableMonth}-01`;
   const to = lastDayOfMonth(stableMonth);
 
   const [freqDailyResult, sendFreqResult, stableInsightsResult] = await Promise.allSettled([
-    fetchPanelJson(`/api/frequencia-diaria?month=${encodeURIComponent(stableMonth)}`, { timeoutMs: 120000 }),
-    fetchPanelJson(`/api/frequencia-envio-push?from=${from}&to=${to}&status=completed`, { timeoutMs: 120000 }),
+    fetchPanelJsonReady(`/api/frequencia-diaria?month=${encodeURIComponent(stableMonth)}`, {
+      timeoutMs: 120000,
+      attempts: 5,
+    }),
+    fetchPanelJsonReady(`/api/frequencia-envio-push?from=${from}&to=${to}&status=completed`, {
+      timeoutMs: 120000,
+      attempts: 5,
+    }),
     stableInsightsPromise,
   ]);
 
